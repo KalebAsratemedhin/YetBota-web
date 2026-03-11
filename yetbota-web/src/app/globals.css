@@ -45,6 +45,10 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Yet Bota brand — available as bg-brand, text-brand, border-brand, etc. */
+  --color-brand: #1aff6b;
+  --color-brand-dark: #00e05a;
 }
 
 :root {
@@ -122,5 +126,15 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }
