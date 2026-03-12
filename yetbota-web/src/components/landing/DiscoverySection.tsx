@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, Coffee, ShoppingBag, Trees, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useContent } from "@/lib/useContent";
 import { COFFEE_HOUSES, HIDDEN_MARKETS, LOCAL_PARKS, type Place } from "@/lib/dummydata";
@@ -60,19 +60,19 @@ function PlaceCardItem({ place, displayName, displayDescription, badgeLabel, isC
 }
 
 interface CategoryRowProps {
-  emoji: string;
   title: string;
   places: Place[];
+  icon: React.ReactNode;
   getPlaceName: (key: string) => string;
   getPlaceDesc: (key: string) => string;
   badgeLabels: { curated: string; communityContributed: string };
 }
 
-function CategoryRow({ emoji, title, places, getPlaceName, getPlaceDesc, badgeLabels }: CategoryRowProps) {
+function CategoryRow({ title, places, icon, getPlaceName, getPlaceDesc, badgeLabels }: CategoryRowProps) {
   return (
     <div className="mb-10">
       <div className="flex items-center mb-4">
-        <span className="text-base mr-2">{emoji}</span>
+        <span className="text-base mr-2">{icon}</span>
         <h3 className="text-white font-semibold text-sm md:text-base">{title}</h3>
         <div className="flex gap-1 ml-auto">
           <button className="w-7 h-7 rounded-full border border-white/15 flex items-center justify-center hover:border-white/40 hover:bg-white/5 transition-colors">
@@ -126,12 +126,30 @@ export default function DiscoverySection() {
           <h2 className="text-white text-xl md:text-2xl font-bold mb-1">{t.discovery.title}</h2>
           <p className="text-gray-500 text-sm">{t.discovery.subtitle}</p>
         </div>
-        <CategoryRow emoji="☕" title={t.discovery.categories.coffeeHouses} places={COFFEE_HOUSES}
-          getPlaceName={getPlaceName} getPlaceDesc={getPlaceDesc} badgeLabels={t.discovery.badges} />
-        <CategoryRow emoji="🛍️" title={t.discovery.categories.hiddenMarkets} places={HIDDEN_MARKETS}
-          getPlaceName={getPlaceName} getPlaceDesc={getPlaceDesc} badgeLabels={t.discovery.badges} />
-        <CategoryRow emoji="🌳" title={t.discovery.categories.localParks} places={LOCAL_PARKS}
-          getPlaceName={getPlaceName} getPlaceDesc={getPlaceDesc} badgeLabels={t.discovery.badges} />
+        <CategoryRow
+          icon={<Coffee className="w-4 h-4" />}
+          title={t.discovery.categories.coffeeHouses}
+          places={COFFEE_HOUSES}
+          getPlaceName={getPlaceName}
+          getPlaceDesc={getPlaceDesc}
+          badgeLabels={t.discovery.badges}
+        />
+        <CategoryRow
+          icon={<ShoppingBag className="w-4 h-4" />}
+          title={t.discovery.categories.hiddenMarkets}
+          places={HIDDEN_MARKETS}
+          getPlaceName={getPlaceName}
+          getPlaceDesc={getPlaceDesc}
+          badgeLabels={t.discovery.badges}
+        />
+        <CategoryRow
+          icon={<Trees className="w-4 h-4" />}
+          title={t.discovery.categories.localParks}
+          places={LOCAL_PARKS}
+          getPlaceName={getPlaceName}
+          getPlaceDesc={getPlaceDesc}
+          badgeLabels={t.discovery.badges}
+        />
         <div className="flex justify-center mt-8">
           <Button className="bg-[#1AFF6B] hover:bg-brand-dark text-black font-semibold rounded-full px-8 py-2.5 text-sm">
             {t.discovery.viewFeed} →

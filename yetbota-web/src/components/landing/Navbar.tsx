@@ -7,6 +7,7 @@ import { useContent } from "@/lib/useContent";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setLocale } from "@/store/localeSlice";
 import type { Locale } from "@/types/landing";
+import Image from "next/image";
 
 export default function Navbar() {
   const t = useContent();
@@ -44,11 +45,18 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <div className="w-8 h-8 bg-[#1AFF6B] rounded-lg flex items-center justify-center">
-              <MapPin className="w-4 h-4 text-black" strokeWidth={2.5} />
-            </div>
-            <span className="text-white font-bold text-base tracking-tight">Yet Bota</span>
-          </Link>
+  <Image
+    src="/images/logo.jpg"
+    alt="Yet Bota"
+    width={36}
+    height={36}
+    className="rounded-lg"
+  />
+
+  <span className="text-white font-bold text-lg tracking-tight">
+    Yet Bota
+  </span>
+</Link>
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-7">

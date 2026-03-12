@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { MapPin, Globe, Share2 } from "lucide-react";
 import { useContent } from "@/lib/useContent";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -25,11 +26,20 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-[#1AFF6B] rounded-lg flex items-center justify-center">
-                <MapPin className="w-4 h-4 text-black" strokeWidth={2.5} />
-              </div>
-              <span className="text-white font-bold text-lg">Yet Bota</span>
-            </div>
+  <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
+    <Image
+      src="/images/logo.jpg"
+      alt="Yet Bota"
+      width={22}
+      height={22}
+      className="rounded-sm"
+    />
+  </div>
+
+  <span className="text-white font-bold text-lg">
+    Yet Bota
+  </span>
+</div>
             <p className="text-gray-500 text-sm leading-relaxed mb-5 max-w-55">
               {t.footer.tagline}
             </p>

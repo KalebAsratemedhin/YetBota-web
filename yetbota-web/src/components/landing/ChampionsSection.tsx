@@ -1,5 +1,5 @@
 "use client";
-import { Trophy, ShieldCheck, Camera, MessageSquare } from "lucide-react";
+import { Trophy, ShieldCheck, Camera, MessageSquare, Star } from "lucide-react";
 import { useContent } from "@/lib/useContent";
 import { CHAMPIONS, type Champion } from "@/lib/dummydata";
 
@@ -53,7 +53,8 @@ function ChampionCard({ champion, index }: { champion: Champion; index: number }
 
       {/* Points pill */}
       <div className="flex items-center gap-1.5 bg-[#1a1a1a] border border-white/8 rounded-full px-3 py-1.5">
-        <span className="text-yellow-400 text-xs">⭐</span>
+        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400 shrink-0" />
+
         <span className="text-gray-300 text-xs font-semibold">{champion.points.toLocaleString()} pts</span>
       </div>
     </div>

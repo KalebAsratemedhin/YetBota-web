@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import AuthCard from "@/components/auth/AuthCard";
+import { ArrowRight } from "lucide-react";  
 
 export default function PhonePage() {
   const [phone, setPhone] = useState("");
@@ -27,7 +28,7 @@ export default function PhonePage() {
           <div className="flex gap-2">
             {/* Fixed Ethiopia prefix */}
             <div className="flex items-center gap-1.5 bg-[#1a1a1a] border border-white/8 rounded-xl px-3 h-12 text-white text-sm font-semibold select-none shrink-0">
-              <span>🇪🇹</span>
+              <span>Et</span>
               <span>+251</span>
             </div>
 
@@ -49,9 +50,10 @@ export default function PhonePage() {
         <Button
           type="submit"
           disabled={phone.length < 9}
-          className="w-full bg-[#1AFF6B] hover:bg-brand-dark disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold rounded-xl h-12 text-base"
+          className="w-full bg-[#1AFF6B] hover:bg-brand-dark disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold rounded-xl h-12 text-base inline-flex items-center gap-2"
         >
-          Send OTP ›
+          Send OTP
+          <ArrowRight className="w-4 h-4" />
         </Button>
       </form>
 
