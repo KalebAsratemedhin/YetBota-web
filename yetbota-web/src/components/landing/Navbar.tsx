@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { MapPin, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useContent } from "@/lib/useContent";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";

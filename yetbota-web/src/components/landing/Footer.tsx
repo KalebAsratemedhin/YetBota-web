@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Globe, Share2 } from "lucide-react";
+import { Globe, Share2 } from "lucide-react";
 import { useContent } from "@/lib/useContent";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setLocale } from "@/store/localeSlice";

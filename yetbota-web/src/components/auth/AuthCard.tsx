@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronLeft, MapPin } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 interface AuthCardProps {
   title: string;
   children: React.ReactNode;
