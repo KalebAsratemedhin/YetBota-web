@@ -48,7 +48,7 @@ export default function SignUpPage() {
 
         <Button
           type="submit"
-          className="w-full bg-[#1AFF6B] hover:bg-brand-dark text-black font-bold rounded-xl h-12 text-base mt-2"
+          className="w-full bg-brand hover:bg-brand-dark text-black font-bold rounded-xl h-12 text-base mt-2"
         >
           Sign Up
         </Button>
@@ -64,7 +64,7 @@ export default function SignUpPage() {
       {/* Phone CTA */}
       <Link href="/phone">
         <button className="w-full flex items-center justify-center gap-3 bg-[#141414] hover:bg-[#1c1c1c] border border-white/8 rounded-xl h-12 text-white text-sm font-semibold transition-colors">
-          <Phone className="w-4 h-4 text-[#1AFF6B]" />
+          <Phone className="w-4 h-4 text-brand" />
           Continue with Phone Number
         </button>
       </Link>
@@ -84,7 +84,7 @@ export default function SignUpPage() {
       {/* Footer */}
       <p className="text-center text-gray-600 text-xs my-4">
         Already have an account?{" "}
-        <Link href="/signin" className="text-[#1AFF6B] hover:text-brand-dark font-semibold transition-colors">
+        <Link href="/signin" className="text-brand hover:text-brand-dark font-semibold transition-colors">
           Sign In
         </Link>
       </p>

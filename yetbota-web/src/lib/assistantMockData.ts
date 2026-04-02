@@ -105,21 +105,21 @@ export function getMockResponse(userInput: string): MockResponse {
 
   if (input.includes("coffee") || input.includes("cafe") || input.includes("bunna")) {
     return {
-      text: `Our community members are currently loving <span class="text-[#1AFF6B] font-semibold">Green Bean Cafe</span>. It's just a 3-minute walk from the North entrance.`,
+      text: `Our community members are currently loving <span class="text-brand font-semibold">Green Bean Cafe</span>. It's just a 3-minute walk from the North entrance.`,
       placeCard: MOCK_PLACES.greenBeanCafe,
     };
   }
 
   if (input.includes("market") || input.includes("mercato") || input.includes("shola")) {
     return {
-      text: `<span class="text-[#1AFF6B] font-semibold">Shola Traditional Market</span> is one of the highest-rated spots in the community right now. Great for local textiles and fresh produce!`,
+      text: `<span class="text-brand font-semibold">Shola Traditional Market</span> is one of the highest-rated spots in the community right now. Great for local textiles and fresh produce!`,
       placeCard: MOCK_PLACES.sholaMarket,
     };
   }
 
   if (input.includes("tomoca") || input.includes("piazza")) {
     return {
-      text: `<span class="text-[#1AFF6B] font-semibold">Tomoca Coffee – Piazza</span> is Ethiopia's most iconic coffee house. Community members say it's a must-visit, especially in the mornings.`,
+      text: `<span class="text-brand font-semibold">Tomoca Coffee – Piazza</span> is Ethiopia's most iconic coffee house. Community members say it's a must-visit, especially in the mornings.`,
       placeCard: MOCK_PLACES.tomocaCoffee,
     };
   }

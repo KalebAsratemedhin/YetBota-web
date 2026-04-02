@@ -26,7 +26,7 @@ export default function AssistantPlaceCard({ place }: { place: PlaceCard }) {
             <span className="text-gray-500 text-xs">• {place.reviewCount} reviews</span>
           </div>
           <div className="flex items-center gap-1.5 mt-1">
-            <span className={`text-xs font-semibold ${place.isOpen ? "text-[#1AFF6B]" : "text-red-400"}`}>
+            <span className={`text-xs font-semibold ${place.isOpen ? "text-brand" : "text-red-400"}`}>
               {place.isOpen ? "Open now" : "Closed"}
             </span>
             <span className="text-gray-600 text-xs">• {place.distance}</span>
@@ -34,7 +34,7 @@ export default function AssistantPlaceCard({ place }: { place: PlaceCard }) {
         </div>
         <a
           href={place.profileUrl}
-          className="text-[#1AFF6B] text-xs font-bold uppercase tracking-wider hover:text-brand-dark transition-colors mt-1"
+          className="text-brand text-xs font-bold uppercase tracking-wider hover:text-brand-dark transition-colors mt-1"
         >
           View Profile
         </a>

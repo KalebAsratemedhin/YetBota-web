@@ -76,7 +76,7 @@ export default function AssistantPage() {
         {/* Top bar */}
         <div className="flex items-center justify-between px-6 py-3.5 border-b border-white/5 bg-[#090909] shrink-0">
           <div className="flex items-center gap-2">
-            <Circle className="w-2.5 h-2.5 fill-[#1AFF6B] text-[#1AFF6B]" />
+            <Circle className="w-2.5 h-2.5 fill-brand text-brand" />
             <span className="text-white text-sm font-semibold">Assistant Online</span>
           </div>
 
@@ -122,12 +122,12 @@ export default function AssistantPage() {
           {/* Typing indicator */}
           {isTyping && (
             <div className="flex items-start gap-3 mb-6">
-              <div className="w-9 h-9 bg-[#1AFF6B]/15 border border-[#1AFF6B]/30 rounded-xl flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 bg-brand/15 border border-brand/30 rounded-xl flex items-center justify-center shrink-0">
                 <div className="w-4 h-4 flex items-center justify-center gap-0.5">
                   {[0, 1, 2].map((i) => (
                     <span
                       key={i}
-                      className="w-1 h-1 bg-[#1AFF6B] rounded-full animate-bounce"
+                      className="w-1 h-1 bg-brand rounded-full animate-bounce"
                       style={{ animationDelay: `${i * 150}ms` }}
                     />
                   ))}

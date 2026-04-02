@@ -25,7 +25,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   };
 
   return (
-    <div className="flex items-end gap-3 bg-[#111111] border border-white/8 rounded-2xl px-4 py-3 focus-within:border-[#1AFF6B]/30 transition-colors">
+    <div className="flex items-end gap-3 bg-[#111111] border border-white/8 rounded-2xl px-4 py-3 focus-within:border-brand/30 transition-colors">
       <button className="text-gray-600 hover:text-gray-400 transition-colors mb-1.5 shrink-0">
         <Paperclip className="w-4 h-4 -rotate-45" />
       </button>
@@ -44,7 +44,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
       <button
         onClick={handleSend}
         disabled={!value.trim() || disabled}
-        className="w-9 h-9 bg-[#1AFF6B] hover:bg-brand-dark disabled:opacity-30 disabled:cursor-not-allowed rounded-lg flex items-center justify-center shrink-0 transition-colors"
+        className="w-9 h-9 bg-brand hover:bg-brand-dark disabled:opacity-30 disabled:cursor-not-allowed rounded-lg flex items-center justify-center shrink-0 transition-colors"
       >
         <Send className="w-5 h-5 text-black rotate-45 mr-0.5" />
       </button>

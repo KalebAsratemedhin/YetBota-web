@@ -45,7 +45,7 @@ export default function AssistantSidebar({ activeChat, onSelectChat, user }: Sid
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-0.5",
                 item.active
-                  ? "bg-[#1AFF6B]/15 text-[#1AFF6B]"
+                  ? "bg-brand/15 text-brand"
                   : "text-gray-400 hover:text-white hover:bg-white/5"
               )}
             >
@@ -69,13 +69,13 @@ export default function AssistantSidebar({ activeChat, onSelectChat, user }: Sid
               className={cn(
                 "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-sm transition-colors",
                 activeChat === chat.id
-                  ? "bg-[#1AFF6B]/10 text-white border border-[#1AFF6B]/20"
+                  ? "bg-brand/10 text-white border border-brand/20"
                   : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
               )}
             >
               <div className={cn(
                 "w-2 h-2 rounded-sm shrink-0",
-                activeChat === chat.id ? "bg-[#1AFF6B]" : "bg-gray-700"
+                activeChat === chat.id ? "bg-brand" : "bg-gray-700"
               )} />
               <span className="truncate text-xs">{chat.title}</span>
             </button>
@@ -90,7 +90,7 @@ export default function AssistantSidebar({ activeChat, onSelectChat, user }: Sid
           {SUGGESTED_TOPICS.map((topic) => (
             <button
               key={topic.id}
-              className="text-[10px] text-gray-500 hover:text-[#1AFF6B] bg-white/5 hover:bg-[#1AFF6B]/10 border border-white/8 hover:border-[#1AFF6B]/30 px-2.5 py-1 rounded-full transition-colors"
+              className="text-[10px] text-gray-500 hover:text-brand bg-white/5 hover:bg-brand/10 border border-white/8 hover:border-brand/30 px-2.5 py-1 rounded-full transition-colors"
             >
               {topic.label}
             </button>
@@ -101,7 +101,7 @@ export default function AssistantSidebar({ activeChat, onSelectChat, user }: Sid
       {/* User profile footer */}
       <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-[#1AFF6B] rounded-full flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 bg-brand rounded-full flex items-center justify-center shrink-0">
             <span className="text-black text-xs font-bold">
               {user.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
             </span>

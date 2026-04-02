@@ -20,9 +20,9 @@ export default function QuickActions({ onSelect }: QuickActionsProps) {
           <button
             key={action.id}
             onClick={() => onSelect(action.label)}
-            className="flex items-center gap-1.5 bg-[#161616] hover:bg-[#1a1a1a] border border-white/8 hover:border-[#1AFF6B]/30 text-gray-400 hover:text-white text-xs font-semibold px-4 py-2 rounded-full transition-all"
+            className="flex items-center gap-1.5 bg-[#161616] hover:bg-[#1a1a1a] border border-white/8 hover:border-brand/30 text-gray-400 hover:text-white text-xs font-semibold px-4 py-2 rounded-full transition-all"
           >
-            <Icon className="w-3.5 h-3.5 text-[#1AFF6B]" />
+            <Icon className="w-3.5 h-3.5 text-brand" />
             {action.label}
           </button>
         );

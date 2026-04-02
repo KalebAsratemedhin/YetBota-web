@@ -75,7 +75,7 @@ export default function Navbar() {
               {t.nav.signIn}
             </Link>
             <Button size="sm" asChild
-              className="bg-[#1AFF6B] hover:bg-brand-dark text-black font-semibold rounded-full px-5 text-sm h-8">
+              className="bg-brand hover:bg-brand-dark text-black font-semibold rounded-full px-5 text-sm h-8">
               <Link href="/signup">{t.nav.joinCommunity}</Link>
             </Button>
           </div>
@@ -111,7 +111,7 @@ export default function Navbar() {
               </Link>
             ))}
           </nav>
-          <Button asChild className="bg-[#1AFF6B] hover:bg-brand-dark text-black font-semibold rounded-xl w-full h-10 text-sm">
+          <Button asChild className="bg-brand hover:bg-brand-dark text-black font-semibold rounded-xl w-full h-10 text-sm">
             <Link href="/signup" onClick={() => setMobileOpen(false)}>
               {t.nav.joinCommunity}
             </Link>

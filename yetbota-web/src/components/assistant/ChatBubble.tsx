@@ -16,12 +16,12 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
       <div className="flex justify-end items-start gap-2.5 mb-6">
         <div className="max-w-[70%]">
           <p className="text-[10px] text-gray-500 uppercase tracking-widest text-right mb-1.5">You</p>
-          <div className="bg-[#1AFF6B] text-black rounded-2xl rounded-tr-sm px-4 py-3">
+          <div className="bg-brand text-black rounded-2xl rounded-tr-sm px-4 py-3">
             <p className="text-sm font-medium leading-relaxed">{message.text}</p>
           </div>
         </div>
         {/* User avatar */}
-        <div className="w-8 h-8 bg-[#1AFF6B] rounded-full flex items-center justify-center shrink-0 mt-5">
+        <div className="w-8 h-8 bg-brand rounded-full flex items-center justify-center shrink-0 mt-5">
           <span className="text-black text-xs font-bold">A</span>
         </div>
       </div>
@@ -57,7 +57,7 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
             onClick={() => setFeedback("up")}
             className={`p-1.5 rounded-lg transition-colors ${
               feedback === "up"
-                ? "text-[#1AFF6B] bg-[#1AFF6B]/10"
+                ? "text-brand bg-brand/10"
                 : "text-gray-600 hover:text-gray-400 hover:bg-white/5"
             }`}
           >

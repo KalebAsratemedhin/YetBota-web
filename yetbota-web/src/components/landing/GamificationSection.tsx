@@ -11,7 +11,7 @@ export default function GamificationSection() {
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Text */}
         <div>
-          <p className="text-[#1AFF6B] text-xs font-bold uppercase tracking-widest mb-4">
+          <p className="text-brand text-xs font-bold uppercase tracking-widest mb-4">
             {t.gamification.badge}
           </p>
           <h2 className="text-white text-4xl md:text-5xl font-extrabold leading-tight mb-6">
@@ -26,7 +26,7 @@ export default function GamificationSection() {
             {t.gamification.badges.map((b) => (
               <Badge
                 key={b}
-                className="bg-[#1a1a1a] border border-white/10 text-gray-300 text-xs px-4 py-1.5 rounded-full hover:border-[#1AFF6B]/40 hover:text-white transition-colors cursor-default"
+                className="bg-[#1a1a1a] border border-white/10 text-gray-300 text-xs px-4 py-1.5 rounded-full hover:border-brand/40 hover:text-white transition-colors cursor-default"
               >
                 {b}
               </Badge>
@@ -39,7 +39,7 @@ export default function GamificationSection() {
           <div className="grid grid-cols-2 gap-4">
             {/* Current level */}
             <div className="bg-[#0a0a0a] rounded-2xl p-5 flex flex-col items-center text-center">
-              <Trophy className="w-8 h-8 text-[#1AFF6B] mb-3" />
+              <Trophy className="w-8 h-8 text-brand mb-3" />
               <p className="text-white font-bold text-base mb-1">{t.gamification.levels.current}</p>
               <p className="text-gray-500 text-sm">{t.gamification.levels.currentXp}</p>
             </div>
@@ -51,7 +51,7 @@ export default function GamificationSection() {
               {/* Progress bar */}
               <div className="w-full bg-[#1e1e1e] rounded-full h-1.5">
                 <div
-                  className="h-1.5 rounded-full bg-[#1AFF6B]"
+                  className="h-1.5 rounded-full bg-brand"
                   style={{ width: "72%" }}
                 />
               </div>

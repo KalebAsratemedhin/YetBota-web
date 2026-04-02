@@ -28,7 +28,7 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
             type={isPassword && showPassword ? "text" : type}
             className={cn(
               "w-full bg-[#1a1a1a] border border-white/8 rounded-xl px-4 py-3 text-white placeholder-gray-600 text-sm outline-none",
-              "focus:border-[#1AFF6B]/50 focus:ring-1 focus:ring-[#1AFF6B]/20 transition-all",
+              "focus:border-brand/50 focus:ring-1 focus:ring-brand/20 transition-all",
               isPassword && "pr-11",
               error && "border-red-500/50",
               className
