@@ -11,7 +11,7 @@ export default function NavigationSection() {
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Text */}
         <div>
-          <p className="text-[#1AFF6B] text-xs font-bold uppercase tracking-widest mb-4">
+          <p className="text-brand text-xs font-bold uppercase tracking-widest mb-4">
             {t.navigation.badge}
           </p>
           <h2 className="text-white text-4xl md:text-5xl font-extrabold leading-tight mb-6">
@@ -23,7 +23,7 @@ export default function NavigationSection() {
           <ul className="space-y-3">
             {t.navigation.features.map((feature, i) => (
               <li key={i} className="flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#1AFF6B] shrink-0" />
+                <CheckCircle2 className="w-5 h-5 text-brand shrink-0" />
                 <span className="text-gray-300 text-sm">{feature}</span>
               </li>
             ))}
