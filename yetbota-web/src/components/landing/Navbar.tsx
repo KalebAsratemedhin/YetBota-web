@@ -45,18 +45,18 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">
-  <Image
-    src="/images/logo.jpg"
-    alt="Yet Bota"
-    width={36}
-    height={36}
-    className="rounded-lg"
-  />
+            <Image
+              src="/images/logo.jpg"
+              alt="Yet Bota"
+              width={36}
+              height={36}
+              className="rounded-lg"
+            />
 
-  <span className="text-white font-bold text-lg tracking-tight">
-    Yet Bota
-  </span>
-</Link>
+            <span className="text-white font-bold text-lg tracking-tight">
+              Yet Bota
+            </span>
+          </Link>
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-7">

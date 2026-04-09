@@ -1,8 +1,9 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
-  Home, Compass, MessageSquare, Sparkles, User, Settings, MapPin,
+  Home, Compass, MessageSquare, Sparkles, User, Settings
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -36,9 +37,13 @@ export default function AppSidebar({ user, children, title = "Yet Bota" }: AppSi
 
       {/* Logo */}
       <div className="px-4 py-4 border-b border-white/5 flex items-center gap-2 shrink-0">
-        <div className="w-8 h-8 bg-brand rounded-lg flex items-center justify-center shrink-0">
-          <MapPin className="w-4 h-4 text-black" strokeWidth={2.5} />
-        </div>
+        <Image
+                      src="/images/logo.jpg"
+                      alt="Yet Bota"
+                      width={36}
+                      height={36}
+                      className="rounded-lg"
+                    />
         <span className="text-white font-bold text-sm">{title}</span>
       </div>
 

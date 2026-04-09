@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { Home, Compass, MessageSquare, User, Settings, MapPin, Sparkles } from "lucide-react";
+import Image from "next/image";
+import { Home, Compass, MessageSquare, User, Settings, Sparkles } from "lucide-react";
 import { RECENT_CHATS, SUGGESTED_TOPICS, type RecentChat } from "@/lib/assistantMockData";
 import { cn } from "@/lib/utils";
 
@@ -24,9 +25,13 @@ export default function AssistantSidebar({ activeChat, onSelectChat, user }: Sid
 
       {/* Logo */}
       <div className="px-5 py-4 border-b border-white/5 flex items-center gap-2.5">
-        <div className="w-9 h-9 bg-brand rounded-xl flex items-center justify-center shrink-0">
-          <MapPin className="w-4 h-4 text-black" strokeWidth={2.5} />
-        </div>
+        <Image
+                      src="/images/logo.jpg"
+                      alt="Yet Bota"
+                      width={36}
+                      height={36}
+                      className="rounded-lg"
+                    />
         <span className="text-white font-bold text-sm leading-tight">Yet Bota AI</span>
       </div>
 
