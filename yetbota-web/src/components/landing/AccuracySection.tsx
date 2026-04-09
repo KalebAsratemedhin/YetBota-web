@@ -22,7 +22,7 @@ export default function AccuracySection() {
           </div>
           {/* Verified badge overlay */}
           <div className="absolute bottom-4 left-4 bg-[#111111]/95 border border-white/10 rounded-2xl px-4 py-3 flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#22C55E] rounded-full flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 bg-brand rounded-full flex items-center justify-center shrink-0">
               <ShieldCheck className="w-4 h-4 text-black" />
             </div>
             <div>
@@ -34,7 +34,7 @@ export default function AccuracySection() {
 
         {/* Text */}
         <div>
-          <p className="text-[#22C55E] text-xs font-bold uppercase tracking-widest mb-4">
+          <p className="text-brand text-xs font-bold uppercase tracking-widest mb-4">
             {t.accuracy.badge}
           </p>
           <h2 className="text-white text-4xl md:text-5xl font-extrabold leading-tight mb-6">
@@ -47,7 +47,7 @@ export default function AccuracySection() {
           {/* Stats */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-[#111111] border border-white/5 rounded-2xl p-5">
-              <p className="text-[#22C55E] text-3xl font-extrabold mb-1">
+              <p className="text-brand text-3xl font-extrabold mb-1">
                 {t.accuracy.stats.verifiedSpots}
               </p>
               <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
@@ -55,7 +55,7 @@ export default function AccuracySection() {
               </p>
             </div>
             <div className="bg-[#111111] border border-white/5 rounded-2xl p-5">
-              <p className="text-[#22C55E] text-3xl font-extrabold mb-1">
+              <p className="text-brand text-3xl font-extrabold mb-1">
                 {t.accuracy.stats.communityLed}
               </p>
               <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider">
