@@ -28,10 +28,10 @@ export default function PrinciplesSection() {
             return (
               <div
                 key={item.id}
-                className="bg-[#111111] border border-white/5 rounded-3xl p-6 hover:border-[#1AFF6B]/20 transition-colors group"
+                className="bg-[#111111] border border-white/5 rounded-3xl p-6 hover:border-brand/20 transition-colors group"
               >
-                <div className="w-12 h-12 bg-[#1AFF6B]/10 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-[#1AFF6B]/20 transition-colors">
-                  <Icon className="w-6 h-6 text-[#1AFF6B]" />
+                <div className="w-12 h-12 bg-brand/10 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-brand/20 transition-colors">
+                  <Icon className="w-6 h-6 text-brand" />
                 </div>
                 <h3 className="text-white font-bold text-base mb-3">{item.title}</h3>
                 <p className="text-gray-500 text-sm leading-relaxed">{item.description}</p>
