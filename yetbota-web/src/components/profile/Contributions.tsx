@@ -6,22 +6,23 @@ import { CONTRIBUTIONS, CATEGORY_COLORS, type Contribution } from "@/lib/profile
 function ContributionCard({ item }: { item: Contribution }) {
   const categoryColor = CATEGORY_COLORS[item.category] ?? "bg-gray-700/80";
   return (
-    <div className="relative rounded-xl overflow-hidden bg-[#161616] border border-white/5 group cursor-pointer hover:border-white/20 transition-colors">
-      <div className="relative h-28 w-full overflow-hidden">
+    <div className="relative rounded-xl overflow-hidden bg-[#161616] border border-white/5 group cursor-pointer hover:border-white/15 transition-colors flex flex-col">
+      {/* Image */}
+      <div className="relative flex-1 overflow-hidden min-h-0">
         <Image
           src={item.imageUrl}
           alt={item.name}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-500"
-          sizes="25vw"
         />
-        <span className={`absolute top-1.5 right-1.5 z-10 text-[8px] font-bold uppercase tracking-wider text-white px-1.5 py-0.5 rounded-full ${categoryColor}`}>
+        <span className={`absolute top-2 right-2 z-10 text-[8px] font-bold uppercase tracking-wider text-white px-2 py-0.5 rounded-full ${categoryColor}`}>
           {item.category}
         </span>
       </div>
-      <div className="p-2.5">
-        <p className="text-white text-xs font-semibold mb-0.5 truncate">{item.name}</p>
-        <div className="flex items-center gap-1 mb-1.5">
+      {/* Info below image */}
+      <div className="p-2.5 shrink-0 bg-[#111111]">
+        <p className="text-white text-xs font-semibold truncate mb-0.5">{item.name}</p>
+        <div className="flex items-center gap-1 mb-1">
           <MapPin className="w-2.5 h-2.5 text-gray-600 shrink-0" />
           <span className="text-gray-500 text-[10px] truncate">{item.location}</span>
         </div>
@@ -40,8 +41,9 @@ function ContributionCard({ item }: { item: Contribution }) {
 
 export default function ContributionsGrid() {
   return (
-    <div className="bg-[#111111] border border-white/5 rounded-2xl p-4 flex-1 overflow-hidden flex flex-col">
-      <div className="flex items-center justify-between mb-3 shrink-0">
+    <div className="bg-[#111111] border border-white/5 rounded-2xl p-3 flex-1 overflow-hidden flex flex-col min-h-0">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2.5 shrink-0">
         <div className="flex items-center gap-2">
           <div className="grid grid-cols-2 gap-0.5">
             {[...Array(4)].map((_, i) => (
@@ -50,8 +52,8 @@ export default function ContributionsGrid() {
           </div>
           <h3 className="text-white font-semibold text-sm">Your Contributions</h3>
         </div>
-        <div className="flex items-center gap-2">
-          <button className="w-7 h-7 flex items-center justify-center border border-white/10 rounded-lg hover:border-white/25 hover:bg-white/5 transition-colors">
+        <div className="flex items-center gap-1.5">
+          <button className="w-7 h-7 flex items-center justify-center border border-white/10 rounded-lg hover:bg-white/5 transition-colors">
             <SlidersHorizontal className="w-3 h-3 text-gray-400" />
           </button>
           <button className="w-7 h-7 bg-brand hover:bg-[#16a34a] rounded-full flex items-center justify-center transition-colors">
@@ -59,8 +61,9 @@ export default function ContributionsGrid() {
           </button>
         </div>
       </div>
-      {/* 2x2 grid — only show 4 contributions */}
-      <div className="grid grid-cols-2 gap-2 flex-1 overflow-hidden">
+
+      {/* 2×2 grid filling remaining height */}
+      <div className="grid grid-cols-2 grid-rows-2 gap-2 flex-1 min-h-0">
         {CONTRIBUTIONS.slice(0, 4).map((item) => (
           <ContributionCard key={item.id} item={item} />
         ))}

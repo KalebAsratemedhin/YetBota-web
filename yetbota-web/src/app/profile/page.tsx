@@ -13,22 +13,24 @@ export default function ProfilePage() {
     <div className="flex h-screen bg-[#080808] overflow-hidden">
       <ProfileSidebar />
 
-      {/* Main — no extra padding, fits exactly in viewport */}
-      <div className="flex-1 flex flex-col overflow-hidden p-4 gap-3">
+      {/* Main content*/}
+      <div className="flex-1 flex flex-col overflow-hidden">
 
-        {/* Profile header */}
-        <ProfileHeader user={user} />
+        {/* Cover + header */}
+        <div className="px-4 pt-4 shrink-0">
+          <ProfileHeader user={user} />
+        </div>
 
-        {/* Body — two columns, fills remaining height */}
-        <div className="flex-1 grid grid-cols-[300px_1fr] gap-3 overflow-hidden">
+        {/* Body — two columns */}
+        <div className="flex-1 grid grid-cols-[320px_1fr] gap-3 px-4 pb-4 pt-3 overflow-hidden">
 
-          {/* Left column */}
+          {/* Left: Reputation + Activity */}
           <div className="flex flex-col gap-3 overflow-hidden">
             <ReputationCard user={user} />
             <RecentActivityCard />
           </div>
 
-          {/* Right column */}
+          {/* Right: Badges + Contributions */}
           <div className="flex flex-col gap-3 overflow-hidden">
             <BadgesCard />
             <ContributionsGrid />
