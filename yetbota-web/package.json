@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.14.3",
+    "@grpc/proto-loader": "^0.8.0",
     "@reduxjs/toolkit": "^2.11.2",
     "autoprefixer": "^10.4.27",
     "class-variance-authority": "^0.7.1",

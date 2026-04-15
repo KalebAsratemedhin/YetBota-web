@@ -1,11 +1,50 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AuthCard from "@/components/auth/AuthCard";
 import AuthInput from "@/components/auth/AuthInput";
+import { saveSignUpDraft } from "@/lib/auth-draft";
 
 export default function SignUpPage() {
+  const router = useRouter();
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const updateForm = (key: keyof typeof form, value: string) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const continueToPhoneVerification = () => {
+    if (!form.firstName.trim() || !form.lastName.trim() || !form.email.trim()) {
+      setError("First name, last name, and email are required.");
+      return;
+    }
+
+    if (form.password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+
+    setError("");
+    setLoading(true);
+    saveSignUpDraft({
+      firstName: form.firstName.trim(),
+      lastName: form.lastName.trim(),
+      email: form.email.trim().toLowerCase(),
+      password: form.password,
+    });
+    router.push("/phone?mode=register");
+  };
+
   return (
     <AuthCard title="Sign Up" backHref="/">
       {/* Heading */}
@@ -23,12 +62,16 @@ export default function SignUpPage() {
             type="text"
             placeholder="John"
             autoComplete="given-name"
+            value={form.firstName}
+            onChange={(e) => updateForm("firstName", e.target.value)}
           />
           <AuthInput
             label="Last Name"
             type="text"
             placeholder="Doe"
             autoComplete="family-name"
+            value={form.lastName}
+            onChange={(e) => updateForm("lastName", e.target.value)}
           />
         </div>
 
@@ -37,6 +80,8 @@ export default function SignUpPage() {
           type="email"
           placeholder="name@example.com"
           autoComplete="email"
+          value={form.email}
+          onChange={(e) => updateForm("email", e.target.value)}
         />
 
         <AuthInput
@@ -44,14 +89,20 @@ export default function SignUpPage() {
           type="password"
           placeholder="Create a password"
           autoComplete="new-password"
+          value={form.password}
+          onChange={(e) => updateForm("password", e.target.value)}
         />
 
         <Button
-          type="submit"
+          type="button"
+          onClick={continueToPhoneVerification}
+          disabled={loading}
           className="w-full bg-brand hover:bg-brand-dark text-black font-bold rounded-xl h-12 text-base mt-2"
         >
-          Sign Up
+          Continue to Phone Verification
         </Button>
+
+        {error && <p className="text-red-400 text-sm">{error}</p>}
       </form>
 
       {/* Divider */}
@@ -62,10 +113,10 @@ export default function SignUpPage() {
       </div>
 
       {/* Phone CTA */}
-      <Link href="/phone">
+      <Link href="/phone?mode=register">
         <button className="w-full flex items-center justify-center gap-3 bg-[#141414] hover:bg-[#1c1c1c] border border-white/8 rounded-xl h-12 text-white text-sm font-semibold transition-colors">
           <Phone className="w-4 h-4 text-brand" />
-          Continue with Phone Number
+          Register with Phone Number
         </button>
       </Link>
 
