@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Location Details | Yet Bota QA</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#22c55e", // Vibrant green from the screenshots
+              "background-light": "#f8fafc",
+              "background-dark": "#0a0a0a",
+              "card-dark": "#161616",
+              "border-dark": "#262626",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "12px",
+            },
+          },
+        },
+      };
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="flex max-w-[1440px] mx-auto min-h-screen relative">
+<aside class="w-64 border-r border-slate-200 dark:border-border-dark hidden lg:flex flex-col sticky top-0 h-screen p-6">
+<div class="flex items-center gap-2 mb-10">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-icons-round text-white text-xl">forum</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight">Yet Bota <span class="text-primary">QA</span></h1>
+</div>
+<nav class="space-y-2 flex-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-100 dark:bg-card-dark text-primary font-semibold" href="#">
+<span class="material-icons-round">home</span>
+                    Home
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-100 dark:hover:bg-card-dark transition-colors text-slate-600 dark:text-slate-400" href="#">
+<span class="material-icons-round">explore</span>
+                    Discover
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-100 dark:hover:bg-card-dark transition-colors text-slate-600 dark:text-slate-400" href="#">
+<span class="material-icons-round">notifications</span>
+                    Notifications
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-100 dark:hover:bg-card-dark transition-colors text-slate-600 dark:text-slate-400" href="#">
+<span class="material-icons-round">person</span>
+                    Profile
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-100 dark:hover:bg-card-dark transition-colors text-slate-600 dark:text-slate-400" href="#">
+<span class="material-icons-round">settings</span>
+                    Settings
+                </a>
+</nav>
+<button class="w-full bg-primary text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-icons-round">add</span>
+                Create Post
+            </button>
+</aside>
+<main class="flex-1 lg:max-w-4xl border-r border-slate-200 dark:border-border-dark min-h-screen">
+<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-border-dark">
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-card-dark rounded-full transition-colors">
+<span class="material-icons-round">arrow_back</span>
+</button>
+<h2 class="text-lg font-bold">Post Details</h2>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-card-dark rounded-full">
+<span class="material-icons-round">share</span>
+</button>
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-card-dark rounded-full">
+<span class="material-icons-round">more_horiz</span>
+</button>
+</div>
+</header>
+<section class="p-6">
+<div class="rounded-3xl overflow-hidden aspect-[16/9] bg-slate-200 dark:bg-card-dark shadow-xl">
+<img alt="The Hidden Sanctuary Garden" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5pnI-4-fvNUfncRRsSJm-3rLIuliiN2YqlorI-C2SPpYqNrFampy6rSUJzIfpoWzqBa_5XikwYI8H8KzWtQyhjwpSWnaaB0VciBOrZpTH2_FXP5NOceNSodEM3TZFbjgmdIuCOJJ4BZITI7x4euvrlvLwtyO5nHPaq3khwQ4CeJgdOQaoY84G_Rku7a9-6qXQ_ZDMcbNEaXbca1tlWZz9Ezyq32g_8HFkmEnMbEgA_RhI-9lnBKnke1rgUJ4zt8gvVsm9gyq8eQ"/>
+</div>
+</section>
+<article class="px-6 pb-6">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-primary">
+<img alt="Alex Rivers" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJWxJneQak6Jl2JxsVdbxP7X0QShkd-5olMVlXR91qLcQKWIACVXeM9njm9KnNN0UwbnSr9_S2J5ZRVxVO5ruVMdO-aCPM14k6INiZlZUvUPZJkNVg2UwVT0FAVUIgaxEXKULMJDzulphj69W8_sDhHnkNr2-629RhGUx4-5WRCo9-6pqde-ISiszP0n03jSYBKzXPvhLE0qMgemP0If9FX3PyP2JNvyvmId_WmUiqPsCXBCn61IuTgdPdsHV4oyBVVum36jbBFg"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-lg">Alex Rivers</h3>
+<span class="bg-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Top Guide</span>
+</div>
+<p class="text-sm text-slate-500 dark:text-slate-400">2 hours ago • Addis Ababa</p>
+</div>
+</div>
+<button class="bg-primary text-white px-6 py-2 rounded-full font-bold hover:bg-primary/90 transition-colors">Follow</button>
+</div>
+<h1 class="text-3xl font-extrabold mb-4">The Hidden Sanctuary Garden</h1>
+<p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-6 text-lg">
+                    Just found this incredible spot tucked away behind the old library. It's a perfect place for community QA sessions or just escaping the urban noise. The flowers are in full bloom right now. 
+                </p>
+<div class="flex flex-wrap gap-2 mb-8">
+<span class="bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium border border-primary/20">#Nature</span>
+<span class="bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium border border-primary/20">#Ethiopia</span>
+<span class="bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium border border-primary/20">#QuietSpots</span>
+</div>
+<div class="flex items-center gap-6 py-4 border-y border-slate-200 dark:border-border-dark">
+<div class="flex items-center gap-4 bg-slate-100 dark:bg-card-dark px-4 py-2 rounded-full">
+<button class="flex items-center gap-1.5 text-primary">
+<span class="material-icons-round text-xl">thumb_up</span>
+<span class="font-bold">248</span>
+</button>
+<div class="w-px h-4 bg-slate-300 dark:bg-slate-700"></div>
+<button class="flex items-center text-slate-400">
+<span class="material-icons-round text-xl">thumb_down</span>
+</button>
+</div>
+<button class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+<span class="material-icons-round">chat_bubble_outline</span>
+<span class="font-bold">14</span>
+</button>
+</div>
+</article>
+<section class="p-6 bg-slate-50 dark:bg-[#0f0f0f]">
+<h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+<span class="material-icons-round text-primary">question_answer</span>
+                    Community QA
+                </h2>
+<div class="flex gap-4 mb-10">
+<div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-card-dark overflow-hidden shrink-0">
+<img alt="Current user" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCg0w5b20_5bLrLN-RiOca9UIKMi9hMGJqr7WNBGgxe7_MPwBuKTLrBC4PVC3BK766HI1Wss1QC3TEMCvl5Ss2RGhQpnnimJwpyln7NaYp1DDEtPbeg5YGyXIyEd2k68lvACNOKW-DX5EYIEn9PKeTNZsrOjHaokJXDh3cNNwY0o5o3IwdzipLs52wA4v2Wx8_PPbankVuJ00gddXaCHuk9h9pA6-SRgY8AWYj3L6-YL_uA3RgjpWs3p1s6WWyqQDOExssKqF2iMA"/>
+</div>
+<div class="relative flex-1">
+<input class="w-full bg-white dark:bg-card-dark border-slate-200 dark:border-border-dark rounded-2xl py-3 px-5 pr-12 focus:ring-primary focus:border-primary" placeholder="Ask a question about this spot..." type="text"/>
+<button class="absolute right-2 top-1.5 p-1.5 bg-primary text-white rounded-xl shadow-lg shadow-primary/20">
+<span class="material-icons-round">send</span>
+</button>
+</div>
+</div>
+<div class="space-y-8">
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-card-dark overflow-hidden shrink-0">
+<img alt="Sarah Jenkins" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDK1QFMbv8rHyBWA3zc3_ad77VH5ZLoCjeh5Sva8M7XNSvdS2qHrCi60tpgeAajrzSoq-6gWtjO0KIySI4OGa-MWJI8zpohJSW87xhEp_nBVe7sOHO8x7RwnMXr9Y_RRUIz1FkhWOV8W83fCWh8wYPnM-yZAiQ8VgnhiW7w56fg_CzzmytySpeQVYrDmB_l5F9a4IGP6010YbgEyiAUHz8hrPL_sXyZ5sY7igzhIVOjBhr9vcglMB9BRE4RsT2bChPgyxMRyL1psQ"/>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-bold">Sarah Jenkins</span>
+<span class="bg-slate-200 dark:bg-slate-800 text-slate-500 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">Explorer</span>
+</div>
+<p class="text-slate-700 dark:text-slate-300 mb-3">Is there any public wifi available near those benches?</p>
+<div class="flex items-center gap-4 text-xs">
+<button class="flex items-center gap-1 text-primary font-bold">
+<span class="material-icons-round text-sm">thumb_up</span> 12
+                                </button>
+<button class="text-slate-400">
+<span class="material-icons-round text-sm">thumb_down</span>
+</button>
+<span class="text-slate-500">1h ago</span>
+<button class="text-primary font-bold hover:underline">Reply</button>
+</div>
+<div class="mt-6 flex gap-3 border-l-2 border-slate-200 dark:border-border-dark pl-6">
+<div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-card-dark overflow-hidden shrink-0">
+<img alt="Marcus Chen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-4cs2nyrU9XDWiP4SUj7Adh8schUX9ReScRmAKxfZGqQheHUT1jfFM2p0I0DnHDx7a9ZcbqcrVG0TqYCJezml8kj1RkNWQIRlu3lQWmGPe1-NlbkUH0x6uCNgl3JRML7Ul7vZ5Dz3YA9mtbrHiSlwQ-o0gBtf8crH0EHd-40653hr72e0OHUjeRWPSRACLHjMK38SD_nVn6onKmviTdJPrI05ZsUAw9dXISF8zLgczzyJXnaA3rTdJ67RiV8lKjd0wXyIKdAWoQ"/>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-bold text-sm">Marcus Chen</span>
+<span class="bg-primary/20 text-primary text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">Local Expert</span>
+</div>
+<p class="text-slate-700 dark:text-slate-300 text-sm mb-3">Unfortunately no, signal is a bit weak there too. Better to download offline maps.</p>
+<div class="flex items-center gap-4 text-[10px]">
+<button class="flex items-center gap-1 text-primary font-bold">
+<span class="material-icons-round text-xs">thumb_up</span> 4
+                                        </button>
+<button class="text-slate-400">
+<span class="material-icons-round text-xs">thumb_down</span>
+</button>
+<span class="text-slate-500">45m ago</span>
+<button class="text-primary font-bold hover:underline text-[10px]">Reply</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="p-6">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-xl font-bold">Similar Places in Ethiopia</h2>
+<button class="text-primary font-bold text-sm">View All</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-2xl overflow-hidden mb-3">
+<img alt="Entoto Park" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmbIs3sS1RZcYob-iGHTm6UPId1gYq-jyO-y1vqX4KSr-nOoPexXk1h_KUC2XaIg07gZTuheyXSfMI8SCV9l2qpX9oZUFc9mhCZbSjDYsFlb8-NQRiMEzFLHVq9DDuBTkbRMKi9H2FySFU2toMlyn9cQ-_rPtqQsE2v0l51dd5oS4WmbyYX65QOGNiDPeCMO5wy3SgxnUbFWa2eGCoHAT3WLMlK54YWC7jy6kBm-bAccIV6fBTZ9YfzAKLCnLuu5ZXX0yPKOSjCQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<div class="absolute bottom-3 left-3 flex items-center gap-1.5 text-white">
+<span class="material-icons-round text-primary text-sm">location_on</span>
+<span class="text-xs font-medium">Entoto Park</span>
+</div>
+</div>
+<h4 class="font-bold">Entoto Park</h4>
+<p class="text-xs text-slate-500">Addis Ababa • 4.8 ⭐</p>
+</div>
+<div class="group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-2xl overflow-hidden mb-3">
+<img alt="Unity Park" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUnQQo6ifcXWyKGbg8KslMEozNOW05iyNnLiblkiURcc0P0bqHp1T5I0AMCDR2QNey8d52XeMF19TxQBtcl1o15ESeOwbtNE5f6dXFe4a2CQdJKRB-ok061AcpsLVRSVbOCnTJ5ZS-RUgIVLP8LLRkAl3s7yhNht9J3GH8lwn_kt65FLMFj-Eeciml2KHqoes0L5JXU4qVXZMDRFClDNyawR4-zQ4JnAUS7YAFR3eUcd13RJ7c2GBhfffErMqd-BEj6whfHWZHYA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<div class="absolute bottom-3 left-3 flex items-center gap-1.5 text-white">
+<span class="material-icons-round text-primary text-sm">location_on</span>
+<span class="text-xs font-medium">Unity Park</span>
+</div>
+</div>
+<h4 class="font-bold">Unity Park</h4>
+<p class="text-xs text-slate-500">Arat Kilo • 4.5 ⭐</p>
+</div>
+<div class="group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-2xl overflow-hidden mb-3">
+<img alt="Sheger Park" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGOlD0WOxnqE4RU0eXXzVBUDJ27xu2VjULgfOSV--joWJ5pTdmDopDPmt9EoIzZK2EnqBTAgE9IIMlGtmrYaDzaeT2RB11RvWYQwNfevAH4_C76cjbnle1PPi5coNvALY3-z30MKbqfr5dn86svYE8cienAh-mCdB5fS9GbazN0zkJxldhe2DVFvA3pWFVuK-t6rF24oVKHjJlHa2hb5td4AbbUSpWQcaS5HvLO_aOF4u31PdJjyEQq4qqlJXBsgL3YcPnZSbxXg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<div class="absolute bottom-3 left-3 flex items-center gap-1.5 text-white">
+<span class="material-icons-round text-primary text-sm">location_on</span>
+<span class="text-xs font-medium">Sheger Park</span>
+</div>
+</div>
+<h4 class="font-bold">Sheger Park</h4>
+<p class="text-xs text-slate-500">Piassa • 4.2 ⭐</p>
+</div>
+</div>
+</section>
+</main>
+<aside class="hidden xl:block w-80 p-6 sticky top-0 h-screen space-y-8">
+<div class="bg-slate-100 dark:bg-card-dark rounded-3xl p-6">
+<h3 class="font-bold text-lg mb-4">Location Map</h3>
+<div class="rounded-2xl overflow-hidden h-48 bg-slate-200 dark:bg-slate-800 relative">
+<img alt="Map" class="w-full h-full object-cover opacity-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGh6iluraCGZX-VIKWJAYz0UrWa6Pzi4eppIzayIVYWXQypbyzT9mOuhaWxq69r-ihDLONvhXxTaYfhDQ3mxoT4VDZ57ge1NwQursdRwDkSpzRYBA3AqiCxTLbOeCrVGqr33lUralcbj86RY6EjpKsWnItKF5yZwdhFkKiifT8fEspB4Whxs4iKEybRyoF31wRW69EMgIztsbypoF7RDYwWek20aQ20UdFkl2x29rlswEfwfjuGHNc3J-J-FtCDRYUEh544mfYBg"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg animate-bounce">
+<span class="material-icons-round">location_on</span>
+</div>
+</div>
+</div>
+<p class="text-sm mt-4 text-slate-600 dark:text-slate-400 flex items-center gap-2">
+<span class="material-icons-round text-primary text-sm">pin_drop</span>
+                    Behind Central Library, Addis Ababa
+                </p>
+</div>
+<div class="bg-slate-100 dark:bg-card-dark rounded-3xl p-6">
+<h3 class="font-bold text-lg mb-4">Popular Guides</h3>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<img alt="Guide" class="w-10 h-10 rounded-full bg-slate-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuApF4FCmIYfOsQQB1cWbGkZU4thtdq1JsT6NSvFwxExmhpY5ZzEOwijO77lfls2RHg7DYQK4UxkL_n7b6O4DTHvKYKrITeo9pQOHNIU_35vzbWrEw1PH0NFaSjGoFMlOJEPQZ9Nd4-zJlwdu6rw6e2QXZSX9-mf6drs1bND0CwtoaivNJhxo1Rd-_DukXaaH0T6OsVcHx7snQNX1gJ8ecP-G3AaMG6Rq9L7PlzasH2cZYxKzfh9-OB2fsD-9taquCrggLetJgryTA"/>
+<div>
+<p class="font-bold text-sm">Jordan Smith</p>
+<p class="text-[10px] text-slate-500 uppercase tracking-tighter">1.2k Answers</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<img alt="Guide" class="w-10 h-10 rounded-full bg-slate-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCh-eE882hVLn2z8-eK_gRnFjKCii0JPjaoLR_LJAwlOpV1u8oJU6q8Cs9U395DKqLM43RRrFPBMyP0PpDZL-ngQ1Kh7Nk_QYeJ-JhvMrM83EDhLfCyhw7HiG_T8B0yjtvalY-3vyhGWS8oxTMilv3S0fFQPokMQkYLYmwz2juNXwqVBmuQjB77gxHJeJJHHs1PqZ6rRFufzSAG9omsxoRcZtrYfvpUDq4afzP7shnUC9kT0VkVXS0QPot-5jM2qNZB4Gk3YYqG8w"/>
+<div>
+<p class="font-bold text-sm">Amara K.</p>
+<p class="text-[10px] text-slate-500 uppercase tracking-tighter">842 Answers</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+<div class="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] bg-white/90 dark:bg-card-dark/90 backdrop-blur-xl border border-slate-200 dark:border-border-dark rounded-2xl p-2 flex items-center justify-around shadow-2xl z-50">
+<button class="p-3 text-primary">
+<span class="material-icons-round">home</span>
+</button>
+<button class="p-3 text-slate-400">
+<span class="material-icons-round">explore</span>
+</button>
+<button class="p-4 bg-primary text-white rounded-xl -mt-10 shadow-lg shadow-primary/40">
+<span class="material-icons-round">add</span>
+</button>
+<button class="p-3 text-slate-400">
+<span class="material-icons-round">notifications</span>
+</button>
+<button class="p-3 text-slate-400">
+<span class="material-icons-round">person</span>
+</button>
+</div>
+
+</body></html>

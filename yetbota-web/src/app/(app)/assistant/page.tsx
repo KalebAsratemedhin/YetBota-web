@@ -1,17 +1,17 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { MoreVertical, Trash2, Circle } from "lucide-react";
-import AssistantSidebar from "@/components/assistant/AssistantSidebar";
 import ChatBubble from "@/components/assistant/ChatBubble";
 import ChatInput from "@/components/assistant/ChatInput";
 import QuickActions from "@/components/assistant/QuickActions";
 import {
   INITIAL_MESSAGES,
   getMockResponse,
+  RECENT_CHATS,
+  SUGGESTED_TOPICS,
   type ChatMessage,
 } from "@/lib/assistantMockData";
-
-const MOCK_USER = { name: "Alex Rivera", role: "Member" };
+import { cn } from "@/lib/utils";
 
 export default function AssistantPage() {
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
@@ -20,13 +20,11 @@ export default function AssistantPage() {
   const [moreOpen, setMoreOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
   const handleSend = (text: string) => {
-    // Add user message
     const userMsg: ChatMessage = {
       id: `msg-${Date.now()}`,
       role: "user",
@@ -35,7 +33,6 @@ export default function AssistantPage() {
     };
     setMessages((prev) => [...prev, userMsg]);
 
-    // Simulate AI typing delay
     setIsTyping(true);
     setTimeout(() => {
       const response = getMockResponse(text);
@@ -61,19 +58,56 @@ export default function AssistantPage() {
   };
 
   return (
-    <div className="flex h-screen bg-[#080808] overflow-hidden">
+    <div className="flex h-full overflow-hidden bg-[#080808]">
+      <aside className="hidden md:flex w-80 shrink-0 border-r border-white/5 bg-[#0d0d0d] flex-col">
+        <div className="px-5 py-4 border-b border-white/5">
+          <p className="text-white text-sm font-semibold">Recent Chats</p>
+        </div>
 
-      {/* Sidebar */}
-      <AssistantSidebar
-        activeChat={activeChat}
-        onSelectChat={setActiveChat}
-        user={MOCK_USER}
-      />
+        <div className="px-3 py-4 flex-1 overflow-y-auto">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 px-3 mb-2">
+            Recent Chats
+          </p>
+          <div className="space-y-0.5">
+            {RECENT_CHATS.map((chat) => (
+              <button
+                key={chat.id}
+                onClick={() => setActiveChat(chat.id)}
+                className={cn(
+                  "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-sm transition-colors",
+                  activeChat === chat.id
+                    ? "bg-brand/10 text-white border border-brand/20"
+                    : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
+                )}
+              >
+                <div
+                  className={cn(
+                    "w-2 h-2 rounded-sm shrink-0",
+                    activeChat === chat.id ? "bg-brand" : "bg-gray-700"
+                  )}
+                />
+                <span className="truncate text-xs">{chat.title}</span>
+              </button>
+            ))}
+          </div>
 
-      {/* Main chat area */}
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 px-3 mt-5 mb-2">
+            Suggested Topics
+          </p>
+          <div className="flex flex-wrap gap-1.5 px-1">
+            {SUGGESTED_TOPICS.map((topic) => (
+              <button
+                key={topic.id}
+                className="text-[10px] text-gray-500 hover:text-brand bg-white/5 hover:bg-brand/10 border border-white/8 hover:border-brand/30 px-2.5 py-1 rounded-full transition-colors"
+              >
+                {topic.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </aside>
+
       <div className="flex-1 flex flex-col min-w-0">
-
-        {/* Top bar */}
         <div className="flex items-center justify-between px-6 py-3.5 border-b border-white/5 bg-[#090909] shrink-0">
           <div className="flex items-center gap-2">
             <Circle className="w-2.5 h-2.5 fill-brand text-brand" />
@@ -81,7 +115,6 @@ export default function AssistantPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Clear history */}
             <button
               onClick={handleClearHistory}
               className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"
@@ -90,7 +123,6 @@ export default function AssistantPage() {
               Clear History
             </button>
 
-            {/* More options */}
             <div className="relative">
               <button
                 onClick={() => setMoreOpen((v) => !v)}
@@ -113,13 +145,11 @@ export default function AssistantPage() {
           </div>
         </div>
 
-        {/* Messages area */}
         <div className="flex-1 overflow-y-auto px-6 py-6 space-y-2">
           {messages.map((msg) => (
             <ChatBubble key={msg.id} message={msg} />
           ))}
 
-          {/* Typing indicator */}
           {isTyping && (
             <div className="flex items-start gap-3 mb-6">
               <div className="w-9 h-9 bg-brand/15 border border-brand/30 rounded-xl flex items-center justify-center shrink-0">
@@ -141,7 +171,6 @@ export default function AssistantPage() {
           <div ref={bottomRef} />
         </div>
 
-        {/* Bottom input area */}
         <div className="px-6 pb-5 pt-3 shrink-0 border-t border-white/5 bg-[#090909]">
           <QuickActions onSelect={handleQuickAction} />
           <ChatInput onSend={handleSend} disabled={isTyping} />
@@ -153,3 +182,4 @@ export default function AssistantPage() {
     </div>
   );
 }
+

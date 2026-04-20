@@ -9,49 +9,55 @@ export default function ProfileHeader({ user }: { user: ProfileUser }) {
   return (
     <div className="relative shrink-0">
       {/* Cover */}
-      <div className="relative h-32 w-full rounded-2xl overflow-hidden bg-linear-to-br from-[#0a1f12] via-[#0d2e1a] to-[#0f3d20]">
-        {/* Grid lines */}
-        <div className="absolute inset-0"
+      <div className="relative h-64 w-full rounded-2xl overflow-hidden bg-linear-to-br from-[#123b2a] via-[#0f2f23] to-[#0a0a0a]">
+        <div
+          className="absolute inset-0"
           style={{
             backgroundImage: `
-              linear-gradient(rgba(34,197,94,0.12) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(34,197,94,0.12) 1px, transparent 1px)
+              radial-gradient(ellipse_at_50%_35%, rgba(255,255,255,0.10), transparent 55%),
+              linear-gradient(90deg, rgba(255,255,255,0.08), transparent 55%),
+              linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.65))
             `,
-            backgroundSize: "40px 40px",
           }}
         />
-        {/* Radial glow center */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_50%,rgba(34,197,94,0.15),transparent_70%)]" />
-        {/* Bottom fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-[#080808] to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-[#0a0a0a]/90 via-[#0a0a0a]/35 to-transparent" />
       </div>
 
       {/* Avatar + info */}
-      <div className="flex items-end gap-4 px-2 -mt-10 relative z-10">
+      <div className="flex items-end gap-6 px-6 -mt-20 relative z-10">
         {/* Avatar */}
         <div className="relative shrink-0">
-          <div className="w-20 h-20 rounded-2xl bg-[#e8b89a] border-4 border-[#080808] flex items-center justify-center shadow-xl">
-            <span className="text-xl font-bold text-white/60">{initials}</span>
+          <div className="w-40 h-40 rounded-3xl bg-[#e8b89a] border-4 border-[#0a0a0a] flex items-center justify-center shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.35)] overflow-hidden">
+            <span className="text-3xl font-bold text-white/60">{initials}</span>
           </div>
-          <button className="absolute -bottom-1 -right-1 w-6 h-6 bg-brand rounded-full flex items-center justify-center border-2 border-[#080808]">
-            <Camera className="w-3 h-3 text-black" />
+          <button
+            type="button"
+            className="absolute bottom-2 right-2 w-10 h-10 bg-brand rounded-xl flex items-center justify-center shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.35)]"
+          >
+            <Camera className="w-4 h-4 text-white" />
           </button>
         </div>
 
         {/* Name + meta */}
-        <div className="flex-1 min-w-0 pb-1">
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <h1 className="text-white font-bold text-xl leading-tight">{user.name}</h1>
-            <span className="text-[9px] font-bold uppercase tracking-wider text-brand bg-brand/15 border border-brand/30 px-2 py-0.5 rounded-full">
+        <div className="flex-1 min-w-0 pb-2">
+          <div className="flex items-center gap-3 mb-2 flex-wrap">
+            <h1 className="text-white font-bold text-[30px] leading-[36px]">{user.name}</h1>
+            <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-brand bg-brand/20 border border-brand/30 px-3 py-1 rounded-xl">
               {user.role}
             </span>
           </div>
-          <div className="flex items-center gap-4 flex-wrap">
-            <span className="text-sm"><strong className="text-white">{user.followers}</strong> <span className="text-gray-500">Followers</span></span>
-            <span className="text-sm"><strong className="text-white">{user.following}</strong> <span className="text-gray-500">Following</span></span>
-            <span className="flex items-center gap-1">
-              <MapPin className="w-3 h-3 text-gray-600" />
-              <span className="text-gray-500 text-xs">{user.location}</span>
+          <div className="flex items-center gap-6 flex-wrap">
+            <span className="text-base">
+              <strong className="text-white">{user.followers}</strong>{" "}
+              <span className="text-slate-300/70">Followers</span>
+            </span>
+            <span className="text-base">
+              <strong className="text-white">{user.following}</strong>{" "}
+              <span className="text-slate-300/70">Following</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-slate-300/60" />
+              <span className="text-slate-300/70 text-sm">{user.location}</span>
             </span>
           </div>
         </div>
@@ -59,9 +65,9 @@ export default function ProfileHeader({ user }: { user: ProfileUser }) {
         {/* Edit Profile button */}
         <Button
           size="sm"
-          className="bg-brand hover:bg-[#16a34a] text-black font-semibold rounded-xl px-4 h-9 text-sm shrink-0 mb-1"
+          className="bg-brand hover:bg-[#16a34a] text-white font-semibold rounded-xl px-6 h-11 text-base shrink-0 mb-2"
         >
-          <Pencil className="w-3.5 h-3.5 mr-1.5" />
+          <Pencil className="w-4 h-4 mr-2" />
           Edit Profile
         </Button>
       </div>

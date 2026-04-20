@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ask a Question - Yet Bota</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#00FF66", // Vibrant green from the reference
+                        "background-light": "#F8FAFC",
+                        "background-dark": "#050505",
+                        "card-dark": "#121212",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "12px",
+                        'xl': '20px',
+                    },
+                },
+            },
+        };
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+        }
+        .glow-button {
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen transition-colors duration-200">
+<nav class="sticky top-0 z-50 border-b border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-full transition-colors">
+<span class="material-icons-round text-2xl">close</span>
+</button>
+<h1 class="text-lg font-bold tracking-tight">Ask a Question</h1>
+</div>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Home</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Explore</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Alerts</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary text-black font-bold px-6 py-2 rounded-full hover:opacity-90 transition-all active:scale-95 glow-button">
+                        Post
+                    </button>
+</div>
+</div>
+</div>
+</nav>
+<main class="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<div class="lg:col-span-8 space-y-8">
+<section class="bg-primary/5 border border-primary/30 rounded-xl p-6 flex gap-4 items-start">
+<div class="bg-primary/20 p-2 rounded-lg">
+<span class="material-icons-round text-primary">verified_user</span>
+</div>
+<div>
+<h2 class="font-bold text-slate-900 dark:text-white mb-1">Community Guidelines</h2>
+<p class="text-slate-600 dark:text-zinc-400 text-sm leading-relaxed">
+                            Stay respectful and avoid spam to keep our community helpful. We want to ensure 'Yet Bota' remains a safe place for everyone to explore Ethiopia.
+                        </p>
+<a class="inline-flex items-center text-primary text-sm font-semibold mt-3 hover:underline" href="#">
+                            Read Rules <span class="material-icons-round text-sm ml-1">chevron_right</span>
+</a>
+</div>
+</section>
+<section class="space-y-4">
+<label class="block text-xs font-bold tracking-widest text-slate-500 dark:text-zinc-500 uppercase">
+                        Your Question
+                    </label>
+<textarea class="w-full bg-slate-100 dark:bg-card-dark border-slate-200 dark:border-zinc-800 rounded-xl p-5 text-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none resize-none custom-scrollbar" placeholder="What would you like to ask your local community?" rows="8"></textarea>
+</section>
+<section class="space-y-4">
+<label class="block text-xs font-bold tracking-widest text-slate-500 dark:text-zinc-500 uppercase">
+                        Reference Location
+                    </label>
+<div class="bg-slate-100 dark:bg-card-dark border border-slate-200 dark:border-zinc-800 rounded-xl p-4 flex items-center justify-between cursor-pointer hover:border-primary/50 transition-colors group">
+<div class="flex items-center gap-4">
+<div class="bg-slate-200 dark:bg-zinc-800 p-3 rounded-xl group-hover:bg-primary/20 transition-colors">
+<span class="material-icons-round text-primary">location_on</span>
+</div>
+<div>
+<h3 class="font-bold text-slate-900 dark:text-white">Tag a Location</h3>
+<p class="text-slate-500 dark:text-zinc-500 text-sm">Help people nearby find your post</p>
+</div>
+</div>
+<span class="material-icons-round text-slate-400 dark:text-zinc-600">my_location</span>
+</div>
+</section>
+<section class="space-y-4">
+<label class="block text-xs font-bold tracking-widest text-slate-500 dark:text-zinc-500 uppercase">
+                        Add Tags
+                    </label>
+<div class="flex flex-wrap gap-3">
+<button class="flex items-center gap-2 bg-primary text-black px-4 py-2 rounded-full font-semibold text-sm hover:opacity-90 transition-all">
+<span class="material-icons-round text-lg">add</span>
+                            New Tag
+                        </button>
+<button class="bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 px-5 py-2 rounded-full font-medium text-sm hover:bg-slate-300 dark:hover:bg-zinc-700 transition-all">
+                            Recommendations
+                        </button>
+<button class="bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 px-5 py-2 rounded-full font-medium text-sm hover:bg-slate-300 dark:hover:bg-zinc-700 transition-all">
+                            LocalEvents
+                        </button>
+<button class="bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 px-5 py-2 rounded-full font-medium text-sm hover:bg-slate-300 dark:hover:bg-zinc-700 transition-all">
+                            Safety
+                        </button>
+<button class="bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 px-5 py-2 rounded-full font-medium text-sm hover:bg-slate-300 dark:hover:bg-zinc-700 transition-all">
+                            General
+                        </button>
+</div>
+</section>
+</div>
+<div class="lg:col-span-4 space-y-6">
+<div class="bg-slate-100 dark:bg-card-dark border border-slate-200 dark:border-zinc-800 rounded-xl p-6 sticky top-24">
+<h3 class="font-bold text-lg mb-4">Tips for a good post</h3>
+<ul class="space-y-4">
+<li class="flex gap-3 items-start text-sm text-slate-600 dark:text-zinc-400">
+<span class="material-icons-round text-primary text-base mt-0.5">check_circle</span>
+<span>Be specific about the location if you're looking for local recommendations.</span>
+</li>
+<li class="flex gap-3 items-start text-sm text-slate-600 dark:text-zinc-400">
+<span class="material-icons-round text-primary text-base mt-0.5">check_circle</span>
+<span>Use relevant tags so the right people see your question.</span>
+</li>
+<li class="flex gap-3 items-start text-sm text-slate-600 dark:text-zinc-400">
+<span class="material-icons-round text-primary text-base mt-0.5">check_circle</span>
+<span>Avoid posting private information like phone numbers.</span>
+</li>
+</ul>
+<hr class="my-6 border-slate-200 dark:border-zinc-800"/>
+<div class="space-y-2">
+<p class="text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase">Draft Status</p>
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium">Autosaved</span>
+<span class="text-xs text-slate-400 dark:text-zinc-600">Just now</span>
+</div>
+</div>
+</div>
+<div class="text-center py-4">
+<p class="text-xs text-slate-400 dark:text-zinc-600 tracking-widest">YET BOTA © 2024</p>
+</div>
+</div>
+</div>
+</main>
+<div class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-background-dark/90 backdrop-blur-lg border-t border-slate-200 dark:border-zinc-800 px-6 py-3 flex justify-between items-center z-50">
+<button class="flex flex-col items-center gap-1 text-slate-400 dark:text-zinc-500">
+<span class="material-icons-round">home</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400 dark:text-zinc-500">
+<span class="material-icons-round">explore</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Explore</span>
+</button>
+<button class="bg-primary p-4 rounded-full -mt-10 border-4 border-background-light dark:border-background-dark shadow-xl active:scale-90 transition-transform">
+<span class="material-icons-round text-black font-bold">add</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400 dark:text-zinc-500">
+<span class="material-icons-round">notifications</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Alerts</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-icons-round">person</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
+</button>
+</div>
+
+</body></html>

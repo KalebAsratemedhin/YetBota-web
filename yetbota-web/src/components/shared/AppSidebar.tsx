@@ -22,7 +22,7 @@ interface AppSidebarProps {
 
 export const NAV_ITEMS = [
   { id: "home",      label: "Home",         icon: Home,          href: "/"          },
-  { id: "discover",  label: "Discover",     icon: Compass,       href: "/explore"   },
+  { id: "discover",  label: "Discover",     icon: Compass,       href: "/discovery" },
   { id: "qa",        label: "QA Feed",      icon: MessageSquare, href: "/qa"        },
   { id: "assistant", label: "AI Assistant", icon: Sparkles,      href: "/assistant" },
   { id: "profile",   label: "Profile",      icon: User,          href: "/profile"   },
@@ -33,10 +33,10 @@ export default function AppSidebar({ user, children, title = "Yet Bota" }: AppSi
   const initials = user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <aside className="w-40 shrink-0 bg-[#0d0d0d] border-r border-white/5 flex flex-col h-full">
+    <aside className="w-64 shrink-0 bg-[#0d0d0d] border-r border-white/5 flex flex-col h-full">
 
       {/* Logo */}
-      <div className="px-4 py-4 border-b border-white/5 flex items-center gap-2 shrink-0">
+      <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2.5 shrink-0">
         <Image
                       src="/images/logo.jpg"
                       alt="Yet Bota"
@@ -48,7 +48,7 @@ export default function AppSidebar({ user, children, title = "Yet Bota" }: AppSi
       </div>
 
       {/* Nav */}
-      <nav className="px-2 py-3 shrink-0">
+      <nav className="px-3 py-4 shrink-0">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -57,7 +57,7 @@ export default function AppSidebar({ user, children, title = "Yet Bota" }: AppSi
               key={item.id}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-0.5",
+                "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors mb-0.5",
                 isActive
                   ? "bg-brand/15 text-brand"
                   : "text-gray-400 hover:text-white hover:bg-white/5"
@@ -80,7 +80,7 @@ export default function AppSidebar({ user, children, title = "Yet Bota" }: AppSi
       {!children && <div className="flex-1" />}
 
       {/* User footer */}
-      <div className="px-3 py-3 border-t border-white/5 flex items-center justify-between gap-2 shrink-0">
+      <div className="px-5 py-4 border-t border-white/5 flex items-center justify-between gap-2 shrink-0">
         <Link href="/profile" className="flex items-center gap-2 min-w-0 group">
           <div className="w-7 h-7 bg-brand rounded-full flex items-center justify-center shrink-0">
             <span className="text-black text-[10px] font-bold">{initials}</span>

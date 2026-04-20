@@ -5,14 +5,23 @@ const ICON_MAP: Record<string, React.ElementType> = {
   Compass, ShieldCheck, Map, Camera, Heart,
 };
 
+const TINT_MAP: Record<string, string> = {
+  "bg-emerald-600": "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
+  "bg-yellow-600": "bg-yellow-500/10 border-yellow-500/20 text-yellow-400",
+  "bg-blue-600": "bg-blue-500/10 border-blue-500/20 text-blue-400",
+  "bg-purple-600": "bg-purple-500/10 border-purple-500/20 text-purple-400",
+  "bg-rose-600": "bg-rose-500/10 border-rose-500/20 text-rose-400",
+};
+
 function BadgeItem({ badge }: { badge: Badge }) {
   const Icon = ICON_MAP[badge.icon] ?? Compass;
+  const tint = TINT_MAP[badge.color] ?? "bg-white/5 border-white/10 text-gray-300";
   return (
     <div className="flex flex-col items-center gap-1">
-      <div className={`w-10 h-10 ${badge.color} rounded-xl flex items-center justify-center`}>
-        <Icon className="w-4 h-4 text-white" />
+      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${tint}`}>
+        <Icon className="w-6 h-6" />
       </div>
-      <span className="text-[8px] font-bold uppercase tracking-wider text-gray-500">
+      <span className="text-[10px] font-bold uppercase tracking-wide text-slate-300/60">
         {badge.label}
       </span>
     </div>
@@ -21,14 +30,14 @@ function BadgeItem({ badge }: { badge: Badge }) {
 
 export default function BadgesCard() {
   return (
-    <div className="bg-[#111111] border border-white/5 rounded-2xl p-4 shrink-0">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-white font-semibold text-sm">Earned Badges</h3>
-        <button className="text-brand text-xs font-semibold hover:text-[#00e05a] transition-colors">
+    <div className="bg-[#171717] border border-[#262626] rounded-2xl px-6 py-9 shrink-0">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-white font-semibold text-lg">Earned Badges</h3>
+        <button className="text-brand text-xs font-bold hover:text-[#16a34a] transition-colors">
           View All
         </button>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-6">
         {EARNED_BADGES.map((badge) => (
           <BadgeItem key={badge.id} badge={badge} />
         ))}

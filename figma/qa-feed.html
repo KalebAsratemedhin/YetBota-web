@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Yet Bota QA - Community Feed</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#22C55E",
+              "background-light": "#F9FAFB",
+              "background-dark": "#0A0A0A",
+              "card-dark": "#171717",
+              "card-border": "#262626",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "12px",
+            },
+          },
+        },
+      };
+    </script>
+<style type="text/tailwindcss">
+        body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-300">
+<div class="flex min-h-screen">
+<aside class="w-64 fixed inset-y-0 left-0 border-r border-slate-200 dark:border-neutral-800 bg-white dark:bg-background-dark hidden lg:flex flex-col z-50">
+<div class="p-6">
+<div class="flex items-center gap-2 text-primary font-bold text-2xl tracking-tight">
+<span class="material-symbols-outlined text-3xl">chat_bubble</span>
+                Yet Bota QA
+            </div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary transition-colors">home</span>
+<span class="font-medium">Home</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary transition-colors">explore</span>
+<span class="font-medium">Discover</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-xl bg-primary/10 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">forum</span>
+<span class="font-medium">QA Feed</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary transition-colors">auto_awesome</span>
+<span class="font-medium">AI Assistant</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary transition-colors">person</span>
+<span class="font-medium">Profile</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-200 dark:border-neutral-800">
+<div class="flex items-center gap-3 px-2">
+<img alt="User Profile" class="w-10 h-10 rounded-full bg-slate-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCzQQP26TrM42iOqFfv9zHOx6t-pefx8n00vMpda1tmKFsR8gdRr_z69Co-e95UEpmbs0-ypGzvbwqBR4UjQPtTM4osk6pPgdUwSr7GzH_KxbiCLJfdaRcqI1W7BYoZFVDQufroWhNycTVgEebpZ67AOLeu28XC9KSPs6Lo8X2unp_gQI9x45L0hD0yLm7pWOxu1kxaeAigdM6zk7vTe8Y9EiiDi1GqrDEd6UJRYyMGZeYNUEevievUQ7E-0mmn_yNwwvVVwc_Vw"/>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-semibold truncate">Alex Rivers</p>
+<p class="text-xs text-slate-500 truncate">@arivers • Expert</p>
+</div>
+<button class="material-symbols-outlined text-slate-400 text-lg">settings</button>
+</div>
+</div>
+</aside>
+<main class="flex-1 lg:ml-64 xl:mr-80 flex justify-center">
+<div class="w-full max-w-3xl px-4 py-8">
+<header class="sticky top-0 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md py-4 z-40 space-y-4">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-card-dark border-none rounded-full focus:ring-2 focus:ring-primary/50 text-base transition-all outline-none" placeholder="Search community questions..." type="text"/>
+</div>
+<div class="flex items-center gap-3 overflow-x-auto hide-scrollbar pb-1">
+<button class="px-6 py-2 bg-primary text-white font-semibold rounded-full hover:brightness-110 transition-all shrink-0">All</button>
+<button class="px-6 py-2 bg-slate-100 dark:bg-card-dark text-slate-600 dark:text-slate-300 font-medium rounded-full border border-slate-200 dark:border-card-border hover:bg-slate-200 dark:hover:bg-neutral-800 transition-all shrink-0">Housing</button>
+<button class="px-6 py-2 bg-slate-100 dark:bg-card-dark text-slate-600 dark:text-slate-300 font-medium rounded-full border border-slate-200 dark:border-card-border hover:bg-slate-200 dark:hover:bg-neutral-800 transition-all shrink-0">Safety</button>
+<button class="px-6 py-2 bg-slate-100 dark:bg-card-dark text-slate-600 dark:text-slate-300 font-medium rounded-full border border-slate-200 dark:border-card-border hover:bg-slate-200 dark:hover:bg-neutral-800 transition-all shrink-0">Nightlife</button>
+<button class="px-6 py-2 bg-slate-100 dark:bg-card-dark text-slate-600 dark:text-slate-300 font-medium rounded-full border border-slate-200 dark:border-card-border hover:bg-slate-200 dark:hover:bg-neutral-800 transition-all shrink-0">Transport</button>
+<button class="px-6 py-2 bg-slate-100 dark:bg-card-dark text-slate-600 dark:text-slate-300 font-medium rounded-full border border-slate-200 dark:border-card-border hover:bg-slate-200 dark:hover:bg-neutral-800 transition-all shrink-0">Dining</button>
+</div>
+</header>
+<div class="mt-6 space-y-6">
+<article class="bg-white dark:bg-card-dark border border-slate-200 dark:border-card-border rounded-2xl p-6 transition-transform hover:border-primary/30">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-4">
+<img alt="Sarah Jenkins" class="w-12 h-12 rounded-full ring-2 ring-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4Io9MnQYSEtxeV-mB2e-jMPglyXZGmOdnIGWuAhmH351gHXzf_6Wyv0zu-9bmPltxWX65YzpR2ZB62gS19gT-jd7TlNT2gI12X0WSAUzn35RxzxBqWxJ-dvKigPzNNtoA1NlM6KdWFTX6Vksiy1cMPPLRk4SxPOwUH7SFGuf8vDVlf9n26PeHpS7awCZIu63ZU8Jeer2DHgNKeaV_bmF6aYuG7_jwhon7eJxyRbNwKQi96KW2Cd7kw6Efpw81gGSEoxtFl8H-iQ"/>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-lg">Sarah Jenkins</h3>
+<span class="bg-primary/10 text-primary text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full border border-primary/20">Expert Guide</span>
+</div>
+<p class="text-sm text-slate-500 dark:text-slate-400">Addis Ababa • 15m ago</p>
+</div>
+</div>
+<button class="material-symbols-outlined text-slate-400 hover:text-primary transition-colors">more_horiz</button>
+</div>
+<div class="space-y-4">
+<h2 class="text-xl font-bold leading-tight">What's the best time to visit the Mercato to avoid the heaviest crowds?</h2>
+<p class="text-slate-600 dark:text-slate-300 leading-relaxed">I want to take some street photography but I'm worried about the narrow lanes being too packed. Is early morning better or late afternoon?</p>
+<div class="relative w-full h-64 rounded-2xl overflow-hidden border border-slate-200 dark:border-neutral-800 group">
+<img alt="Addis Map Preview" class="w-full h-full object-cover grayscale-[0.3] dark:invert dark:brightness-75" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCANuFkOEJW6_QKRNmzUJ22GbhDRnPAwVWziTWqLz3cv5e-hBwh6Gz3BpdSENC5Poni9h3XR5vCimuksmVoQNIaxoHA5st6f-66ogc9zTusgKalDdvaxjthnbXI_6WZqtbrEI_0EvxCfKGcYuK67wf1qP_7Ln9vk-Fm2sAIj4UtwcBIzMDXaZZk1mfQBPNLB28KopfKjhMFVrWXCTY2ngOsNLsz_M3MESsdMs-_HeN7qBvtoJ6IliqSBJVTZbHugfsO3N6FrjxDAg"/>
+<div class="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+<span class="material-symbols-outlined text-primary text-4xl drop-shadow-md">location_on</span>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-slate-100 dark:border-neutral-800 flex items-center justify-between">
+<div class="flex items-center bg-slate-100 dark:bg-neutral-800 rounded-full px-1 py-1">
+<button class="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors">
+<span class="material-symbols-outlined text-xl">arrow_upward</span>
+<span class="font-bold text-primary">124</span>
+</button>
+<div class="w-[1px] h-6 bg-slate-300 dark:bg-neutral-600 mx-1"></div>
+<button class="flex items-center px-4 py-2 rounded-full hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors">
+<span class="material-symbols-outlined text-xl">arrow_downward</span>
+</button>
+</div>
+<div class="flex items-center gap-6">
+<button class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-semibold">45</span>
+</button>
+<button class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+</article>
+<article class="bg-white dark:bg-card-dark border border-slate-200 dark:border-card-border rounded-2xl p-6 transition-transform hover:border-primary/30">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-4">
+<img alt="Marcus Chen" class="w-12 h-12 rounded-full ring-2 ring-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1j8IwLWRuK3-r9elG1NNlLt3Q2mdKAphiD-2_wf5OpENg6MBvfcrRSAOJdwIEnBHYrR_O8Zd4V8H6K-YE7b-VJmXgxBApE65Oj-LR090gGEIkphPZHuNiPUPU5SWN8ggeaXw4xjqn-d4Sf7y_GO8xwW8vs9L7vEY1-FjuawtgLdfAU5xd9SgI5JDYr18-bNEqGX3HTPsrW0gCz1FsJvnW4ULIji67B18saWfggDbjqTIhj_hLeLVySG7g4a5N13CqcqduxQwB1Q"/>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-lg">Marcus Chen</h3>
+<span class="bg-primary/10 text-primary text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full border border-primary/20">Local Legend</span>
+</div>
+<p class="text-sm text-slate-500 dark:text-slate-400">Bole District • 2h ago</p>
+</div>
+</div>
+<button class="material-symbols-outlined text-slate-400 hover:text-primary transition-colors">more_horiz</button>
+</div>
+<div class="space-y-4">
+<h2 class="text-xl font-bold leading-tight">Recommended spots for traditional music tonight?</h2>
+<p class="text-slate-600 dark:text-slate-300 leading-relaxed">Looking for a place with authentic Azmari music near the city center. Any hidden gems I should check out?</p>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-slate-100 dark:bg-neutral-800 text-slate-500 dark:text-slate-400 text-xs font-bold rounded-md uppercase tracking-wide">Nightlife</span>
+<span class="px-3 py-1 bg-slate-100 dark:bg-neutral-800 text-slate-500 dark:text-slate-400 text-xs font-bold rounded-md uppercase tracking-wide">Culture</span>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-slate-100 dark:border-neutral-800 flex items-center justify-between">
+<div class="flex items-center bg-slate-100 dark:bg-neutral-800 rounded-full px-1 py-1">
+<button class="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors">
+<span class="material-symbols-outlined text-xl">arrow_upward</span>
+<span class="font-bold text-primary">82</span>
+</button>
+<div class="w-[1px] h-6 bg-slate-300 dark:bg-neutral-600 mx-1"></div>
+<button class="flex items-center px-4 py-2 rounded-full hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors">
+<span class="material-symbols-outlined text-xl">arrow_downward</span>
+</button>
+</div>
+<div class="flex items-center gap-6">
+<button class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-semibold">12</span>
+</button>
+<button class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+</article>
+</div>
+</div>
+</main>
+<aside class="w-80 fixed inset-y-0 right-0 border-l border-slate-200 dark:border-neutral-800 bg-white dark:bg-background-dark hidden xl:flex flex-col z-50 p-6 space-y-8 overflow-y-auto hide-scrollbar">
+<div>
+<div class="flex justify-between items-center mb-5">
+<h3 class="font-bold text-lg">Trending in Ethiopia</h3>
+<span class="material-symbols-outlined text-primary text-xl">trending_up</span>
+</div>
+<div class="space-y-4">
+<div class="group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-neutral-900 flex items-center justify-center text-primary overflow-hidden">
+<span class="material-symbols-outlined">coffee</span>
+</div>
+<div class="flex-1">
+<p class="font-bold text-sm group-hover:text-primary transition-colors">Tomoca Coffee</p>
+<p class="text-xs text-slate-500">Piazza • 1.2k mentions</p>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-neutral-900 flex items-center justify-center text-primary overflow-hidden">
+<span class="material-symbols-outlined">storefront</span>
+</div>
+<div class="flex-1">
+<p class="font-bold text-sm group-hover:text-primary transition-colors">Addis Mercato</p>
+<p class="text-xs text-slate-500">Open Air Market • 840 mentions</p>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-neutral-900 flex items-center justify-center text-primary overflow-hidden">
+<span class="material-symbols-outlined">museum</span>
+</div>
+<div class="flex-1">
+<p class="font-bold text-sm group-hover:text-primary transition-colors">National Museum</p>
+<p class="text-xs text-slate-500">History • 562 mentions</p>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-neutral-900 flex items-center justify-center text-primary overflow-hidden">
+<span class="material-symbols-outlined">park</span>
+</div>
+<div class="flex-1">
+<p class="font-bold text-sm group-hover:text-primary transition-colors">Unity Park</p>
+<p class="text-xs text-slate-500">Nature • 420 mentions</p>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full mt-4 py-2.5 text-sm font-semibold text-primary bg-primary/5 hover:bg-primary/10 rounded-xl transition-all">
+                Explore More
+            </button>
+</div>
+<div class="pt-2">
+<h3 class="font-bold text-lg mb-5">Helpful Contributors</h3>
+<div class="space-y-5">
+<div class="flex items-center gap-3">
+<div class="relative">
+<img alt="Expert" class="w-10 h-10 rounded-full border-2 border-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjuZmU4G_ZskAmV4KTdi9qzin5sOrRdQ4AN4jbiQHriD9Fit3yU-gJIpBvzdNWLN9lmYykvSiUaGTuF3H0yZivPZBPU4-ZGxzTN_CEk-5FgWVxX-FI22ZnYmEfwK9jkMWIg3gxlrWzAYVi6g5e4YhpC7Ok-J5FE4bJJq_8ZdUFdigMSkITYWLjRN5-vDwlZhkeVYjBLLlz5j2nuUO8VzSNkcxQ4Asu10uj-lorr_OU6oc5TXe1cQ_6V_QQIOlqjbTpYLw4G0dFLA"/>
+<span class="absolute -bottom-1 -right-1 bg-primary text-[8px] text-white p-0.5 rounded-full ring-2 ring-white dark:ring-background-dark material-symbols-outlined" style="font-size: 10px;">verified</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Dawit Kebede</p>
+<div class="flex items-center gap-2">
+<span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-bold">TOP GUIDE</span>
+<span class="text-[10px] text-slate-500">421 Answers</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative">
+<img alt="Expert" class="w-10 h-10 rounded-full border-2 border-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJZgt8dIMnbw7sL52ULQ3J7l6ByEhksDcA_hKAPFKxzFHMiOO71KDxYCBL8oW2hpI1DFZUMF8Lw7WerGVHgFmk9D4r6AQoJ_R8v5lOgrLpow02n9oPxi45cqC6T4c4Yk4JaQJy2xCu3kWdYNLV-Fr4WDo5uNUyySFCoKZZCeZ_WLuAbv6wfu2K6X0irDFwDG2JGDvSsFbNVu1XzWeS9xovdMOVuJzFkjYjZVfdQG-8wdFDwhdkTM8aMwXEuALFA-3DkSh3C3UGjA"/>
+<span class="absolute -bottom-1 -right-1 bg-amber-500 text-[8px] text-white p-0.5 rounded-full ring-2 ring-white dark:ring-background-dark material-symbols-outlined" style="font-size: 10px;">military_tech</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Hanna T.</p>
+<div class="flex items-center gap-2">
+<span class="text-[10px] bg-slate-100 dark:bg-neutral-800 text-slate-500 px-1.5 py-0.5 rounded font-bold">LOCAL EXPLORER</span>
+<span class="text-[10px] text-slate-500">289 Answers</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative">
+<img alt="Expert" class="w-10 h-10 rounded-full border-2 border-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCzQQP26TrM42iOqFfv9zHOx6t-pefx8n00vMpda1tmKFsR8gdRr_z69Co-e95UEpmbs0-ypGzvbwqBR4UjQPtTM4osk6pPgdUwSr7GzH_KxbiCLJfdaRcqI1W7BYoZFVDQufroWhNycTVgEebpZ67AOLeu28XC9KSPs6Lo8X2unp_gQI9x45L0hD0yLm7pWOxu1kxaeAigdM6zk7vTe8Y9EiiDi1GqrDEd6UJRYyMGZeYNUEevievUQ7E-0mmn_yNwwvVVwc_Vw"/>
+<span class="absolute -bottom-1 -right-1 bg-blue-500 text-[8px] text-white p-0.5 rounded-full ring-2 ring-white dark:ring-background-dark material-symbols-outlined" style="font-size: 10px;">star</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Samuel L.</p>
+<div class="flex items-center gap-2">
+<span class="text-[10px] bg-slate-100 dark:bg-neutral-800 text-slate-500 px-1.5 py-0.5 rounded font-bold">RISING STAR</span>
+<span class="text-[10px] text-slate-500">156 Answers</span>
+</div>
+</div>
+</div>
+</div>
+<a class="inline-block mt-6 text-xs font-bold text-slate-400 hover:text-primary transition-colors" href="#">View full leaderboard</a>
+</div>
+<div class="pt-2">
+<h3 class="font-bold text-lg mb-4">Trending Tags</h3>
+<div class="flex flex-wrap gap-2">
+<a class="px-3 py-1.5 bg-slate-100 dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg text-sm font-medium hover:border-primary/50 transition-colors" href="#">#Nature</a>
+<a class="px-3 py-1.5 bg-slate-100 dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg text-sm font-medium hover:border-primary/50 transition-colors" href="#">#Events</a>
+<a class="px-3 py-1.5 bg-slate-100 dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg text-sm font-medium hover:border-primary/50 transition-colors" href="#">#SafeTravels</a>
+<a class="px-3 py-1.5 bg-slate-100 dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg text-sm font-medium hover:border-primary/50 transition-colors" href="#">#AddisAbaba</a>
+</div>
+</div>
+</aside>
+</div>
+<button class="fixed bottom-8 right-8 xl:right-[340px] w-14 h-14 bg-primary text-white rounded-full shadow-lg shadow-primary/20 flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 lg:flex">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+
+</body></html>

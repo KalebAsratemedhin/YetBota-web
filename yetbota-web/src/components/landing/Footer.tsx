@@ -80,9 +80,7 @@ export default function Footer() {
           </p>
 
           <div className="flex items-center gap-4">
-            <span className="text-brand text-xs font-bold uppercase tracking-widest">
-              {t.footer.alignment}
-            </span>
+           
             <div className="flex items-center gap-2 text-xs text-gray-600">
               {(["en", "am"] as Locale[]).map((l) => (
                 <button

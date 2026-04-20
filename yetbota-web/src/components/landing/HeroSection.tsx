@@ -17,13 +17,7 @@ export default function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 text-center max-w-3xl mx-auto px-6 pt-20">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 mb-6 bg-brand/15 border border-brand/30 backdrop-blur-sm px-4 py-1.5 rounded-full">
-          <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-          <span className="text-xs font-bold uppercase tracking-widest text-brand">
-            {t.hero.badge}
-          </span>
-        </div>
+       
 
         {/* Heading */}
         <h1 className="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6">

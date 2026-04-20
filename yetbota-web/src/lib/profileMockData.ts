@@ -98,7 +98,7 @@ export const CONTRIBUTIONS: Contribution[] = [
     addedDate: "May 12, 2023",
     views: "2.4k",
     rating: 4.9,
-    imageUrl: "/images/places/tomoca.jpg",
+    imageUrl: "/images/profile/rock-hewn.webp",
   },
   {
     id: "c2",
@@ -108,7 +108,7 @@ export const CONTRIBUTIONS: Contribution[] = [
     addedDate: "Feb 28, 2024",
     views: "1.8k",
     rating: 5.0,
-    imageUrl: "/images/places/galani.jpg",
+    imageUrl: "/images/profile/tomoca-coffee-on-cameroon.webp",
   },
   {
     id: "c3",
@@ -118,7 +118,7 @@ export const CONTRIBUTIONS: Contribution[] = [
     addedDate: "Nov 15, 2023",
     views: "4.1k",
     rating: 4.7,
-    imageUrl: "/images/places/shola.jpg",
+    imageUrl: "/images/profile/blue-nile-falls.webp",
   },
   {
     id: "c4",
@@ -128,7 +128,7 @@ export const CONTRIBUTIONS: Contribution[] = [
     addedDate: "Jan 10, 2024",
     views: "920",
     rating: 4.5,
-    imageUrl: "/images/places/bole.jpg",
+    imageUrl: "/images/profile/national-museum-of-ethiopia-addis-ababa-ethiopia-december-1-2017.webp",
   },
 ];
 
