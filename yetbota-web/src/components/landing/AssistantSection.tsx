@@ -12,8 +12,8 @@ export default function AssistantSection() {
         {/* Ask Assistant */}
         <div className="bg-[#111111] border border-white/5 rounded-3xl p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-9 h-9 bg-[#1AFF6B]/20 rounded-xl flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-[#1AFF6B]" />
+            <div className="w-9 h-9 bg-brand/20 rounded-xl flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-brand" />
             </div>
             <h3 className="text-white font-semibold text-lg">{t.assistant.title}</h3>
           </div>
@@ -26,8 +26,8 @@ export default function AssistantSection() {
             </div>
 
             {/* AI response */}
-            <div className="bg-[#1AFF6B]/10 border border-[#1AFF6B]/20 rounded-2xl rounded-tl-sm px-4 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#1AFF6B] mb-2">
+            <div className="bg-brand/10 border border-brand/20 rounded-2xl rounded-tl-sm px-4 py-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-brand mb-2">
                 {t.assistant.label}
               </p>
               <p
@@ -50,7 +50,7 @@ export default function AssistantSection() {
               className="flex-1 bg-transparent text-sm text-gray-400 placeholder-gray-600 outline-none"
               readOnly
             />
-            <button className="w-8 h-8 bg-[#1AFF6B] rounded-full flex items-center justify-center hover:bg-brand-dark transition-colors">
+            <button className="w-8 h-8 bg-brand rounded-full flex items-center justify-center hover:bg-brand-dark transition-colors">
               <Send className="w-4 h-4 text-black" />
             </button>
           </div>
@@ -59,8 +59,8 @@ export default function AssistantSection() {
         {/* Help the Community */}
         <div className="bg-[#111111] border border-white/5 rounded-3xl p-6 flex flex-col">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-9 h-9 bg-[#1AFF6B]/20 rounded-xl flex items-center justify-center">
-              <HelpCircle className="w-5 h-5 text-[#1AFF6B]" />
+            <div className="w-9 h-9 bg-brand/20 rounded-xl flex items-center justify-center">
+              <HelpCircle className="w-5 h-5 text-brand" />
             </div>
             <h3 className="text-white font-semibold text-lg">{t.community.helpTitle}</h3>
           </div>
@@ -73,7 +73,7 @@ export default function AssistantSection() {
               </div>
               <div>
                 <p className="text-white text-sm font-semibold">{t.community.user}</p>
-                <p className="text-[10px] uppercase tracking-widest text-[#1AFF6B] font-bold">
+                <p className="text-[10px] uppercase tracking-widest text-brand font-bold">
                   {t.community.trendingQuestion}
                 </p>
               </div>
@@ -94,7 +94,7 @@ export default function AssistantSection() {
               </div>
               <Button
                 size="sm"
-                className="bg-[#1AFF6B] hover:bg-brand-dark text-black font-semibold rounded-full px-5 text-sm"
+                className="bg-brand hover:bg-brand-dark text-black font-semibold rounded-full px-5 text-sm"
               >
                 <Pencil className="w-3 h-3 mr-1.5" />
                 {t.community.helpOut}

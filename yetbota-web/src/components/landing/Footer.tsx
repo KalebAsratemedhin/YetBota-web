@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Globe, Share2 } from "lucide-react";
+import { Globe, Share2 } from "lucide-react";
 import { useContent } from "@/lib/useContent";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setLocale } from "@/store/localeSlice";
@@ -80,7 +80,7 @@ export default function Footer() {
           </p>
 
           <div className="flex items-center gap-4">
-            <span className="text-[#1AFF6B] text-xs font-bold uppercase tracking-widest">
+            <span className="text-brand text-xs font-bold uppercase tracking-widest">
               {t.footer.alignment}
             </span>
             <div className="flex items-center gap-2 text-xs text-gray-600">

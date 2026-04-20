@@ -42,7 +42,7 @@ export default function PhonePage() {
                 setPhone(val);
               }}
               placeholder="912 345 678"
-              className="flex-1 bg-[#1a1a1a] border border-white/8 rounded-xl px-4 h-12 text-white placeholder-gray-600 text-sm outline-none focus:border-[#1AFF6B]/50 focus:ring-1 focus:ring-[#1AFF6B]/20 transition-all"
+              className="flex-1 bg-[#1a1a1a] border border-white/8 rounded-xl px-4 h-12 text-white placeholder-gray-600 text-sm outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 transition-all"
             />
           </div>
         </div>
@@ -50,7 +50,7 @@ export default function PhonePage() {
         <Button
           type="submit"
           disabled={phone.length < 9}
-          className="w-full bg-[#1AFF6B] hover:bg-brand-dark disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold rounded-xl h-12 text-base inline-flex items-center gap-2"
+          className="w-full bg-brand hover:bg-brand-dark disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold rounded-xl h-12 text-base inline-flex items-center gap-2"
         >
           Send OTP
           <ArrowRight className="w-4 h-4" />
@@ -64,7 +64,7 @@ export default function PhonePage() {
           Terms of Service
         </Link>{" "}
         and{" "}
-        <Link href="/privacy" className="text-[#1AFF6B] hover:text-brand-dark transition-colors">
+        <Link href="/privacy" className="text-brand hover:text-brand-dark transition-colors">
           Privacy Policy
         </Link>
       </p>
@@ -72,7 +72,7 @@ export default function PhonePage() {
       {/* Footer */}
       <p className="text-center text-gray-600 text-xs mt-6">
         New to the community?{" "}
-        <Link href="/signup" className="text-[#1AFF6B] hover:text-brand-dark font-semibold transition-colors">
+        <Link href="/signup" className="text-brand hover:text-brand-dark font-semibold transition-colors">
           Sign Up
         </Link>
       </p>

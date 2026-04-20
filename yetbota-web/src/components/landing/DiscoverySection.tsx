@@ -35,8 +35,8 @@ function PlaceCardItem({ place, displayName, displayDescription, badgeLabel, isC
             text-[8px] font-bold uppercase tracking-wide
             px-2 py-0.5 rounded-full leading-tight whitespace-nowrap
             ${isCommunity
-              ? "bg-[#1AFF6B]/20 text-[#1AFF6B] border border-[#1AFF6B]/30"
-              : "bg-[#1AFF6B] text-black"}
+              ? "bg-brand/20 text-brand border border-brand/30"
+              : "bg-brand text-black"}
           `}>
             {isCommunity ? "COMMUNITY" : "CURATED"}
           </span>
@@ -151,7 +151,7 @@ export default function DiscoverySection() {
           badgeLabels={t.discovery.badges}
         />
         <div className="flex justify-center mt-8">
-          <Button className="bg-[#1AFF6B] hover:bg-brand-dark text-black font-semibold rounded-full px-8 py-2.5 text-sm">
+          <Button className="bg-brand hover:bg-brand-dark text-black font-semibold rounded-full px-8 py-2.5 text-sm">
             {t.discovery.viewFeed} →
           </Button>
         </div>

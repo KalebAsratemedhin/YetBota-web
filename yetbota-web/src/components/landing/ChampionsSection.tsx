@@ -22,7 +22,7 @@ const AVATAR_COLORS = [
 
 const ROLE_COLORS = [
   "text-yellow-400",
-  "text-[#1AFF6B]",
+  "text-brand",
   "text-blue-400",
   "text-orange-400",
 ];
@@ -32,14 +32,14 @@ function ChampionCard({ champion, index }: { champion: Champion; index: number }
   const BadgeIcon = BADGE_ICONS[champion.badgeIcon];
 
   return (
-    <div className="bg-[#111111] border border-white/5 rounded-3xl p-6 flex flex-col items-start hover:border-[#1AFF6B]/20 transition-colors">
+    <div className="bg-[#111111] border border-white/5 rounded-3xl p-6 flex flex-col items-start hover:border-brand/20 transition-colors">
       {/* Avatar with badge icon */}
       <div className="relative mb-4">
-        <div className={`w-16 h-16 ${AVATAR_COLORS[index]} rounded-full flex items-center justify-center text-lg font-bold text-white border-2 border-[#1AFF6B]/40`}>
+        <div className={`w-16 h-16 ${AVATAR_COLORS[index]} rounded-full flex items-center justify-center text-lg font-bold text-white border-2 border-brand/40`}>
           {initials}
         </div>
         <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#1a1a1a] border border-white/10 rounded-full flex items-center justify-center">
-          <BadgeIcon className="w-3.5 h-3.5 text-[#1AFF6B]" />
+          <BadgeIcon className="w-3.5 h-3.5 text-brand" />
         </div>
       </div>
 

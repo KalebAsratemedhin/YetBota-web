@@ -18,9 +18,9 @@ export default function HeroSection() {
       {/* Content */}
       <div className="relative z-10 text-center max-w-3xl mx-auto px-6 pt-20">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 mb-6 bg-[#1AFF6B]/15 border border-[#1AFF6B]/30 backdrop-blur-sm px-4 py-1.5 rounded-full">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#1AFF6B] animate-pulse" />
-          <span className="text-xs font-bold uppercase tracking-widest text-[#1AFF6B]">
+        <div className="inline-flex items-center gap-2 mb-6 bg-brand/15 border border-brand/30 backdrop-blur-sm px-4 py-1.5 rounded-full">
+          <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
+          <span className="text-xs font-bold uppercase tracking-widest text-brand">
             {t.hero.badge}
           </span>
         </div>
@@ -28,7 +28,7 @@ export default function HeroSection() {
         {/* Heading */}
         <h1 className="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6">
           {t.hero.title}{" "}
-          <span className="text-[#1AFF6B]">{t.hero.titleHighlight}</span>
+          <span className="text-brand">{t.hero.titleHighlight}</span>
         </h1>
 
         {/* Subtitle */}
@@ -40,7 +40,7 @@ export default function HeroSection() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Button
             size="lg"
-            className="bg-[#1AFF6B] hover:bg-brand-dark text-black font-bold rounded-xl px-8 py-4 text-base w-full sm:w-auto"
+            className="bg-brand hover:bg-brand-dark text-black font-bold rounded-xl px-8 py-4 text-base w-full sm:w-auto"
           >
             {t.hero.ctaExplore}
           </Button>
