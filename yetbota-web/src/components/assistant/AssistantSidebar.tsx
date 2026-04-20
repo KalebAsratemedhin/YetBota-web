@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { Home, Compass, MessageSquare, User, Settings } from "lucide-react";
+import { Home, Compass, MessageSquare, User, Settings, Sparkles } from "lucide-react";
 import { RECENT_CHATS, SUGGESTED_TOPICS, type RecentChat } from "@/lib/assistantMockData";
 import { cn } from "@/lib/utils";
 
@@ -12,10 +12,11 @@ interface SidebarProps {
 }
 
 const NAV_ITEMS = [
-  { id: "home",     label: "Home",     icon: Home,          href: "/" },
-  { id: "discover", label: "Discover", icon: Compass,       href: "/explore" },
-  { id: "ai",       label: "AI Chat",  icon: MessageSquare, href: "/assistant", active: true },
-  { id: "profile",  label: "Profile",  icon: User,          href: "/profile" },
+  { id: "home",     label: "Home",     icon: Home,          href: "/"           },
+  { id: "discover", label: "Discover", icon: Compass,       href: "/explore"    },
+  { id: "qa",        label: "QA Feed",      icon: MessageSquare, href: "/qa"         },
+  { id: "ai",       label: "AI Assistant",  icon: Sparkles, href: "/assistant"  },
+  { id: "profile",  label: "Profile",  icon: User,          href: "/profile"    },
 ];
 
 export default function AssistantSidebar({ activeChat, onSelectChat, user }: SidebarProps) {
@@ -25,12 +26,12 @@ export default function AssistantSidebar({ activeChat, onSelectChat, user }: Sid
       {/* Logo */}
       <div className="px-5 py-4 border-b border-white/5 flex items-center gap-2.5">
         <Image
-              src="/images/logo.jpg"
-              alt="Yet Bota"
-              width={36}
-              height={36}
-              className="rounded-lg"
-            />
+                      src="/images/logo.jpg"
+                      alt="Yet Bota"
+                      width={36}
+                      height={36}
+                      className="rounded-lg"
+                    />
         <span className="text-white font-bold text-sm leading-tight">Yet Bota AI</span>
       </div>
 
@@ -38,13 +39,14 @@ export default function AssistantSidebar({ activeChat, onSelectChat, user }: Sid
       <nav className="px-3 py-4 border-b border-white/5">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
+          const isActive = item.href === "/assistant";
           return (
             <Link
               key={item.id}
               href={item.href}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-0.5",
-                item.active
+                isActive
                   ? "bg-brand/15 text-brand"
                   : "text-gray-400 hover:text-white hover:bg-white/5"
               )}
