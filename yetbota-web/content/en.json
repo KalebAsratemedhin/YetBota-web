@@ -5,7 +5,9 @@
     "aiAssistant": "AI Assistant",
     "community": "Community",
     "signIn": "Sign In",
-    "joinCommunity": "Join Community"
+    "joinCommunity": "Join Community",
+    "profile": "Profile",
+    "signOut": "Log out"
   },
   "hero": {
     "badge": "Community-Powered Discovery",
