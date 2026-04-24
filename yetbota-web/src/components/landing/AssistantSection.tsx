@@ -2,6 +2,7 @@
 import { Send, Pencil, HelpCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useContent } from "@/lib/useContent";
+import Link from "next/link";
 
 export default function AssistantSection() {
   const t = useContent();
@@ -50,9 +51,13 @@ export default function AssistantSection() {
               className="flex-1 bg-transparent text-sm text-gray-400 placeholder-gray-600 outline-none"
               readOnly
             />
-            <button className="w-8 h-8 bg-brand rounded-full flex items-center justify-center hover:bg-brand-dark transition-colors">
+            <Link
+              href="/assistant"
+              aria-label={t.nav.aiAssistant}
+              className="w-8 h-8 bg-brand rounded-full flex items-center justify-center hover:bg-brand-dark transition-colors"
+            >
               <Send className="w-4 h-4 text-black" />
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -94,17 +99,20 @@ export default function AssistantSection() {
               </div>
               <Button
                 size="sm"
+                asChild
                 className="bg-brand hover:bg-brand-dark text-black font-semibold rounded-full px-5 text-sm"
               >
-                <Pencil className="w-3 h-3 mr-1.5" />
-                {t.community.helpOut}
+                <Link href="/ask">
+                  <Pencil className="w-3 h-3 mr-1.5" />
+                  {t.community.helpOut}
+                </Link>
               </Button>
             </div>
           </div>
 
-          <button className="text-sm text-gray-400 hover:text-white transition-colors text-center">
+          <Link href="/qa" className="text-sm text-gray-400 hover:text-white transition-colors text-center">
             {t.community.browseQuestions} →
-          </button>
+          </Link>
         </div>
       </div>
     </section>

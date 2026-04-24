@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useContent } from "@/lib/useContent";
+import Link from "next/link";
 
 export default function HeroSection() {
   const t = useContent();
@@ -34,16 +35,18 @@ export default function HeroSection() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Button
             size="lg"
+            asChild
             className="bg-brand hover:bg-brand-dark text-black font-bold rounded-xl px-8 py-4 text-base w-full sm:w-auto"
           >
-            {t.hero.ctaExplore}
+            <Link href="/discovery">{t.hero.ctaExplore}</Link>
           </Button>
           <Button
             size="lg"
             variant="outline"
+            asChild
             className="border-white/20 text-white hover:bg-white/10 rounded-xl px-8 py-4 text-base w-full sm:w-auto bg-white/5"
           >
-            {t.hero.ctaContribute}
+            <Link href="/create">{t.hero.ctaContribute}</Link>
           </Button>
         </div>
       </div>

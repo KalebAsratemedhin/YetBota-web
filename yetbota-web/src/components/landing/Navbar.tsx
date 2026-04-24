@@ -48,10 +48,10 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navLinks = [
-    { label: t.nav.explore, href: "/explore" },
-    { label: t.nav.map, href: "/map" },
+    { label: t.nav.explore, href: "/discovery" },
+    { label: t.nav.map, href: "/discovery" },
     { label: t.nav.aiAssistant, href: "/assistant" },
-    { label: t.nav.community, href: "/community" },
+    { label: t.nav.community, href: "/qa" },
   ];
 
   function handleSignOut() {
@@ -120,7 +120,7 @@ export default function Navbar() {
           <div className="flex md:hidden items-center gap-2">
             <LocalePill locale={locale} size="sm" onLocaleChange={(l) => dispatch(setLocale(l))} />
             {isSignedIn ? (
-              <Link href="/profile" className="text-sm text-gray-300 hover:text-white transition-colors px-1 max-w-[4.5rem] truncate">
+              <Link href="/profile" className="text-sm text-gray-300 hover:text-white transition-colors px-1 max-w-18 truncate">
                 {t.nav.profile}
               </Link>
             ) : (

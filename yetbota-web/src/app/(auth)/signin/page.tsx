@@ -10,13 +10,14 @@ import AuthInput from "@/components/auth/AuthInput";
 import { getAuthErrorMessage } from "@/lib/authErrors";
 import { useLoginMutation } from "@/store/api/authApi";
 import { useAppSelector } from "@/store/hooks";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SignInPage() {
   const router = useRouter();
   const accessToken = useAppSelector((s) => s.auth.accessToken);
-  const [email, setEmail] = useState("");
+  const { toast } = useToast();
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [formError, setFormError] = useState("");
   const [login, { isLoading }] = useLoginMutation();
 
   useEffect(() => {
@@ -27,12 +28,18 @@ export default function SignInPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setFormError("");
     try {
-      await login({ email: email.trim(), password }).unwrap();
+      const res = await login({ username: username.trim(), password }).unwrap();
+      console.log("[auth/login] response", res);
+      toast({ title: "Signed in", description: "Welcome back." });
       router.replace("/");
     } catch (err) {
-      setFormError(getAuthErrorMessage(err));
+      console.error("[auth/login] error", err);
+      toast({
+        variant: "destructive",
+        title: "Sign in failed",
+        description: getAuthErrorMessage(err),
+      });
     }
   }
 
@@ -44,15 +51,13 @@ export default function SignInPage() {
       </div>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
-        {formError ? <p className="text-red-400 text-sm text-center">{formError}</p> : null}
-
         <AuthInput
-          label="Email"
-          type="email"
-          placeholder="Enter your email"
-          autoComplete="email"
-          value={email}
-          onChange={(ev) => setEmail(ev.target.value)}
+          label="Username"
+          type="text"
+          placeholder="Enter your username"
+          autoComplete="username"
+          value={username}
+          onChange={(ev) => setUsername(ev.target.value)}
           disabled={isLoading}
         />
 
@@ -76,7 +81,7 @@ export default function SignInPage() {
 
         <Button
           type="submit"
-          disabled={isLoading || !email.trim() || !password}
+          disabled={isLoading || !username.trim() || !password}
           className="w-full bg-brand hover:bg-brand-dark text-black font-bold rounded-xl h-12 text-base mt-2 disabled:opacity-60"
         >
           {isLoading ? "Signing in…" : "Sign In"}

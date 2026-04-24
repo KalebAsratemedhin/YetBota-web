@@ -1,12 +1,23 @@
+"use client";
+
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ReputationCard from "@/components/profile/ReputationCard";
 import BadgesCard from "@/components/profile/BadgesCard";
 import RecentActivityCard from "@/components/profile/RecentActivityCard";
 import ContributionsGrid from "@/components/profile/Contributions";
 import { MOCK_PROFILE_USER } from "@/lib/profileMockData";
+import { useAppSelector } from "@/store/hooks";
 
 export default function ProfileContent() {
-  const user = MOCK_PROFILE_USER;
+  const localUser = useAppSelector((s) => s.auth.user);
+  const user =
+    localUser && localUser.username
+      ? {
+          ...MOCK_PROFILE_USER,
+          name: `${localUser.firstName ?? ""} ${localUser.lastName ?? ""}`.trim() || localUser.username,
+          username: `@${localUser.username.replace(/^@/, "")}`,
+        }
+      : MOCK_PROFILE_USER;
 
   return (
     <div className="bg-[#0a0a0a] text-white">

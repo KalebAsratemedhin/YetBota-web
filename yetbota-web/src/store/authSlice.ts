@@ -1,10 +1,16 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { AuthUser } from "@/types/auth";
+
+export interface AuthUserRef {
+  username: string;
+  firstName?: string;
+  lastName?: string;
+  mobileE164?: string;
+}
 
 export interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
-  user: AuthUser | null;
+  user: AuthUserRef | null;
 }
 
 const initialState: AuthState = {
@@ -22,7 +28,7 @@ export const authSlice = createSlice({
       action: PayloadAction<{
         accessToken: string;
         refreshToken?: string | null;
-        user?: AuthUser | null;
+        user?: AuthUserRef | null;
       }>
     ) {
       state.accessToken = action.payload.accessToken;

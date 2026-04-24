@@ -4,6 +4,7 @@ import { Star, ChevronLeft, ChevronRight, Coffee, ShoppingBag, Trees, ArrowRight
 import { Button } from "@/components/ui/button";
 import { useContent } from "@/lib/useContent";
 import { COFFEE_HOUSES, HIDDEN_MARKETS, LOCAL_PARKS, type Place } from "@/lib/dummydata";
+import Link from "next/link";
 
 interface PlaceCardItemProps {
   place: Place;
@@ -151,8 +152,11 @@ export default function DiscoverySection() {
           badgeLabels={t.discovery.badges}
         />
         <div className="flex justify-center mt-8">
-          <Button className="bg-brand hover:bg-brand-dark text-black font-semibold rounded-full px-8 py-2.5 text-sm">
-            {t.discovery.viewFeed} →
+          <Button
+            asChild
+            className="bg-brand hover:bg-brand-dark text-black font-semibold rounded-full px-8 py-2.5 text-sm"
+          >
+            <Link href="/discovery">{t.discovery.viewFeed} →</Link>
           </Button>
         </div>
       </div>
