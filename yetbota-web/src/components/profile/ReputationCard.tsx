@@ -4,7 +4,7 @@ export default function ReputationCard({ user }: { user: ProfileUser }) {
   const xpRemaining = user.xpToNext - user.xp;
 
   return (
-    <div className="bg-[#171717] border border-[#262626] rounded-2xl p-6 shrink-0">
+    <div className="bg-[#171717] border border-[#262626] rounded-2xl p-4 sm:p-6">
       <div className="flex items-center justify-between mb-2">
         <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">
           Reputation Status

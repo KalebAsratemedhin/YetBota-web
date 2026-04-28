@@ -4,9 +4,16 @@ import Image from "next/image";
 import { Bell } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAppSelector } from "@/store/hooks";
+import { useGetMeQuery } from "@/store/api/authApi";
+import { resolveApiUrl } from "@/lib/resolveApiUrl";
 
 export default function DiscoveryTopBar() {
   const pathname = usePathname();
+  const accessToken = useAppSelector((s) => s.auth.accessToken);
+  const { data } = useGetMeQuery(undefined, { skip: !accessToken });
+  const avatarUrl = data?.user?.profile_url ? resolveApiUrl(data.user.profile_url) : null;
+  const name = data?.user ? `${data.user.first_name} ${data.user.last_name}`.trim() || data.user.username : null;
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#050505]/80 backdrop-blur-md border-b border-slate-200 dark:border-white/10">
@@ -65,11 +72,12 @@ export default function DiscoveryTopBar() {
             className="w-10 h-10 rounded-full bg-linear-to-tr from-amber-200 to-amber-500 border-2 border-white dark:border-white/10 shadow-sm overflow-hidden"
           >
             <Image
-              alt="Profile Avatar"
-              src="/images/profile/tomoca-coffee-on-cameroon.webp"
+              alt={name ? `${name} avatar` : "Profile avatar"}
+              src={avatarUrl ?? "/images/profile/tomoca-coffee-on-cameroon.webp"}
               width={40}
               height={40}
               className="w-full h-full object-cover"
+              unoptimized={Boolean(avatarUrl)}
             />
           </Link>
         </div>

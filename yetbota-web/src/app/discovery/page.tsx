@@ -2,15 +2,22 @@
 
 import DiscoveryTopBar from "@/components/discovery/DiscoveryTopBar";
 import DiscoveryFilters from "@/components/discovery/DiscoveryFilters";
-import DiscoveryFeedCard from "@/components/discovery/DiscoveryFeedCard";
 import DiscoveryRightColumn from "@/components/discovery/DiscoveryRightColumn";
-import { DISCOVERY_FEED } from "@/lib/discoveryMockData";
 import { Coffee, LocateFixed, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAppSelector } from "@/store/hooks";
+import { useListPostsQuery } from "@/store/api/contentApi";
+import DiscoveryPostCard from "@/components/discovery/DiscoveryPostCard";
 
 export default function DiscoveryPage() {
   const pathname = usePathname();
+  const accessToken = useAppSelector((s) => s.auth.accessToken);
+  const { data, isLoading, isError, refetch } = useListPostsQuery(
+    { limit: 15, page: 1, resolution: "WEB" },
+    { skip: !accessToken }
+  );
+  const posts = data?.posts ?? [];
 
   return (
     <div className="min-h-screen bg-[#050505] text-slate-900 dark:text-slate-100">
@@ -42,9 +49,33 @@ export default function DiscoveryPage() {
             </div>
           </div>
 
-          {DISCOVERY_FEED.map((item) => (
-            <DiscoveryFeedCard key={item.id} item={item} />
-          ))}
+          {!accessToken ? (
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 text-sm text-gray-300">
+              Sign in to load the discovery feed.
+            </div>
+          ) : isLoading ? (
+            <>
+              <div className="h-[640px] rounded-3xl bg-white/5 border border-white/10" />
+              <div className="h-[640px] rounded-3xl bg-white/5 border border-white/10" />
+            </>
+          ) : isError ? (
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 text-sm text-gray-300">
+              Failed to load posts.{" "}
+              <button type="button" className="text-brand font-semibold" onClick={() => void refetch()}>
+                Retry
+              </button>
+            </div>
+          ) : posts.length === 0 ? (
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 text-sm text-gray-300">
+              No posts yet.
+            </div>
+          ) : (
+            <div className="space-y-8">
+              {posts.map((post) => (
+                <DiscoveryPostCard key={post.id} post={post} />
+              ))}
+            </div>
+          )}
         </section>
 
         <aside className="hidden lg:block lg:col-span-3 space-y-6 sticky top-24 h-fit">

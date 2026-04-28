@@ -1,16 +1,25 @@
 export type ApiCode = string;
 
-export interface ApiEnvelope<TData> {
+type EnvelopeV1<TData> = {
+  success: boolean;
+  message?: string;
+  data?: TData;
+};
+
+type EnvelopeLegacy<TData> = {
   code: ApiCode;
   success: boolean;
   message: string;
   data: TData;
-}
+};
+
+export type ApiEnvelope<TData> = EnvelopeV1<TData> | EnvelopeLegacy<TData>;
 
 export function isApiEnvelope(value: unknown): value is ApiEnvelope<unknown> {
   if (!value || typeof value !== "object") return false;
   const v = value as Record<string, unknown>;
-  return typeof v.code === "string" && typeof v.success === "boolean" && typeof v.message === "string" && "data" in v;
+  if (typeof v.success === "boolean") return true;
+  return typeof v.code === "string" && typeof v.success === "boolean";
 }
 
 export function envelopeHttpStatus(code: string): number {
@@ -27,12 +36,12 @@ export function unwrapEnvelope<T>(value: unknown): { data?: T; error?: { status:
   if (!value.success) {
     return {
       error: {
-        status: envelopeHttpStatus(value.code),
+        status: "code" in value && typeof value.code === "string" ? envelopeHttpStatus(value.code) : 400,
         data: value,
       },
     };
   }
 
-  return { data: value.data as T };
+  return { data: ("data" in value ? (value.data as T) : undefined) as T };
 }
 

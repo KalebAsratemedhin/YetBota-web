@@ -11,7 +11,7 @@ function ActivityRow({ item }: { item: ActivityItem }) {
   const meta = ACTIVITY_META[item.type];
   const Icon = meta.icon;
   return (
-    <div className="bg-[#171717] border border-[#262626] rounded-2xl px-4 py-4 shrink-0">
+    <div className="bg-[#171717] border border-[#262626] rounded-2xl px-3 sm:px-4 py-4">
       <div className="flex items-center gap-2 mb-2">
         <Icon className={`w-3 h-3 ${meta.color} shrink-0`} />
         <span className={`text-[12px] font-bold uppercase ${meta.color}`}>

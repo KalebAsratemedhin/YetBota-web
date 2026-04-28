@@ -13,11 +13,27 @@ import { unwrapEnvelope } from "@/store/api/apiEnvelope";
 type AuthAwareRoot = { auth: AuthState };
 
 const apiHost = (process.env.NEXT_PUBLIC_API_BASE_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
-const baseUrl = `${apiHost}/identity/v1`;
+const baseUrl = `${apiHost}/v1`;
 
 function isAuthPath(url: string | undefined): boolean {
   if (!url) return false;
-  return ["/auth/login", "/auth/register", "/auth/refresh"].some((p) => url.includes(p));
+  return ["/auth/login", "/auth/refresh"].some((p) => url.includes(p));
+}
+
+function isInvalidTokenPayload(data: unknown): boolean {
+  if (!data || typeof data !== "object") return false;
+  const maybeMsg = (data as Record<string, unknown>).message;
+  return typeof maybeMsg === "string" && maybeMsg.trim().toLowerCase() === "invalid token";
+}
+
+function clearAuthEverywhere(api: { dispatch: (a: unknown) => void }) {
+  api.dispatch(logout());
+  api.dispatch(baseApi.util.resetApiState());
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.removeItem("yetbota.localAuth");
+    } catch {}
+  }
 }
 
 const rawBaseQuery = fetchBaseQuery({
@@ -36,10 +52,19 @@ const baseQueryUnwrappingEnvelope: BaseQueryFn<string | FetchArgs, unknown, Fetc
   extraOptions
 ) => {
   const result = await rawBaseQuery(args, api, extraOptions);
-  if (result.error) return result;
+  if (result.error) {
+    const errData = (result.error as FetchBaseQueryError).data as unknown;
+    if (isInvalidTokenPayload(errData)) {
+      clearAuthEverywhere(api);
+    }
+    return result;
+  }
 
   const unwrapped = unwrapEnvelope<unknown>(result.data);
   if (unwrapped.error) {
+    if (isInvalidTokenPayload(unwrapped.error.data as unknown)) {
+      clearAuthEverywhere(api);
+    }
     return { error: unwrapped.error as FetchBaseQueryError };
   }
 
@@ -112,6 +137,6 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
 export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["User", "Auth"],
+  tagTypes: ["User", "Auth", "Me"],
   endpoints: () => ({}),
 });

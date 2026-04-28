@@ -2,7 +2,13 @@
 
 import { ChevronRight, MapPin } from "lucide-react";
 
-export default function CreatePostLocationRow({ onClick }: { onClick: () => void }) {
+export default function CreatePostLocationRow({
+  onClick,
+  subtitle,
+}: {
+  onClick: () => void;
+  subtitle?: string;
+}) {
   return (
     <button
       type="button"
@@ -15,7 +21,9 @@ export default function CreatePostLocationRow({ onClick }: { onClick: () => void
         </div>
         <div>
           <p className="font-bold">Set Location</p>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Pin your post to a specific spot</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            {subtitle ?? "Pin your post to a specific spot"}
+          </p>
         </div>
       </div>
       <ChevronRight className="w-5 h-5 text-slate-400" />

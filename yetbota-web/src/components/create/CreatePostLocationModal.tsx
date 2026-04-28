@@ -1,23 +1,47 @@
 "use client";
 
+import { useEffect } from "react";
 import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import OpenStreetMap from "@/components/maps/OpenStreetMap";
 
 export default function CreatePostLocationModal({
   open,
   onClose,
   onConfirm,
+  value,
+  onChange,
 }: {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  value: { latitude: number; longitude: number };
+  onChange: (v: { latitude: number; longitude: number }) => void;
 }) {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!open) return;
+    const body = document.body;
+    const prevOverflow = body.style.overflow;
+    const prevOverscroll = body.style.overscrollBehavior;
+
+    body.style.overflow = "hidden";
+    body.style.overscrollBehavior = "none";
+
+    return () => {
+      body.style.overflow = prevOverflow;
+      body.style.overscrollBehavior = prevOverscroll;
+    };
+  }, [open]);
+
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-      <div className="bg-white dark:bg-[#161616] w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl">
-        <div className="p-6 border-b border-slate-100 dark:border-[#262626] flex items-center justify-between">
-          <h3 className="text-xl font-bold">Select Location</h3>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6 overscroll-contain">
+      <div className="bg-white dark:bg-[#161616] w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl">
+        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-[#262626] flex items-center justify-between">
+          <h3 className="text-lg sm:text-xl font-bold">Select Location</h3>
           <button
             type="button"
             onClick={onClose}
@@ -28,27 +52,27 @@ export default function CreatePostLocationModal({
           </button>
         </div>
 
-        <div className="h-96 bg-slate-200 dark:bg-slate-900 relative">
-          <div className="absolute inset-0 flex items-center justify-center opacity-20 select-none">
-            <span className="text-6xl font-black">MAP</span>
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="animate-bounce text-brand text-5xl font-black">⌖</div>
-          </div>
-          <div className="absolute bottom-6 left-6 right-6">
-            <input
-              className="w-full px-6 py-4 rounded-2xl bg-white dark:bg-[#0a0a0a] shadow-xl border-none focus:ring-2 focus:ring-brand"
-              placeholder="Search for a location..."
-              type="text"
-            />
-          </div>
+        <div className="p-3 sm:p-4">
+          <OpenStreetMap
+            center={value}
+            marker={value}
+            zoom={14}
+            mode="pick"
+            onPick={onChange}
+            className="h-120 sm:h-152"
+            onOpenFullMap={(href) => {
+              onClose();
+              // Let the modal unmount before navigation so it doesn't overlay the map page.
+              setTimeout(() => router.push(href), 0);
+            }}
+          />
         </div>
 
-        <div className="p-6 flex justify-end">
+        <div className="p-4 sm:p-5 flex justify-end">
           <button
             type="button"
             onClick={onConfirm}
-            className="px-8 py-3 bg-brand text-black font-bold rounded-full hover:opacity-90"
+            className="px-6 h-12 bg-brand text-black font-bold rounded-2xl hover:opacity-90"
           >
             Confirm Location
           </button>

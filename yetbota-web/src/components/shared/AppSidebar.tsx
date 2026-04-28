@@ -11,6 +11,7 @@ export interface SidebarUser {
   name: string;
   role: string;
   level?: number;
+  avatarUrl?: string;
 }
 
 interface AppSidebarProps {
@@ -18,6 +19,8 @@ interface AppSidebarProps {
   /** Optional page-specific content below nav */
   children?: React.ReactNode;
   title?: string;
+  className?: string;
+  onNavigate?: () => void;
 }
 
 export const NAV_ITEMS = [
@@ -28,12 +31,12 @@ export const NAV_ITEMS = [
   { id: "profile",   label: "Profile",      icon: User,          href: "/profile"   },
 ];
 
-export default function AppSidebar({ user, children, title = "Yet Bota" }: AppSidebarProps) {
+export default function AppSidebar({ user, children, title = "Yet Bota", className, onNavigate }: AppSidebarProps) {
   const pathname = usePathname();
   const initials = user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <aside className="w-64 shrink-0 bg-[#0d0d0d] border-r border-white/5 flex flex-col h-full">
+    <aside className={cn("w-64 shrink-0 bg-[#0d0d0d] border-r border-white/5 flex flex-col h-full", className)}>
 
       {/* Logo */}
       <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2.5 shrink-0">
@@ -56,6 +59,7 @@ export default function AppSidebar({ user, children, title = "Yet Bota" }: AppSi
             <Link
               key={item.id}
               href={item.href}
+              onClick={onNavigate}
               className={cn(
                 "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors mb-0.5",
                 isActive
@@ -82,8 +86,12 @@ export default function AppSidebar({ user, children, title = "Yet Bota" }: AppSi
       {/* User footer */}
       <div className="px-5 py-4 border-t border-white/5 flex items-center justify-between gap-2 shrink-0">
         <Link href="/profile" className="flex items-center gap-2 min-w-0 group">
-          <div className="w-7 h-7 bg-brand rounded-full flex items-center justify-center shrink-0">
-            <span className="text-black text-[10px] font-bold">{initials}</span>
+          <div className="w-7 h-7 rounded-full bg-brand overflow-hidden flex items-center justify-center shrink-0">
+            {user.avatarUrl ? (
+              <Image alt="" src={user.avatarUrl} width={28} height={28} className="w-full h-full object-cover" unoptimized />
+            ) : (
+              <span className="text-black text-[10px] font-bold">{initials}</span>
+            )}
           </div>
           <div className="min-w-0">
             <p className="text-white text-xs font-semibold truncate group-hover:text-brand transition-colors">
@@ -94,7 +102,7 @@ export default function AppSidebar({ user, children, title = "Yet Bota" }: AppSi
             </p>
           </div>
         </Link>
-        <button className="shrink-0 hover:bg-white/5 p-1 rounded-lg transition-colors">
+        <button type="button" className="shrink-0 hover:bg-white/5 p-1 rounded-lg transition-colors">
           <Settings className="w-3.5 h-3.5 text-gray-500" />
         </button>
       </div>

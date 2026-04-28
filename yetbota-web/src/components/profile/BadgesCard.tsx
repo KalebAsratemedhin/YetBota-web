@@ -30,17 +30,19 @@ function BadgeItem({ badge }: { badge: Badge }) {
 
 export default function BadgesCard() {
   return (
-    <div className="bg-[#171717] border border-[#262626] rounded-2xl px-6 py-9 shrink-0">
+    <div className="bg-[#171717] border border-[#262626] rounded-2xl px-4 sm:px-6 py-7 sm:py-9">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-white font-semibold text-lg">Earned Badges</h3>
         <button className="text-brand text-xs font-bold hover:text-[#16a34a] transition-colors">
           View All
         </button>
       </div>
-      <div className="flex items-start gap-6">
-        {EARNED_BADGES.map((badge) => (
-          <BadgeItem key={badge.id} badge={badge} />
-        ))}
+      <div className="-mx-2 px-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex items-start gap-6 min-w-max">
+          {EARNED_BADGES.map((badge) => (
+            <BadgeItem key={badge.id} badge={badge} />
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -20,6 +20,7 @@ export default function LocationPost({
   comments,
   commentsOpen,
   onToggleComments,
+  showFollow = true,
 }: {
   author: LocationPostAuthor;
   title: string;
@@ -29,6 +30,7 @@ export default function LocationPost({
   comments: number;
   commentsOpen?: boolean;
   onToggleComments?: () => void;
+  showFollow?: boolean;
 }) {
   const [vote, setVote] = useState<"up" | "down" | null>(null);
 
@@ -61,9 +63,11 @@ export default function LocationPost({
             <p className="text-sm text-slate-500 dark:text-slate-400">{author.meta}</p>
           </div>
         </div>
-        <button className="bg-brand text-white px-6 py-2 rounded-full font-bold hover:bg-brand/90 transition-colors">
-          Follow
-        </button>
+        {showFollow ? (
+          <button className="bg-brand text-white px-6 py-2 rounded-full font-bold hover:bg-brand/90 transition-colors">
+            Follow
+          </button>
+        ) : null}
       </div>
 
       <h1 className="text-3xl font-extrabold mb-4">{title}</h1>

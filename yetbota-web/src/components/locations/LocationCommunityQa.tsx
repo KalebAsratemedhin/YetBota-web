@@ -56,7 +56,7 @@ export default function LocationCommunityQa({
         <span className="inline-flex w-7 h-7 rounded-lg bg-brand/15 items-center justify-center text-brand">
           <MessageSquareText className="w-4 h-4" />
         </span>
-        <span>Comments</span>
+        <span>Community QA</span>
       </h2>
 
       <div className="flex gap-4 mb-10">
@@ -72,7 +72,7 @@ export default function LocationCommunityQa({
         <div className="relative flex-1">
           <input
             className="w-full bg-white dark:bg-[#161616] border border-slate-200 dark:border-[#262626] rounded-2xl py-3 px-5 pr-12 focus:ring-brand focus:border-brand"
-            placeholder="Write a comment..."
+            placeholder="Ask a question about this spot..."
             type="text"
           />
           <button

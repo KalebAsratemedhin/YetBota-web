@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,8 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { logoutFromApp } from "@/store/authThunks";
 import { setLocale } from "@/store/localeSlice";
 import type { Locale } from "@/types/landing";
+import { useGetMeQuery } from "@/store/api/authApi";
+import { resolveApiUrl } from "@/lib/resolveApiUrl";
 
 function LocalePill({
   locale,
@@ -46,12 +48,59 @@ export default function Navbar() {
   const locale = useAppSelector((s) => s.locale.locale);
   const isSignedIn = useAppSelector((s) => Boolean(s.auth.accessToken));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const { data: me } = useGetMeQuery(undefined, { skip: !isSignedIn });
+
+  const profileName = useMemo(() => {
+    const u = me?.user;
+    if (!u) return null;
+    return `${u.first_name} ${u.last_name}`.trim() || u.username;
+  }, [me?.user]);
+
+  const avatarUrl = useMemo(() => {
+    const url = me?.user?.profile_url;
+    return url ? resolveApiUrl(url) : null;
+  }, [me?.user?.profile_url]);
+
+  const initials = useMemo(() => {
+    const u = me?.user;
+    if (!u) return "YB";
+    const name = `${u.first_name} ${u.last_name}`.trim() || u.username;
+    return name
+      .split(" ")
+      .filter(Boolean)
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  }, [me?.user]);
+
+  useEffect(() => {
+    if (!profileOpen) return;
+    function onDocPointerDown(e: PointerEvent) {
+      const el = profileRef.current;
+      if (!el) return;
+      if (e.target instanceof Node && !el.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setProfileOpen(false);
+    }
+    document.addEventListener("pointerdown", onDocPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onDocPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [profileOpen]);
 
   const navLinks = [
-    { label: t.nav.explore, href: "/discovery" },
-    { label: t.nav.map, href: "/discovery" },
-    { label: t.nav.aiAssistant, href: "/assistant" },
-    { label: t.nav.community, href: "/qa" },
+    { id: "explore", label: t.nav.explore, href: "/discovery" },
+    { id: "map", label: t.nav.map, href: "/discovery" },
+    { id: "assistant", label: t.nav.aiAssistant, href: "/assistant" },
+    { id: "community", label: t.nav.community, href: "/qa" },
   ];
 
   function handleSignOut() {
@@ -75,7 +124,7 @@ export default function Navbar() {
           <nav className="hidden md:flex items-center gap-7">
             {navLinks.map((link) => (
               <Link
-                key={link.href}
+                key={link.id}
                 href={link.href}
                 className="text-sm text-gray-400 hover:text-white transition-colors duration-200"
               >
@@ -88,18 +137,57 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             <LocalePill locale={locale} onLocaleChange={(l) => dispatch(setLocale(l))} />
             {isSignedIn ? (
-              <>
-                <Link href="/profile" className="text-sm text-gray-300 hover:text-white transition-colors">
-                  {t.nav.profile}
-                </Link>
+              <div className="relative" ref={profileRef}>
                 <button
                   type="button"
-                  onClick={handleSignOut}
-                  className="text-sm text-gray-300 hover:text-white transition-colors"
+                  onClick={() => setProfileOpen((v) => !v)}
+                  className="w-9 h-9 rounded-full overflow-hidden border border-white/10 bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center"
+                  aria-label="Open profile menu"
                 >
-                  {t.nav.signOut}
+                  {avatarUrl ? (
+                    <Image
+                      src={avatarUrl}
+                      alt={profileName ? `${profileName} avatar` : "Profile avatar"}
+                      width={36}
+                      height={36}
+                      className="w-full h-full object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <span className="text-[11px] font-bold text-white/85">{initials}</span>
+                  )}
                 </button>
-              </>
+
+                {profileOpen && (
+                  <div className="absolute right-0 mt-2 w-52 rounded-2xl border border-white/10 bg-[#0d0d0d] shadow-[0px_20px_60px_-20px_rgba(0,0,0,0.7)] p-2">
+                    <Link
+                      href="/profile"
+                      onClick={() => setProfileOpen(false)}
+                      className="block px-3 py-2 rounded-xl text-sm text-gray-200 hover:bg-white/5 transition-colors"
+                    >
+                      Profile
+                    </Link>
+                    <Link
+                      href="/settings"
+                      onClick={() => setProfileOpen(false)}
+                      className="block px-3 py-2 rounded-xl text-sm text-gray-200 hover:bg-white/5 transition-colors"
+                    >
+                      Settings
+                    </Link>
+                    <div className="h-px bg-white/8 my-1" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProfileOpen(false);
+                        handleSignOut();
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl text-sm text-gray-200 hover:bg-white/5 transition-colors"
+                    >
+                      {t.nav.signOut}
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <>
                 <Link href="/signin" className="text-sm text-gray-300 hover:text-white transition-colors">
@@ -120,9 +208,25 @@ export default function Navbar() {
           <div className="flex md:hidden items-center gap-2">
             <LocalePill locale={locale} size="sm" onLocaleChange={(l) => dispatch(setLocale(l))} />
             {isSignedIn ? (
-              <Link href="/profile" className="text-sm text-gray-300 hover:text-white transition-colors px-1 max-w-18 truncate">
-                {t.nav.profile}
-              </Link>
+              <button
+                type="button"
+                onClick={() => setProfileOpen((v) => !v)}
+                className="w-9 h-9 rounded-full overflow-hidden border border-white/10 bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center"
+                aria-label="Open profile menu"
+              >
+                {avatarUrl ? (
+                  <Image
+                    src={avatarUrl}
+                    alt={profileName ? `${profileName} avatar` : "Profile avatar"}
+                    width={36}
+                    height={36}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <span className="text-[11px] font-bold text-white/85">{initials}</span>
+                )}
+              </button>
             ) : (
               <Link href="/signin" className="text-sm text-gray-300 hover:text-white transition-colors px-1">
                 {t.nav.signIn}
@@ -140,13 +244,51 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Mobile profile dropdown */}
+      {isSignedIn && profileOpen && (
+        <div className="md:hidden fixed top-14 left-0 right-0 z-50 bg-[#0d0d0d] border-b border-white/5 px-4 py-3">
+          <div className="flex flex-col gap-1">
+            <Link
+              href="/profile"
+              onClick={() => {
+                setProfileOpen(false);
+                setMobileOpen(false);
+              }}
+              className="text-sm text-gray-300 hover:text-white hover:bg-white/5 px-3 py-2.5 rounded-lg transition-colors"
+            >
+              Profile
+            </Link>
+            <Link
+              href="/settings"
+              onClick={() => {
+                setProfileOpen(false);
+                setMobileOpen(false);
+              }}
+              className="text-sm text-gray-300 hover:text-white hover:bg-white/5 px-3 py-2.5 rounded-lg transition-colors"
+            >
+              Settings
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                setProfileOpen(false);
+                handleSignOut();
+              }}
+              className="text-sm text-gray-300 hover:text-white hover:bg-white/5 px-3 py-2.5 rounded-lg transition-colors text-left"
+            >
+              {t.nav.signOut}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Mobile dropdown */}
       {mobileOpen && (
         <div className="md:hidden bg-[#0d0d0d] border-t border-white/5 px-4 pb-5 pt-3">
           <nav className="flex flex-col gap-1 mb-4">
             {navLinks.map((link) => (
               <Link
-                key={link.href}
+                key={link.id}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 className="text-sm text-gray-400 hover:text-white hover:bg-white/5 px-3 py-2.5 rounded-lg transition-colors"
@@ -164,6 +306,15 @@ export default function Navbar() {
               >
                 <Link href="/profile" onClick={() => setMobileOpen(false)}>
                   {t.nav.profile}
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="w-full h-10 text-sm border-white/15 text-white hover:bg-white/5 hover:text-white"
+              >
+                <Link href="/settings" onClick={() => setMobileOpen(false)}>
+                  Settings
                 </Link>
               </Button>
               <Button

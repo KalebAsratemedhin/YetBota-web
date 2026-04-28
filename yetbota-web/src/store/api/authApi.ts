@@ -31,13 +31,24 @@ async function applyAuthSuccess(
   queryFulfilled: Promise<{ data: LoginResponseData | RefreshResponseData }>
 ) {
   const { data } = await queryFulfilled;
-  dispatch(
-    setCredentials({
-      accessToken: data.access_token,
-      refreshToken: data.refresh_token ?? null,
-      user: { username },
-    })
-  );
+  const creds = {
+    accessToken: data.access_token,
+    refreshToken: data.refresh_token ?? null,
+    user: { username },
+  };
+
+  dispatch(setCredentials(creds));
+
+  // Persist immediately so other pages (and other API slices) can use it even
+  // before the Providers subscription effect runs.
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.setItem("yetbota.localAuth", JSON.stringify(creds));
+      console.log("[auth] persisted session to localStorage", { username });
+    } catch {
+      // ignore
+    }
+  }
 }
 
 export const authApi = baseApi.injectEndpoints({
@@ -48,7 +59,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["User", "Auth"],
+      invalidatesTags: ["User", "Auth", "Me"],
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           await applyAuthSuccess(dispatch, arg.username, queryFulfilled);
@@ -63,7 +74,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["User", "Auth"],
+      invalidatesTags: ["User", "Auth", "Me"],
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           await applyAuthSuccess(dispatch, arg.username, queryFulfilled);
@@ -83,7 +94,7 @@ export const authApi = baseApi.injectEndpoints({
     }),
 
     generateMobileOtp: builder.mutation<OtpLimits, GenerateMobileOTPRequest>({
-      query: (body) => ({ url: "/auth/otp/generate", method: "POST", body }),
+      query: (body) => ({ url: "/auth/otp/mobile", method: "POST", body }),
     }),
 
     validateMobileOtp: builder.mutation<OtpLimits, ValidateOTPRequest>({
@@ -95,24 +106,36 @@ export const authApi = baseApi.injectEndpoints({
     }),
 
     authorize: builder.mutation<void, AuthorizationRequest>({
-      query: (body) => ({ url: "/auth/authorize", method: "POST", body }),
+      query: (body) => ({ url: "/auth/authorization", method: "POST", body }),
     }),
 
     changePassword: builder.mutation<void, ChangePasswordRequest>({
       query: (body) => ({ url: "/auth/password/change", method: "POST", body }),
+      invalidatesTags: ["Me"],
     }),
 
     changeMobile: builder.mutation<void, ChangeMobileRequest>({
       query: (body) => ({ url: "/auth/mobile/change", method: "POST", body }),
+      invalidatesTags: ["Me"],
     }),
 
     register: builder.mutation<UserPrivate, RegisterRequest>({
       query: (body) => ({ url: "/users/register", method: "POST", body }),
-      invalidatesTags: ["User", "Auth"],
+      invalidatesTags: ["User", "Auth", "Me"],
+    }),
+
+    getMe: builder.query<{ user: UserPrivate }, { resolution?: Resolution } | void>({
+      query: (arg) => ({
+        url: "/users/me",
+        method: "GET",
+        params:
+          arg && typeof arg === "object" && arg.resolution !== undefined ? { resolution: arg.resolution } : undefined,
+      }),
+      providesTags: ["Me"],
     }),
 
     listUsers: builder.query<ListUsersData, ListUsersQuery | void>({
-      query: (query) => ({ url: "/users", method: "GET", params: query ?? undefined }),
+      query: (query) => ({ url: "/users/", method: "GET", params: query ?? undefined }),
       providesTags: ["User"],
     }),
 
@@ -127,7 +150,7 @@ export const authApi = baseApi.injectEndpoints({
 
     getUserPublicById: builder.query<UserPublicData, { id: string; resolution?: Resolution }>({
       query: ({ id, resolution }) => ({
-        url: `/users/${encodeURIComponent(id)}/public`,
+        url: `/users/${encodeURIComponent(id)}`,
         method: "GET",
         params: resolution ? { resolution } : undefined,
       }),
@@ -143,8 +166,8 @@ export const authApi = baseApi.injectEndpoints({
     }),
 
     updateSelf: builder.mutation<UserPrivate, UpdateSelfRequest>({
-      query: (body) => ({ url: "/users/me", method: "PATCH", body }),
-      invalidatesTags: ["User"],
+      query: (body) => ({ url: "/users/self", method: "PATCH", body }),
+      invalidatesTags: ["User", "Me"],
     }),
 
     deleteUserById: builder.mutation<void, { id: string }>({
@@ -153,8 +176,8 @@ export const authApi = baseApi.injectEndpoints({
     }),
 
     deleteSelf: builder.mutation<void, void>({
-      query: () => ({ url: "/users/me", method: "DELETE" }),
-      invalidatesTags: ["User", "Auth"],
+      query: () => ({ url: "/users/self", method: "DELETE" }),
+      invalidatesTags: ["User", "Auth", "Me"],
     }),
 
     checkMobile: builder.mutation<boolean, CheckMobileRequest>({
@@ -162,32 +185,30 @@ export const authApi = baseApi.injectEndpoints({
     }),
 
     followUser: builder.mutation<void, { followee_id: string }>({
-      query: ({ followee_id }) => ({
-        url: `/users/${encodeURIComponent(followee_id)}/follow`,
+      query: (body) => ({
+        url: "/users/follow",
         method: "POST",
+        body,
       }),
       invalidatesTags: ["User"],
     }),
 
     unfollowUser: builder.mutation<void, { followee_id: string }>({
-      query: ({ followee_id }) => ({
-        url: `/users/${encodeURIComponent(followee_id)}/follow`,
-        method: "DELETE",
+      query: (body) => ({
+        url: "/users/unfollow",
+        method: "POST",
+        body,
       }),
       invalidatesTags: ["User"],
     }),
 
-    uploadMyProfileImage: builder.mutation<string, { file: File }>({
-      query: ({ file }) => {
-        const formData = new FormData();
-        formData.append("file", file);
-        return {
-          url: "/users/me/profile",
-          method: "POST",
-          body: formData,
-        };
-      },
-      invalidatesTags: ["User"],
+    uploadMyProfileImage: builder.mutation<{ url: string }, { image_base64: string }>({
+      query: (body) => ({
+        url: "/users/profile",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["User", "Me"],
     }),
   }),
 });
@@ -203,6 +224,7 @@ export const {
   useChangePasswordMutation,
   useChangeMobileMutation,
   useRegisterMutation,
+  useGetMeQuery,
   useListUsersQuery,
   useLazyListUsersQuery,
   useGetUserByIdQuery,

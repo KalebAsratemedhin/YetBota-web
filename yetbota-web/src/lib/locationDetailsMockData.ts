@@ -15,6 +15,7 @@ export interface LocationDetails {
   currentUserAvatarUrl: string;
   qa: LocationQaItem[];
   similarPlaces: SimilarPlace[];
+  location: { latitude: number; longitude: number };
   rightRail: {
     mapImageUrl: string;
     addressLine: string;
@@ -37,6 +38,7 @@ const base: Omit<LocationDetails, "id"> = {
     meta: "2 hours ago • Addis Ababa",
   },
   currentUserAvatarUrl: "/images/profile/national-museum-of-ethiopia-addis-ababa-ethiopia-december-1-2017.webp",
+  location: { latitude: 9.03, longitude: 38.74 },
   qa: [
     {
       id: "q1",

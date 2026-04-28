@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { MapPin } from "lucide-react";
+import OpenStreetMap from "@/components/maps/OpenStreetMap";
 
 export interface PopularGuide {
   id: string;
@@ -11,28 +12,22 @@ export interface PopularGuide {
 }
 
 export default function LocationRightRail({
-  mapImageUrl,
   addressLine,
   guides,
+  location,
 }: {
-  mapImageUrl: string;
   addressLine: string;
   guides: PopularGuide[];
+  location: { latitude: number; longitude: number };
 }) {
   return (
     <aside className="hidden xl:block w-80 p-6 sticky top-0 h-screen space-y-8">
       <div className="bg-slate-100 dark:bg-[#161616] rounded-3xl p-6">
         <h3 className="font-bold text-lg mb-4">Location Map</h3>
-        <div className="rounded-2xl overflow-hidden h-48 bg-slate-200 dark:bg-slate-800 relative">
-          <Image
-            alt="Map"
-            src={mapImageUrl}
-            width={640}
-            height={360}
-            className="w-full h-full object-cover opacity-50"
-          />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-10 h-10 bg-brand text-white rounded-full flex items-center justify-center shadow-lg animate-bounce">
+        <div className="relative rounded-2xl overflow-hidden h-48 bg-slate-200 dark:bg-slate-800">
+          <OpenStreetMap center={location} marker={location} zoom={14} className="h-48" />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-10 h-10 bg-brand text-white rounded-full flex items-center justify-center shadow-lg shadow-brand/20">
               <MapPin className="w-5 h-5" />
             </div>
           </div>

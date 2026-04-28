@@ -3,7 +3,10 @@ import * as React from "react";
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
 
 const TOAST_LIMIT = 1;
-const TOAST_REMOVE_DELAY = 1000000;
+/** After dismiss, delay before removing from DOM (allows close animation). */
+const TOAST_REMOVE_DELAY = 800;
+/** Default auto-hide duration (Radix Toast `duration`, ms). */
+const TOAST_DURATION_MS = 3000;
 
 type ToasterToast = ToastProps & {
   id: string;
@@ -148,6 +151,7 @@ function toast({ ...props }: Toast) {
       ...props,
       id,
       open: true,
+      duration: props.duration ?? TOAST_DURATION_MS,
       onOpenChange: (open) => {
         if (!open) dismiss();
       },

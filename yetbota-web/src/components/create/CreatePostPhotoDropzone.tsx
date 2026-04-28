@@ -3,8 +3,13 @@
 import { useRef, useState } from "react";
 import { Camera, Upload } from "lucide-react";
 import Image from "next/image";
+import { readFileAsBase64 } from "@/lib/readFileAsBase64";
 
-export default function CreatePostPhotoDropzone() {
+export default function CreatePostPhotoDropzone({
+  onPhotoBase64Change,
+}: {
+  onPhotoBase64Change?: (base64: string | null) => void;
+}) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -51,14 +56,24 @@ export default function CreatePostPhotoDropzone() {
         type="file"
         accept="image/*"
         className="hidden"
-        onChange={(e) => {
+        onChange={async (e) => {
           const file = e.currentTarget.files?.[0];
-          if (!file) return;
+          if (!file) {
+            onPhotoBase64Change?.(null);
+            return;
+          }
           const url = URL.createObjectURL(file);
           setPreviewUrl((prev) => {
             if (prev) URL.revokeObjectURL(prev);
             return url;
           });
+
+          try {
+            const base64 = await readFileAsBase64(file);
+            onPhotoBase64Change?.(base64);
+          } catch {
+            onPhotoBase64Change?.(null);
+          }
         }}
       />
     </div>
