@@ -27,7 +27,7 @@ export default function HeroSection() {
         </h1>
 
         {/* Subtitle */}
-        <p className="text-gray-300 text-lg md:text-xl max-w-xl mx-auto mb-10 leading-relaxed">
+        <p className="text-white/80 text-lg md:text-xl max-w-xl mx-auto mb-10 leading-relaxed">
           {t.hero.subtitle}
         </p>
 
@@ -44,7 +44,7 @@ export default function HeroSection() {
             size="lg"
             variant="outline"
             asChild
-            className="border-white/20 text-white hover:bg-white/10 rounded-xl px-8 py-4 text-base w-full sm:w-auto bg-white/5"
+            className="border-white/30 text-white hover:bg-white/10 rounded-xl px-8 py-4 text-base w-full sm:w-auto bg-white/5"
           >
             <Link href="/create">{t.hero.ctaContribute}</Link>
           </Button>

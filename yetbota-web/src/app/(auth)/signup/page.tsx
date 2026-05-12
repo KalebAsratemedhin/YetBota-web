@@ -244,10 +244,10 @@ export default function SignUpPage() {
   return (
     <AuthCard title={step === "otp" ? "Verify your phone" : "Sign Up"} backHref="/">
       <div className="text-center mb-8">
-        <h1 className="text-white text-2xl font-bold mb-2">
+        <h1 className="text-fg text-2xl font-bold mb-2">
           {step === "otp" ? "Enter the code" : "Join Yet Bota."}
         </h1>
-        <p className="text-gray-500 text-sm">
+        <p className="text-fg-faint text-sm">
           {step === "otp" && pendingSignup
             ? `We sent a verification code to ${pendingSignup.mobile}.`
             : "Start exploring your local community today."}
@@ -332,7 +332,7 @@ export default function SignUpPage() {
       ) : (
         <form className="space-y-4" onSubmit={handleOtpSubmit}>
           <div>
-            <label className="text-sm text-gray-300 font-medium mb-1.5 block">OTP code</label>
+            <label className="text-sm text-fg-muted font-medium mb-1.5 block">OTP code</label>
             <input
               type="text"
               inputMode="numeric"
@@ -340,7 +340,7 @@ export default function SignUpPage() {
               value={otp}
               onChange={(ev) => setOtp(ev.target.value.replace(/\D/g, "").slice(0, 8))}
               placeholder="Enter code"
-              className="w-full bg-[#1a1a1a] border border-white/8 rounded-xl px-4 h-12 text-white placeholder-gray-600 text-sm outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 transition-all"
+              className="w-full bg-surface-2 border border-border-subtle rounded-xl px-4 h-12 text-fg placeholder-gray-600 text-sm outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 transition-all"
               disabled={isLoading}
             />
           </div>
@@ -348,7 +348,7 @@ export default function SignUpPage() {
           <div className="flex items-center justify-between gap-2 text-xs">
             <button
               type="button"
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-fg-muted hover:text-fg transition-colors"
               onClick={() => resetToForm()}
               disabled={isLoading}
             >
@@ -356,7 +356,7 @@ export default function SignUpPage() {
             </button>
             <button
               type="button"
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-fg-muted hover:text-fg transition-colors"
               onClick={() => void handleResendOtp()}
               disabled={isLoading || isSendingOtp}
             >
@@ -374,21 +374,21 @@ export default function SignUpPage() {
         </form>
       )}
 
-      <p className="text-center text-gray-600 text-xs mt-5 leading-relaxed">
+      <p className="text-center text-fg-faint text-xs mt-5 leading-relaxed">
         By signing up, you agree to our{" "}
-        <Link href="/terms" className="text-gray-400 underline underline-offset-2 hover:text-white transition-colors">
+        <Link href="/terms" className="text-fg-muted underline underline-offset-2 hover:text-fg transition-colors">
           Terms of Service
         </Link>{" "}
         and{" "}
         <Link
           href="/privacy"
-          className="text-gray-400 underline underline-offset-2 hover:text-white transition-colors"
+          className="text-fg-muted underline underline-offset-2 hover:text-fg transition-colors"
         >
           Privacy Policy
         </Link>
       </p>
 
-      <p className="text-center text-gray-600 text-xs my-4">
+      <p className="text-center text-fg-faint text-xs my-4">
         Already have an account?{" "}
         <Link href="/signin" className="text-brand hover:text-brand-dark font-semibold transition-colors">
           Sign In

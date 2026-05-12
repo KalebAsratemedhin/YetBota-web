@@ -11,11 +11,26 @@ export const metadata: Metadata = {
     "Community-contributed location discovery platform aligned with Ethiopia's Digital 2030 strategy.",
 };
 
+const themeInitScript = `(() => {
+  try {
+    const saved = localStorage.getItem('yetbota.theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = saved ? saved === 'dark' : true; // default to dark when no preference saved
+    void sysDark;
+    document.documentElement.classList.toggle('dark', isDark);
+  } catch (_) {
+    document.documentElement.classList.add('dark');
+  }
+})();`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body
-        className={`${inter.className} bg-[#0a0a0a] text-white antialiased`}
+        className={`${inter.className} bg-bg text-fg antialiased`}
         suppressHydrationWarning
       >
         <Providers>{children}</Providers>

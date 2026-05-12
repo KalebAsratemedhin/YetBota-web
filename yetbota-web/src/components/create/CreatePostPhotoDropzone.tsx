@@ -21,19 +21,19 @@ export default function CreatePostPhotoDropzone({
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") inputRef.current?.click();
       }}
-      className="w-full aspect-21/9 rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-[#161616]/30 flex flex-col items-center justify-center gap-4 hover:border-brand/50 transition-colors cursor-pointer group overflow-hidden relative"
+      className="w-full aspect-21/9 rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-surface/30 flex flex-col items-center justify-center gap-4 hover:border-brand/50 transition-colors cursor-pointer group overflow-hidden relative"
       aria-label="Add photos"
     >
       {previewUrl ? (
         <Image alt="Selected photo" src={previewUrl} fill className="object-cover" />
       ) : (
         <>
-          <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-brand/10 group-hover:text-brand transition-all">
+          <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-fg-muted group-hover:bg-brand/10 group-hover:text-brand transition-all">
             <Camera className="w-8 h-8" />
           </div>
           <div className="text-center">
             <h3 className="text-lg font-semibold">Add Photos</h3>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+            <p className="text-fg-faint dark:text-slate-400 text-sm mt-1">
               Share the beauty of the landscape (Optional)
             </p>
           </div>

@@ -61,8 +61,8 @@ export default function PhonePage() {
     <AuthCard title="Sign In" backHref="/signin">
       {/* Heading */}
       <div className="text-center mb-8">
-        <h1 className="text-white text-2xl font-bold mb-2">Yet Bota</h1>
-        <p className="text-gray-500 text-sm max-w-55 mx-auto leading-relaxed">
+        <h1 className="text-fg text-2xl font-bold mb-2">Yet Bota</h1>
+        <p className="text-fg-faint text-sm max-w-55 mx-auto leading-relaxed">
           Connect with your neighborhood and find local answers.
         </p>
       </div>
@@ -77,13 +77,13 @@ export default function PhonePage() {
         }}
       >
         <div>
-          <label className="text-sm text-gray-300 font-medium mb-1.5 block">
+          <label className="text-sm text-fg-muted font-medium mb-1.5 block">
             Phone Number
           </label>
 
           <div className="flex gap-2">
             {/* Fixed Ethiopia prefix */}
-            <div className="flex items-center gap-1.5 bg-[#1a1a1a] border border-white/8 rounded-xl px-3 h-12 text-white text-sm font-semibold select-none shrink-0">
+            <div className="flex items-center gap-1.5 bg-surface-2 border border-border-subtle rounded-xl px-3 h-12 text-fg text-sm font-semibold select-none shrink-0">
               <span>Et</span>
               <span>+251</span>
             </div>
@@ -98,7 +98,7 @@ export default function PhonePage() {
                 setPhone(val);
               }}
               placeholder="912 345 678"
-              className="flex-1 bg-[#1a1a1a] border border-white/8 rounded-xl px-4 h-12 text-white placeholder-gray-600 text-sm outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 transition-all"
+              className="flex-1 bg-surface-2 border border-border-subtle rounded-xl px-4 h-12 text-fg placeholder-gray-600 text-sm outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 transition-all"
               disabled={isSendingOtp || isValidatingOtp || step === "enter_otp"}
             />
           </div>
@@ -106,7 +106,7 @@ export default function PhonePage() {
 
         {step === "enter_otp" && (
           <div>
-            <label className="text-sm text-gray-300 font-medium mb-1.5 block">OTP Code</label>
+            <label className="text-sm text-fg-muted font-medium mb-1.5 block">OTP Code</label>
             <input
               type="text"
               inputMode="numeric"
@@ -114,14 +114,14 @@ export default function PhonePage() {
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
               placeholder="123456"
-              className="w-full bg-[#1a1a1a] border border-white/8 rounded-xl px-4 h-12 text-white placeholder-gray-600 text-sm outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 transition-all"
+              className="w-full bg-surface-2 border border-border-subtle rounded-xl px-4 h-12 text-fg placeholder-gray-600 text-sm outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 transition-all"
               disabled={isSendingOtp || isValidatingOtp}
             />
 
             <div className="mt-3 flex items-center justify-between">
               <button
                 type="button"
-                className="text-xs text-gray-400 hover:text-white transition-colors"
+                className="text-xs text-fg-muted hover:text-fg transition-colors"
                 onClick={() => {
                   setStep("enter_phone");
                   setOtp("");
@@ -134,7 +134,7 @@ export default function PhonePage() {
 
               <button
                 type="button"
-                className="text-xs text-gray-400 hover:text-white transition-colors"
+                className="text-xs text-fg-muted hover:text-fg transition-colors"
                 onClick={() => void handleSendOtp()}
                 disabled={isSendingOtp || isValidatingOtp || phone.length < 9}
               >
@@ -160,9 +160,9 @@ export default function PhonePage() {
       </form>
 
       {/* Terms */}
-      <p className="text-center text-gray-600 text-xs mt-6 leading-relaxed">
+      <p className="text-center text-fg-faint text-xs mt-6 leading-relaxed">
         By continuing, you agree to our{" "}
-        <Link href="/terms" className="text-gray-400 underline underline-offset-2 hover:text-white transition-colors">
+        <Link href="/terms" className="text-fg-muted underline underline-offset-2 hover:text-fg transition-colors">
           Terms of Service
         </Link>{" "}
         and{" "}
@@ -172,7 +172,7 @@ export default function PhonePage() {
       </p>
 
       {/* Footer */}
-      <p className="text-center text-gray-600 text-xs mt-6">
+      <p className="text-center text-fg-faint text-xs mt-6">
         New to the community?{" "}
         <Link href="/signup" className="text-brand hover:text-brand-dark font-semibold transition-colors">
           Sign Up

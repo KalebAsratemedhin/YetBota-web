@@ -46,8 +46,8 @@ export default function SignInPage() {
   return (
     <AuthCard title="Sign In" backHref="/">
       <div className="text-center mb-8">
-        <h1 className="text-white text-2xl font-bold mb-2">Welcome Back.</h1>
-        <p className="text-gray-500 text-sm">Stay connected with your local community.</p>
+        <h1 className="text-fg text-2xl font-bold mb-2">Welcome Back.</h1>
+        <p className="text-fg-faint text-sm">Stay connected with your local community.</p>
       </div>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
@@ -89,22 +89,22 @@ export default function SignInPage() {
       </form>
 
       <div className="flex items-center gap-3 my-6">
-        <div className="flex-1 h-px bg-white/8" />
-        <span className="text-gray-600 text-xs uppercase tracking-widest">or continue with</span>
-        <div className="flex-1 h-px bg-white/8" />
+        <div className="flex-1 h-px bg-overlay" />
+        <span className="text-fg-faint text-xs uppercase tracking-widest">or continue with</span>
+        <div className="flex-1 h-px bg-overlay" />
       </div>
 
       <Link href="/phone">
         <button
           type="button"
-          className="w-full flex items-center justify-center gap-3 bg-[#141414] hover:bg-[#1c1c1c] border border-white/8 rounded-xl h-12 text-white text-sm font-semibold transition-colors"
+          className="w-full flex items-center justify-center gap-3 bg-surface hover:bg-surface-2 border border-border-subtle rounded-xl h-12 text-fg text-sm font-semibold transition-colors"
         >
           <Phone className="w-4 h-4 text-brand" />
           Continue with Phone Number
         </button>
       </Link>
 
-      <p className="text-center text-gray-600 text-xs mt-8">
+      <p className="text-center text-fg-faint text-xs mt-8">
         Don&apos;t have an account?{" "}
         <Link href="/signup" className="text-brand hover:text-brand-dark font-semibold transition-colors">
           Sign Up

@@ -11,7 +11,7 @@ export default function QaFeedHeader({
   onChange: (c: QaCategory) => void;
 }) {
   return (
-    <header className="sticky top-0 bg-white/80 dark:bg-[#0A0A0A]/80 backdrop-blur-md py-4 z-40 space-y-4">
+    <header className="sticky top-0 bg-bg/95 backdrop-blur-md py-4 z-30 space-y-4">
       <div className="relative group">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-brand transition-colors" />
         <input

@@ -1,57 +1,49 @@
 "use client";
 
 import { X } from "lucide-react";
-import Link from "next/link";
+import { usePathname } from "next/navigation";
+import HeaderNavLink from "@/components/shared/HeaderNavLink";
 
 export default function AskQuestionTopNav({
   title,
   onClose,
-  onPost,
 }: {
   title: string;
   onClose: () => void;
-  onPost: () => void;
 }) {
+  const pathname = usePathname();
+
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-[#050505]/80 backdrop-blur-md">
+    <nav className="sticky top-0 z-40 border-b border-border-subtle bg-bg/95 backdrop-blur-md shadow-[0_4px_16px_-8px_rgba(15,23,42,0.08)] dark:shadow-none">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           <div className="flex items-center gap-4">
             <button
               type="button"
               onClick={onClose}
-              className="p-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+              className="p-2 hover:bg-overlay rounded-full transition-colors text-fg-muted hover:text-fg"
               aria-label="Close"
             >
               <X className="w-6 h-6" />
             </button>
-            <h1 className="text-lg font-bold tracking-tight">{title}</h1>
+            <h1 className="text-lg font-bold tracking-tight text-fg">{title}</h1>
           </div>
 
-          <div className="hidden md:flex items-center gap-6">
-            <Link className="text-sm font-medium hover:text-brand transition-colors" href="/discovery">
+          <div className="hidden md:flex items-center gap-8">
+            <HeaderNavLink href="/discovery" active={pathname === "/discovery"}>
               Home
-            </Link>
-            <Link className="text-sm font-medium hover:text-brand transition-colors" href="/discovery">
+            </HeaderNavLink>
+            <HeaderNavLink href="/discovery" active={pathname === "/explore"}>
               Explore
-            </Link>
-            <Link className="text-sm font-medium hover:text-brand transition-colors" href="/qa">
+            </HeaderNavLink>
+            <HeaderNavLink href="/qa" active={pathname?.startsWith("/qa")}>
               Q&amp;A
-            </Link>
+            </HeaderNavLink>
           </div>
 
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={onPost}
-              className="bg-brand text-black font-bold px-6 py-2 rounded-full hover:opacity-90 transition-all active:scale-95 shadow-[0_0_15px_rgba(34,197,94,0.3)]"
-            >
-              Post
-            </button>
-          </div>
+          <div className="w-10 md:w-24" aria-hidden />
         </div>
       </div>
     </nav>
   );
 }
-

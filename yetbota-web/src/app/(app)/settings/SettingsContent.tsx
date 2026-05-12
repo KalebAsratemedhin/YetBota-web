@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AuthInput from "@/components/auth/AuthInput";
+import ThemeToggle from "@/components/shared/ThemeToggle";
 import { useToast } from "@/hooks/use-toast";
 import { getAuthErrorMessage } from "@/lib/authErrors";
 import {
@@ -27,8 +28,8 @@ function createRandom(): string {
 
 function SettingsSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="bg-[#171717] border border-white/8 rounded-2xl p-6 mb-6">
-      <h2 className="text-white font-bold text-lg mb-4">{title}</h2>
+    <section className="bg-surface border border-border-subtle rounded-2xl p-6 mb-6">
+      <h2 className="text-fg font-bold text-lg mb-4">{title}</h2>
       {children}
     </section>
   );
@@ -59,7 +60,7 @@ function ProfileFieldsForm({ user, onSaved }: { user: UserPrivate; onSaved: () =
 
   return (
     <form className="space-y-4" onSubmit={handleSaveProfile}>
-      {/* <p className="text-gray-500 text-xs -mt-1 mb-1">Phone number can be updated in the section below.</p> */}
+      {/* <p className="text-fg-faint text-xs -mt-1 mb-1">Phone number can be updated in the section below.</p> */}
       <AuthInput
         label="Username"
         value={usernameDisplay}
@@ -178,7 +179,7 @@ export default function SettingsContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-[50vh] flex items-center justify-center text-sm bg-[#0a0a0a] text-gray-500">
+      <div className="min-h-[50vh] flex items-center justify-center text-sm bg-bg text-fg-faint">
         Loading settings…
       </div>
     );
@@ -186,9 +187,9 @@ export default function SettingsContent() {
 
   if (isError || !data?.user) {
     return (
-      <div className="min-h-[50vh] flex flex-col items-center justify-center gap-4 bg-[#0a0a0a] text-white px-6">
-        <p className="text-gray-400 text-sm">Could not load your profile.</p>
-        <Button type="button" variant="outline" onClick={() => void refetch()} className="border-white/15">
+      <div className="min-h-[50vh] flex flex-col items-center justify-center gap-4 bg-bg text-fg px-6">
+        <p className="text-fg-muted text-sm">Could not load your profile.</p>
+        <Button type="button" variant="outline" onClick={() => void refetch()} className="border-border-subtle">
           Retry
         </Button>
         <Link href="/profile" className="text-brand text-sm font-semibold">
@@ -201,21 +202,31 @@ export default function SettingsContent() {
   const me = data.user;
 
   return (
-    <div className="bg-[#0a0a0a] text-white min-h-full">
+    <div className="bg-bg text-fg min-h-full">
       <div className="mx-auto max-w-2xl px-6 py-8">
         <div className="flex items-center gap-4 mb-8">
           <Link
             href="/profile"
-            className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+            className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-border-subtle text-fg-muted hover:text-fg hover:bg-overlay transition-colors"
             aria-label="Back to profile"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
             <h1 className="text-2xl font-bold">Settings</h1>
-            <p className="text-gray-500 text-sm">Manage your account and security</p>
+            <p className="text-fg-faint text-sm">Manage your account and security</p>
           </div>
         </div>
+
+        <SettingsSection title="Appearance">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <p className="text-fg text-sm font-medium">Theme</p>
+              <p className="text-fg-faint text-xs mt-0.5">Choose how Yet Bota looks to you.</p>
+            </div>
+            <ThemeToggle />
+          </div>
+        </SettingsSection>
 
         <SettingsSection title="Profile">
           <ProfileFieldsForm key={`${me.id}-${me.updated_at}`} user={me} onSaved={() => void refetch()} />
@@ -255,14 +266,14 @@ export default function SettingsContent() {
         </SettingsSection>
 
         <SettingsSection title="Change phone number">
-          <p className="text-gray-500 text-xs mb-4">
+          <p className="text-fg-faint text-xs mb-4">
             Enter your new number, request a code, verify it, then save.
           </p>
           <div className="space-y-4">
             <div>
-              <label className="text-sm text-gray-300 font-medium mb-1.5 block">New Phone Number</label>
+              <label className="text-sm text-fg-muted font-medium mb-1.5 block">New Phone Number</label>
               <div className="flex gap-2">
-                <div className="flex items-center gap-1.5 bg-[#1a1a1a] border border-white/8 rounded-xl px-3 h-12 text-white text-sm font-semibold select-none shrink-0">
+                <div className="flex items-center gap-1.5 bg-surface-2 border border-border-subtle rounded-xl px-3 h-12 text-fg text-sm font-semibold select-none shrink-0">
                   <span>Et</span>
                   <span>+251</span>
                 </div>
@@ -274,7 +285,7 @@ export default function SettingsContent() {
                     setNewMobileSubscriber9(val);
                   }}
                   placeholder="912 345 678"
-                  className="flex-1 bg-[#1a1a1a] border border-white/8 rounded-xl px-4 h-12 text-white placeholder-gray-600 text-sm outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 transition-all"
+                  className="flex-1 bg-surface-2 border border-border-subtle rounded-xl px-4 h-12 text-fg placeholder-gray-600 text-sm outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 transition-all"
                   disabled={changingMobile || sendingPhoneOtp || validatingPhoneOtp}
                   autoComplete="tel"
                   inputMode="tel"
@@ -285,7 +296,7 @@ export default function SettingsContent() {
               <Button
                 type="button"
                 variant="outline"
-                className="border-white/15 text-white"
+                className="border-border-subtle text-fg"
                 onClick={() => void handleSendPhoneOtp()}
                 disabled={sendingPhoneOtp || newMobileSubscriber9.trim().length !== 9}
               >
@@ -305,7 +316,7 @@ export default function SettingsContent() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="border-white/15 text-white"
+                    className="border-border-subtle text-fg"
                     onClick={() => void handleVerifyPhoneOtp()}
                     disabled={validatingPhoneOtp || phoneOtp.trim().length < 4}
                   >

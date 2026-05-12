@@ -25,8 +25,8 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   };
 
   return (
-    <div className="flex items-end gap-3 bg-[#111111] border border-white/8 rounded-2xl px-4 py-3 focus-within:border-brand/30 transition-colors">
-      <button className="text-gray-600 hover:text-gray-400 transition-colors mb-1.5 shrink-0">
+    <div className="flex items-end gap-3 bg-bg border border-border-subtle rounded-2xl px-4 py-3 focus-within:border-brand/30 transition-colors">
+      <button className="text-fg-faint hover:text-fg-muted transition-colors mb-1.5 shrink-0">
         <Paperclip className="w-4 h-4 -rotate-45" />
       </button>
 
@@ -36,7 +36,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
         onKeyDown={handleKeyDown}
         placeholder="Ask Yet Bota AI..."
         rows={1}
-        className="flex-1 bg-transparent text-white text-sm placeholder-gray-600 outline-none resize-none leading-relaxed"
+        className="flex-1 bg-transparent text-fg text-sm placeholder-gray-600 outline-none resize-none leading-relaxed"
         style={{ minHeight: "24px", maxHeight: "120px" }}
         disabled={disabled}
       />

@@ -5,36 +5,23 @@ import { X } from "lucide-react";
 export default function CreatePostHeader({
   title,
   onClose,
-  onPost,
 }: {
   title: string;
   onClose: () => void;
-  onPost: () => void;
 }) {
   return (
-    <header className="sticky top-0 z-10 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-slate-200 dark:border-[#262626] px-8 py-4 flex items-center justify-between">
-      <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-40 bg-bg/95 backdrop-blur-md border-b border-border-subtle shadow-[0_4px_16px_-8px_rgba(15,23,42,0.08)] dark:shadow-none">
+      <div className="px-6 sm:px-8 h-20 flex items-center gap-4">
         <button
           type="button"
           onClick={onClose}
-          className="p-2 hover:bg-slate-100 dark:hover:bg-[#161616] rounded-full transition-all"
+          className="p-2 hover:bg-overlay rounded-full transition-colors text-fg-muted hover:text-fg"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
         </button>
-        <h2 className="text-xl font-bold">{title}</h2>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <button
-          type="button"
-          onClick={onPost}
-          className="px-6 py-2 bg-brand text-black font-bold rounded-full hover:opacity-90 transition-all shadow-lg shadow-brand/20"
-        >
-          Post
-        </button>
+        <h2 className="text-xl font-bold text-fg">{title}</h2>
       </div>
     </header>
   );
 }
-

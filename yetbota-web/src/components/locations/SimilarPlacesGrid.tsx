@@ -31,13 +31,13 @@ export default function SimilarPlacesGrid({ places }: { places: SimilarPlace[] }
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
-              <div className="absolute bottom-3 left-3 flex items-center gap-1.5 text-white">
+              <div className="absolute bottom-3 left-3 flex items-center gap-1.5 text-fg">
                 <MapPin className="w-4 h-4 text-brand" />
                 <span className="text-xs font-medium">{p.name}</span>
               </div>
             </div>
             <h4 className="font-bold">{p.name}</h4>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-fg-faint">
               {p.area} • {p.rating.toFixed(1)} ⭐
             </p>
           </div>

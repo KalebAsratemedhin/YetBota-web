@@ -4,6 +4,7 @@ export interface DiscoveryAuthor {
   name: string;
   avatarUrl: string;
   locationLabel: string;
+  href?: string;
 }
 
 export interface DiscoveryFeedItem {

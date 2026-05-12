@@ -18,7 +18,7 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
       <div className="w-full">
         {(label || rightLabel) && (
           <div className="flex items-center justify-between mb-1.5">
-            {label && <label className="text-sm text-gray-300 font-medium">{label}</label>}
+            {label && <label className="text-sm text-fg-muted font-medium">{label}</label>}
             {rightLabel && <div className="text-sm">{rightLabel}</div>}
           </div>
         )}
@@ -27,7 +27,7 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
             ref={ref}
             type={isPassword && showPassword ? "text" : type}
             className={cn(
-              "w-full bg-[#1a1a1a] border border-white/8 rounded-xl px-4 py-3 text-white placeholder-gray-600 text-sm outline-none",
+              "w-full bg-surface-2 border border-border-subtle rounded-xl px-4 py-3 text-fg placeholder-gray-600 text-sm outline-none",
               "focus:border-brand/50 focus:ring-1 focus:ring-brand/20 transition-all",
               isPassword && "pr-11",
               error && "border-red-500/50",
@@ -39,7 +39,7 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-fg-faint hover:text-fg-muted transition-colors"
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>

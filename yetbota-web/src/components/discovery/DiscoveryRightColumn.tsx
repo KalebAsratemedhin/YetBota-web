@@ -11,7 +11,7 @@ export default function DiscoveryRightColumn() {
 
   return (
     <div className="w-full">
-      <div className="bg-white dark:bg-[#1E1E1E] p-6 rounded-3xl border border-slate-200 dark:border-white/5 space-y-6">
+      <div className="bg-bg p-6 rounded-3xl border border-border-subtle space-y-6">
         <h3 className="font-bold text-lg">Top Travelers</h3>
         <div className="space-y-4">
           {TOP_TRAVELERS.map((t) => (
@@ -26,7 +26,7 @@ export default function DiscoveryRightColumn() {
                 />
                 <div className="min-w-0">
                   <p className="text-sm font-bold truncate">{t.name}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                  <p className="text-xs text-fg-faint dark:text-slate-400 truncate">
                     {t.subtitle}
                   </p>
                 </div>
@@ -46,7 +46,7 @@ export default function DiscoveryRightColumn() {
         </p>
         <Button
           onClick={() => router.push("/create")}
-          className="w-full py-3 bg-brand hover:bg-[#16a34a] text-white rounded-xl font-bold shadow-lg shadow-brand/30 active:scale-95 transition-transform"
+          className="w-full py-3 bg-brand hover:bg-brand-dark text-white rounded-xl font-bold shadow-lg shadow-brand/30 active:scale-95 transition-transform"
         >
           Create Post
         </Button>

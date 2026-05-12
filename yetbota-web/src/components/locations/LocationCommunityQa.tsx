@@ -51,7 +51,7 @@ export default function LocationCommunityQa({
   };
 
   return (
-    <section className="p-6 bg-slate-50 dark:bg-[#0f0f0f]">
+    <section className="p-6 bg-slate-50 dark:bg-bg">
       <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
         <span className="inline-flex w-7 h-7 rounded-lg bg-brand/15 items-center justify-center text-brand">
           <MessageSquareText className="w-4 h-4" />
@@ -60,7 +60,7 @@ export default function LocationCommunityQa({
       </h2>
 
       <div className="flex gap-4 mb-10">
-        <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-[#161616] overflow-hidden shrink-0">
+        <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-surface overflow-hidden shrink-0">
           <Image
             alt="Current user"
             src={currentUserAvatarUrl}
@@ -71,7 +71,7 @@ export default function LocationCommunityQa({
         </div>
         <div className="relative flex-1">
           <input
-            className="w-full bg-white dark:bg-[#161616] border border-slate-200 dark:border-[#262626] rounded-2xl py-3 px-5 pr-12 focus:ring-brand focus:border-brand"
+            className="w-full bg-white dark:bg-surface border border-slate-200 dark:border-border-subtle rounded-2xl py-3 px-5 pr-12 focus:ring-brand focus:border-brand"
             placeholder="Ask a question about this spot..."
             type="text"
           />
@@ -88,7 +88,7 @@ export default function LocationCommunityQa({
       <div className="space-y-8">
         {items.map((q) => (
           <div key={q.id} className="flex gap-4">
-            <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-[#161616] overflow-hidden shrink-0">
+            <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-surface overflow-hidden shrink-0">
               <Image
                 alt={q.authorName}
                 src={q.authorAvatarUrl}
@@ -100,7 +100,7 @@ export default function LocationCommunityQa({
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-bold">{q.authorName}</span>
-                <span className="bg-slate-200 dark:bg-slate-800 text-slate-500 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                <span className="bg-slate-200 dark:bg-slate-800 text-fg-faint text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
                   {q.authorBadge}
                 </span>
               </div>
@@ -114,7 +114,7 @@ export default function LocationCommunityQa({
                     "flex items-center gap-1 font-bold transition-colors " +
                     ((votes[q.id] ?? null) === "up"
                       ? "text-brand"
-                      : "text-slate-500 dark:text-slate-300 hover:text-brand")
+                      : "text-fg-faint dark:text-slate-300 hover:text-brand")
                   }
                 >
                   <ThumbsUp className="w-4 h-4" /> {getScore(q.id, q.upvotes)}
@@ -128,21 +128,21 @@ export default function LocationCommunityQa({
                     "transition-colors " +
                     ((votes[q.id] ?? null) === "down"
                       ? "text-brand"
-                      : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200")
+                      : "text-fg-muted hover:text-fg")
                   }
                 >
                   <ThumbsDown className="w-4 h-4" />
                 </button>
-                <span className="text-slate-500">{q.timeAgo}</span>
+                <span className="text-fg-faint">{q.timeAgo}</span>
                 <button className="text-brand font-bold hover:underline">Reply</button>
               </div>
 
               {q.replies?.map((r) => (
                 <div
                   key={r.id}
-                  className="mt-6 flex gap-3 border-l-2 border-slate-200 dark:border-[#262626] pl-6"
+                  className="mt-6 flex gap-3 border-l-2 border-slate-200 dark:border-border-subtle pl-6"
                 >
-                  <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-[#161616] overflow-hidden shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-surface overflow-hidden shrink-0">
                     <Image
                       alt={r.authorName}
                       src={r.authorAvatarUrl}
@@ -168,7 +168,7 @@ export default function LocationCommunityQa({
                           "flex items-center gap-1 font-bold transition-colors " +
                           ((votes[r.id] ?? null) === "up"
                             ? "text-brand"
-                            : "text-slate-500 dark:text-slate-300 hover:text-brand")
+                            : "text-fg-faint dark:text-slate-300 hover:text-brand")
                         }
                       >
                         <ThumbsUp className="w-3 h-3" /> {getScore(r.id, r.upvotes)}
@@ -182,12 +182,12 @@ export default function LocationCommunityQa({
                           "transition-colors " +
                           ((votes[r.id] ?? null) === "down"
                             ? "text-brand"
-                            : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200")
+                            : "text-fg-muted hover:text-fg")
                         }
                       >
                         <ThumbsDown className="w-3 h-3" />
                       </button>
-                      <span className="text-slate-500">{r.timeAgo}</span>
+                      <span className="text-fg-faint">{r.timeAgo}</span>
                       <button className="text-brand font-bold hover:underline text-[10px]">
                         Reply
                       </button>

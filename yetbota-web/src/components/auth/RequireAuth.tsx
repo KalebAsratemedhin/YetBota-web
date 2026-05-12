@@ -21,7 +21,7 @@ export default function RequireAuth({ children, redirectTo = "/signin" }: Requir
 
   if (!accessToken) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center text-gray-500 text-sm">
+      <div className="flex min-h-[40vh] items-center justify-center text-fg-faint text-sm">
         Checking session…
       </div>
     );

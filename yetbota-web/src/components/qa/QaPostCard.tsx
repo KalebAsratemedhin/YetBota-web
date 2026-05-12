@@ -18,7 +18,7 @@ export default function QaPostCard({ post }: { post: QaPost }) {
       href={`/qa/${post.id}`}
       className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 rounded-2xl"
     >
-      <article className="bg-white dark:bg-[#171717] border border-slate-200 dark:border-[#262626] rounded-2xl p-6 transition-transform hover:border-brand/30 hover:-translate-y-px cursor-pointer">
+      <article className="bg-white dark:bg-surface border border-slate-200 dark:border-border-subtle rounded-2xl p-6 transition-transform hover:border-brand/30 hover:-translate-y-px cursor-pointer">
       <div className="flex justify-between items-start mb-4">
         <div className="flex gap-4 min-w-0">
           <div className="relative w-12 h-12 rounded-full overflow-hidden bg-slate-200 ring-2 ring-brand/20 shrink-0">
@@ -31,10 +31,10 @@ export default function QaPostCard({ post }: { post: QaPost }) {
                 {post.user.badge}
               </span>
             </div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">{post.locationAndTime}</p>
+            <p className="text-sm text-fg-faint dark:text-slate-400">{post.locationAndTime}</p>
           </div>
         </div>
-        <button className="text-slate-400 hover:text-brand transition-colors" aria-label="More">
+        <button className="text-fg-muted hover:text-brand transition-colors" aria-label="More">
           <MoreHorizontal className="w-5 h-5" />
         </button>
       </div>
@@ -63,7 +63,7 @@ export default function QaPostCard({ post }: { post: QaPost }) {
             {post.tags.map((t) => (
               <span
                 key={t}
-                className="px-3 py-1 bg-slate-100 dark:bg-neutral-800 text-slate-500 dark:text-slate-400 text-xs font-bold rounded-md uppercase tracking-wide"
+                className="px-3 py-1 bg-slate-100 dark:bg-neutral-800 text-fg-faint dark:text-slate-400 text-xs font-bold rounded-md uppercase tracking-wide"
               >
                 {t}
               </span>
@@ -85,12 +85,12 @@ export default function QaPostCard({ post }: { post: QaPost }) {
         </div>
 
         <div className="flex items-center gap-6">
-          <button className="flex items-center gap-2 text-slate-500 hover:text-brand transition-colors">
+          <button className="flex items-center gap-2 text-fg-faint hover:text-brand transition-colors">
             <MessageCircle className="w-5 h-5" />
             <span className="font-semibold">{post.comments}</span>
           </button>
           <button
-            className="flex items-center gap-2 text-slate-500 hover:text-brand transition-colors"
+            className="flex items-center gap-2 text-fg-faint hover:text-brand transition-colors"
             aria-label="Share"
           >
             <Share2 className="w-5 h-5" />

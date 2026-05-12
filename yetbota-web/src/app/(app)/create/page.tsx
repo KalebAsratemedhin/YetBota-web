@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import CreatePostHeader from "@/components/create/CreatePostHeader";
 import CreatePostPhotoDropzone from "@/components/create/CreatePostPhotoDropzone";
 import CreatePostForm from "@/components/create/CreatePostForm";
@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { store } from "@/store";
 import { rememberMyPostId } from "@/lib/myPostsStorage";
 
-const POPULAR_TAGS = ["#History", "#CoffeeCulture", "#Lalibela", "#Nature"];
+const DEFAULT_POPULAR_TAGS = ["#History", "#CoffeeCulture", "#Lalibela", "#Nature"];
 
 export default function CreatePostPage() {
   const router = useRouter();
@@ -27,10 +27,19 @@ export default function CreatePostPage() {
   });
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [address, setAddress] = useState("");
+  const [tagOptions, setTagOptions] = useState<string[]>(DEFAULT_POPULAR_TAGS);
   const [selectedTags, setSelectedTags] = useState<string[]>(["#History"]);
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
 
-  const tags = useMemo(() => POPULAR_TAGS, []);
+  function handleAddTag(raw: string) {
+    const candidate = raw.trim();
+    if (!candidate) return;
+    const existing = tagOptions.find((t) => t.toLowerCase() === candidate.toLowerCase());
+    const canonical = existing ?? candidate;
+    if (!existing) setTagOptions((prev) => [...prev, canonical]);
+    setSelectedTags((prev) => (prev.includes(canonical) ? prev : [...prev, canonical]));
+  }
 
   const canPost = title.trim().length > 0 && description.trim().length > 0 && !isLoading;
 
@@ -53,6 +62,7 @@ export default function CreatePostPage() {
     }
 
     try {
+      const trimmedAddress = address.trim();
       const res = await createPost({
         title: title.trim(),
         description: description.trim(),
@@ -60,11 +70,15 @@ export default function CreatePostPage() {
         is_question: false,
         photos: photoBase64 ? [{ photo_base64: photoBase64, position: 0 }] : [],
         location,
+        ...(trimmedAddress.length > 0 ? { address: trimmedAddress } : {}),
       }).unwrap();
 
       rememberMyPostId(res.post.id);
       toast({ title: "Posted", description: "Your post was created successfully." });
-      router.push(`/qa/${res.post.id}`);
+      const detailsHref = res.post.is_question
+        ? `/qa/${encodeURIComponent(res.post.id)}`
+        : `/locations/${encodeURIComponent(res.post.id)}`;
+      router.push(detailsHref);
     } catch {
       toast({
         title: "Failed to post",
@@ -75,8 +89,8 @@ export default function CreatePostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background-light dark:bg-[#0a0a0a] text-slate-900 dark:text-slate-100">
-      <CreatePostHeader title="Create Post" onClose={() => router.back()} onPost={handlePost} />
+    <div className="min-h-screen bg-bg text-fg">
+      <CreatePostHeader title="Create Post" onClose={() => router.back()} />
 
       <div className="max-w-4xl mx-auto w-full px-8 py-12 space-y-10">
         <section>
@@ -87,8 +101,10 @@ export default function CreatePostPage() {
           <CreatePostForm
             title={title}
             description={description}
+            address={address}
             onChangeTitle={setTitle}
             onChangeDescription={setDescription}
+            onChangeAddress={setAddress}
           />
         </section>
 
@@ -100,15 +116,20 @@ export default function CreatePostPage() {
         </section>
 
         <section>
-          <CreatePostTags tags={tags} selected={selectedTags} onToggle={(t) => {
-            setSelectedTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
-          }} />
+          <CreatePostTags
+            tags={tagOptions}
+            selected={selectedTags}
+            onToggle={(t) => {
+              setSelectedTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+            }}
+            onAddTag={handleAddTag}
+          />
         </section>
       </div>
 
       <div className="h-28" />
 
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-t border-slate-200 dark:border-[#262626]">
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 dark:bg-bg/80 backdrop-blur-md border-t border-slate-200 dark:border-border-subtle">
         <div className="max-w-4xl mx-auto w-full px-6 sm:px-8 py-4 flex justify-end">
           <button
             type="button"

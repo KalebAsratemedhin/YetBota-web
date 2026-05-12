@@ -15,24 +15,24 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex h-dvh bg-[#0a0a0a] overflow-hidden">
+    <div className="flex h-dvh bg-bg overflow-hidden">
       <AppSidebar
         user={{ name: user.name, role: user.role, level: user.level, avatarUrl: user.avatarUrl }}
         className="hidden lg:flex"
       />
 
       {/* Mobile top bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur border-b border-white/5">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-bg/95 backdrop-blur border-b border-border-subtle">
         <div className="h-14 px-4 flex items-center justify-between">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="w-10 h-10 inline-flex items-center justify-center rounded-xl border border-white/10 text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
+            className="w-10 h-10 inline-flex items-center justify-center rounded-xl border border-border-subtle text-fg-muted hover:text-fg hover:bg-overlay transition-colors"
             aria-label="Open menu"
           >
             <Menu className="w-5 h-5" />
           </button>
-          <div className="text-white font-bold text-sm">Yet Bota</div>
+          <div className="text-fg font-bold text-sm">Yet Bota</div>
           <div className="w-10" />
         </div>
       </div>
@@ -55,7 +55,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={() => setMobileOpen(false)}
-              className="absolute top-3 right-3 w-9 h-9 inline-flex items-center justify-center rounded-xl border border-white/10 bg-[#0d0d0d] text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
+              className="absolute top-3 right-3 w-9 h-9 inline-flex items-center justify-center rounded-xl border border-border-subtle bg-surface text-fg-muted hover:text-fg hover:bg-overlay transition-colors"
               aria-label="Close menu"
             >
               <X className="w-4 h-4" />

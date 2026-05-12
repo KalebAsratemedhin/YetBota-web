@@ -14,9 +14,10 @@ const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 type ProfileHeaderProps = {
   user: ProfileUser;
   onProfileImageUploaded?: () => void;
+  readOnly?: boolean;
 };
 
-export default function ProfileHeader({ user, onProfileImageUploaded }: ProfileHeaderProps) {
+export default function ProfileHeader({ user, onProfileImageUploaded, readOnly = false }: ProfileHeaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const [uploadProfileImage, { isLoading: isUploading }] = useUploadMyProfileImageMutation();
@@ -81,7 +82,7 @@ export default function ProfileHeader({ user, onProfileImageUploaded }: ProfileH
       <div className="flex flex-col sm:flex-row sm:items-end items-start gap-4 sm:gap-6 px-4 sm:px-6 -mt-14 sm:-mt-18 lg:-mt-20 relative z-10">
         {/* Avatar */}
         <div className="relative shrink-0">
-          <div className="relative w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 rounded-3xl bg-[#e8b89a] border-4 border-[#0a0a0a] flex items-center justify-center shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.35)] overflow-hidden">
+          <div className="relative w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 rounded-3xl bg-[#e8b89a] border-4 border-bg flex items-center justify-center shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.35)] overflow-hidden">
             {user.avatarUrl ? (
               <Image
                 src={user.avatarUrl}
@@ -92,24 +93,26 @@ export default function ProfileHeader({ user, onProfileImageUploaded }: ProfileH
                 unoptimized
               />
             ) : (
-              <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-white/60">{initials}</span>
+              <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-fg/60">{initials}</span>
             )}
           </div>
-          <button
-            type="button"
-            onClick={openFilePicker}
-            disabled={isUploading}
-            className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 w-9 h-9 sm:w-10 sm:h-10 bg-brand rounded-xl flex items-center justify-center shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.35)] disabled:opacity-60"
-            aria-label="Change profile photo"
-          >
-            <Camera className="w-4 h-4 text-white" />
-          </button>
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={openFilePicker}
+              disabled={isUploading}
+              className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 w-9 h-9 sm:w-10 sm:h-10 bg-brand rounded-xl flex items-center justify-center shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.35)] disabled:opacity-60"
+              aria-label="Change profile photo"
+            >
+              <Camera className="w-4 h-4 text-fg" />
+            </button>
+          )}
         </div>
 
         {/* Name + meta */}
         <div className="flex-1 min-w-0 pb-1 sm:pb-2 w-full">
           <div className="flex items-center gap-2 sm:gap-3 mb-1.5 sm:mb-2 flex-wrap">
-            <h1 className="text-white font-bold text-xl sm:text-2xl lg:text-[30px] leading-tight truncate max-w-full">
+            <h1 className="text-fg font-bold text-xl sm:text-2xl lg:text-[30px] leading-tight truncate max-w-full">
               {user.name}
             </h1>
             <span className="text-[10px] sm:text-[12px] font-bold uppercase tracking-[0.12em] text-brand bg-brand/20 border border-brand/30 px-2.5 sm:px-3 py-1 rounded-xl">
@@ -118,37 +121,41 @@ export default function ProfileHeader({ user, onProfileImageUploaded }: ProfileH
           </div>
           <div className="flex items-center gap-4 sm:gap-6 flex-wrap">
             <span className="text-sm sm:text-base">
-              <strong className="text-white">{user.followers}</strong>{" "}
-              <span className="text-slate-300/70">Followers</span>
+              <strong className="text-fg">{user.followers}</strong>{" "}
+              <span className="text-fg-muted">Followers</span>
             </span>
             <span className="text-sm sm:text-base">
-              <strong className="text-white">{user.following}</strong>{" "}
-              <span className="text-slate-300/70">Following</span>
+              <strong className="text-fg">{user.following}</strong>{" "}
+              <span className="text-fg-muted">Following</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-slate-300/60" />
-              <span className="text-slate-300/70 text-sm truncate max-w-[18rem] sm:max-w-[24rem]">
+              <MapPin className="w-3.5 h-3.5 text-fg-faint" />
+              <span className="text-fg-muted text-sm truncate max-w-[18rem] sm:max-w-[24rem]">
                 {user.location}
               </span>
             </span>
           </div>
         </div>
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileSelected}
-        />
+        {!readOnly && (
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileSelected}
+            />
 
-        <Link
-          href="/settings"
-          className="sm:shrink-0 sm:mb-2 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-[#141414] text-gray-300 hover:text-white hover:bg-[#1c1c1c] transition-colors self-end sm:self-auto"
-          aria-label="Settings"
-        >
-          <Settings className="w-5 h-5" />
-        </Link>
+            <Link
+              href="/settings"
+              className="sm:shrink-0 sm:mb-2 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border-subtle bg-surface text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors self-end sm:self-auto"
+              aria-label="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );

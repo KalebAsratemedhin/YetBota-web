@@ -19,7 +19,7 @@ export default function ProfileContent() {
 
   if (isLoading || (isFetching && !data?.user)) {
     return (
-      <div className="bg-[#0a0a0a] min-h-[50vh] flex items-center justify-center text-gray-500 text-sm">
+      <div className="bg-bg min-h-[50vh] flex items-center justify-center text-fg-faint text-sm">
         Loading profile…
       </div>
     );
@@ -27,8 +27,8 @@ export default function ProfileContent() {
 
   if (isError && !data?.user) {
     return (
-      <div className="bg-[#0a0a0a] text-white min-h-[50vh] flex flex-col items-center justify-center gap-4 px-4 sm:px-6">
-        <p className="text-gray-400 text-sm">Could not load your profile.</p>
+      <div className="bg-bg text-fg min-h-[50vh] flex flex-col items-center justify-center gap-4 px-4 sm:px-6">
+        <p className="text-fg-muted text-sm">Could not load your profile.</p>
         <button
           type="button"
           onClick={() => void refetch()}
@@ -36,7 +36,7 @@ export default function ProfileContent() {
         >
           Retry
         </button>
-        <Link href="/settings" className="text-gray-500 text-sm hover:text-white">
+        <Link href="/settings" className="text-fg-faint text-sm hover:text-fg">
           Settings
         </Link>
       </div>
@@ -44,7 +44,7 @@ export default function ProfileContent() {
   }
 
   return (
-    <div className="bg-[#0a0a0a] text-white">
+    <div className="bg-bg text-fg">
       <div className="mx-auto w-full max-w-[1152px] px-4 sm:px-6 pt-4 sm:pt-6">
         <ProfileHeader user={user} onProfileImageUploaded={() => void refetch()} />
       </div>

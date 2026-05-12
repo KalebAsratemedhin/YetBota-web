@@ -1,4 +1,7 @@
-// Mock data for AI Assistant — replace with RTK Query calls when backend is ready
+// Mock data for AI Assistant — chat is wired to the live AI service via useChatMutation;
+// the helpers below still seed mock recent-chats / suggested-topics until the backend exposes them.
+
+import type { Citation } from "@/store/api/aiApi";
 
 export interface PlaceCard {
   id: string;
@@ -18,7 +21,9 @@ export interface ChatMessage {
   role: MessageRole;
   text: string;
   placeCard?: PlaceCard;
+  citations?: Citation[];
   timestamp: Date;
+  error?: boolean;
 }
 
 export interface RecentChat {

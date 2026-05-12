@@ -16,7 +16,7 @@ interface PlaceCardItemProps {
 
 function PlaceCardItem({ place, displayName, displayDescription, badgeLabel, isCommunity }: PlaceCardItemProps) {
   return (
-    <div className="rounded-2xl overflow-hidden bg-[#111111] border border-white/5 group cursor-pointer hover:border-white/20 transition-colors">
+    <div className="rounded-2xl overflow-hidden bg-bg border border-border-subtle group cursor-pointer hover:border-overlay-strong transition-colors">
       <div className="relative h-36 sm:h-40 md:h-44 w-full overflow-hidden">
         <Image
           src={place.imageUrl}
@@ -45,15 +45,15 @@ function PlaceCardItem({ place, displayName, displayDescription, badgeLabel, isC
       </div>
 
       <div className="p-3">
-        <p className="text-white text-xs md:text-sm font-semibold mb-1 truncate">{displayName}</p>
+        <p className="text-fg text-xs md:text-sm font-semibold mb-1 truncate">{displayName}</p>
         {place.rating ? (
           <div className="flex items-center gap-1">
             <Star className="w-3 h-3 text-yellow-400 fill-yellow-400 shrink-0" />
             <span className="text-yellow-400 text-xs font-semibold">{place.rating}</span>
-            <span className="text-gray-500 text-[10px] truncate">({place.reviewCount} reviews)</span>
+            <span className="text-fg-faint text-[10px] truncate">({place.reviewCount} reviews)</span>
           </div>
         ) : (
-          <p className="text-gray-500 text-[10px] line-clamp-2 leading-tight">{displayDescription}</p>
+          <p className="text-fg-faint text-[10px] line-clamp-2 leading-tight">{displayDescription}</p>
         )}
       </div>
     </div>
@@ -74,13 +74,13 @@ function CategoryRow({ title, places, icon, getPlaceName, getPlaceDesc, badgeLab
     <div className="mb-10">
       <div className="flex items-center mb-4">
         <span className="text-base mr-2">{icon}</span>
-        <h3 className="text-white font-semibold text-sm md:text-base">{title}</h3>
+        <h3 className="text-fg font-semibold text-sm md:text-base">{title}</h3>
         <div className="flex gap-1 ml-auto">
-          <button className="w-7 h-7 rounded-full border border-white/15 flex items-center justify-center hover:border-white/40 hover:bg-white/5 transition-colors">
-            <ChevronLeft className="w-3.5 h-3.5 text-gray-400" />
+          <button className="w-7 h-7 rounded-full border border-border-subtle flex items-center justify-center hover:border-border-subtle hover:bg-overlay transition-colors">
+            <ChevronLeft className="w-3.5 h-3.5 text-fg-muted" />
           </button>
-          <button className="w-7 h-7 rounded-full border border-white/15 flex items-center justify-center hover:border-white/40 hover:bg-white/5 transition-colors">
-            <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+          <button className="w-7 h-7 rounded-full border border-border-subtle flex items-center justify-center hover:border-border-subtle hover:bg-overlay transition-colors">
+            <ChevronRight className="w-3.5 h-3.5 text-fg-muted" />
           </button>
         </div>
       </div>
@@ -121,11 +121,11 @@ export default function DiscoverySection() {
   };
 
   return (
-    <section className="bg-[#0a0a0a] py-16">
+    <section className="bg-bg py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
         <div className="mb-10 text-center">
-          <h2 className="text-white text-xl md:text-2xl font-bold mb-1">{t.discovery.title}</h2>
-          <p className="text-gray-500 text-sm">{t.discovery.subtitle}</p>
+          <h2 className="text-fg text-xl md:text-2xl font-bold mb-1">{t.discovery.title}</h2>
+          <p className="text-fg-faint text-sm">{t.discovery.subtitle}</p>
         </div>
         <CategoryRow
           icon={<Coffee className="w-4 h-4" />}

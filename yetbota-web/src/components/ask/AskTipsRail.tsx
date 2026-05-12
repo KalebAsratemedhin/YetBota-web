@@ -4,7 +4,7 @@ import { CheckCircle2 } from "lucide-react";
 
 export default function AskTipsRail({ tips }: { tips: string[] }) {
   return (
-    <div className="bg-slate-100 dark:bg-[#121212] border border-slate-200 dark:border-zinc-800 rounded-xl p-6 sticky top-24">
+    <div className="bg-bg border border-border-subtle rounded-xl p-6 sticky top-24">
       <h3 className="font-bold text-lg mb-4">Tips for a good post</h3>
       <ul className="space-y-4">
         {tips.map((t) => (
@@ -15,13 +15,13 @@ export default function AskTipsRail({ tips }: { tips: string[] }) {
         ))}
       </ul>
 
-      <hr className="my-6 border-slate-200 dark:border-zinc-800" />
+      <hr className="my-6 border-border-subtle" />
 
       <div className="space-y-2">
-        <p className="text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase">Draft Status</p>
+        <p className="text-xs font-bold text-fg-faint dark:text-zinc-500 uppercase">Draft Status</p>
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium">Autosaved</span>
-          <span className="text-xs text-slate-400 dark:text-zinc-600">Just now</span>
+          <span className="text-xs text-fg-muted dark:text-zinc-600">Just now</span>
         </div>
       </div>
     </div>

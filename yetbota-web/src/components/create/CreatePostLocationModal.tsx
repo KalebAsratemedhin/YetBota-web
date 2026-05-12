@@ -39,8 +39,8 @@ export default function CreatePostLocationModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6 overscroll-contain">
-      <div className="bg-white dark:bg-[#161616] w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl">
-        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-[#262626] flex items-center justify-between">
+      <div className="bg-white dark:bg-surface w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl">
+        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-border-subtle flex items-center justify-between">
           <h3 className="text-lg sm:text-xl font-bold">Select Location</h3>
           <button
             type="button"

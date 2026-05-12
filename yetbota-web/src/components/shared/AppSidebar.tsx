@@ -36,10 +36,16 @@ export default function AppSidebar({ user, children, title = "Yet Bota", classNa
   const initials = user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <aside className={cn("w-64 shrink-0 bg-[#0d0d0d] border-r border-white/5 flex flex-col h-full", className)}>
+    <aside
+      className={cn(
+        "w-64 shrink-0 bg-bg border-r border-brand/20 flex flex-col h-full",
+        "shadow-[4px_0_16px_-8px_rgba(15,23,42,0.08)] dark:shadow-none",
+        className
+      )}
+    >
 
       {/* Logo */}
-      <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2.5 shrink-0">
+      <div className="px-6 py-5 border-b border-border-subtle flex items-center gap-2.5 shrink-0">
         <Image
                       src="/images/logo.jpg"
                       alt="Yet Bota"
@@ -47,7 +53,7 @@ export default function AppSidebar({ user, children, title = "Yet Bota", classNa
                       height={36}
                       className="rounded-lg"
                     />
-        <span className="text-white font-bold text-sm">{title}</span>
+        <span className="text-fg font-bold text-sm">{title}</span>
       </div>
 
       {/* Nav */}
@@ -64,7 +70,7 @@ export default function AppSidebar({ user, children, title = "Yet Bota", classNa
                 "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors mb-0.5",
                 isActive
                   ? "bg-brand/15 text-brand"
-                  : "text-gray-400 hover:text-white hover:bg-white/5"
+                  : "text-fg-muted hover:text-fg hover:bg-overlay"
               )}
             >
               <Icon className="w-4 h-4 shrink-0" />
@@ -84,7 +90,7 @@ export default function AppSidebar({ user, children, title = "Yet Bota", classNa
       {!children && <div className="flex-1" />}
 
       {/* User footer */}
-      <div className="px-5 py-4 border-t border-white/5 flex items-center justify-between gap-2 shrink-0">
+      <div className="px-5 py-4 border-t border-border-subtle flex items-center justify-between gap-2 shrink-0">
         <Link href="/profile" className="flex items-center gap-2 min-w-0 group">
           <div className="w-7 h-7 rounded-full bg-brand overflow-hidden flex items-center justify-center shrink-0">
             {user.avatarUrl ? (
@@ -94,16 +100,16 @@ export default function AppSidebar({ user, children, title = "Yet Bota", classNa
             )}
           </div>
           <div className="min-w-0">
-            <p className="text-white text-xs font-semibold truncate group-hover:text-brand transition-colors">
+            <p className="text-fg text-xs font-semibold truncate group-hover:text-brand transition-colors">
               {user.name}
             </p>
-            <p className="text-[10px] text-gray-500 truncate">
+            <p className="text-[10px] text-fg-muted truncate">
               {user.level ? `Level ${user.level}` : user.role}
             </p>
           </div>
         </Link>
-        <button type="button" className="shrink-0 hover:bg-white/5 p-1 rounded-lg transition-colors">
-          <Settings className="w-3.5 h-3.5 text-gray-500" />
+        <button type="button" className="shrink-0 hover:bg-overlay p-1 rounded-lg transition-colors">
+          <Settings className="w-3.5 h-3.5 text-fg-muted" />
         </button>
       </div>
     </aside>

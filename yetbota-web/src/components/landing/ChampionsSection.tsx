@@ -32,19 +32,19 @@ function ChampionCard({ champion, index }: { champion: Champion; index: number }
   const BadgeIcon = BADGE_ICONS[champion.badgeIcon];
 
   return (
-    <div className="bg-[#111111] border border-white/5 rounded-3xl p-6 flex flex-col items-start hover:border-brand/20 transition-colors">
+    <div className="bg-bg border border-border-subtle rounded-3xl p-6 flex flex-col items-start hover:border-brand/20 transition-colors">
       {/* Avatar with badge icon */}
       <div className="relative mb-4">
-        <div className={`w-16 h-16 ${AVATAR_COLORS[index]} rounded-full flex items-center justify-center text-lg font-bold text-white border-2 border-brand/40`}>
+        <div className={`w-16 h-16 ${AVATAR_COLORS[index]} rounded-full flex items-center justify-center text-lg font-bold text-fg border-2 border-brand/40`}>
           {initials}
         </div>
-        <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#1a1a1a] border border-white/10 rounded-full flex items-center justify-center">
+        <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-surface-2 border border-border-subtle rounded-full flex items-center justify-center">
           <BadgeIcon className="w-3.5 h-3.5 text-brand" />
         </div>
       </div>
 
       {/* Name */}
-      <p className="text-white font-bold text-base mb-0.5">{champion.name}</p>
+      <p className="text-fg font-bold text-base mb-0.5">{champion.name}</p>
 
       {/* Role */}
       <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${ROLE_COLORS[index]}`}>
@@ -52,10 +52,10 @@ function ChampionCard({ champion, index }: { champion: Champion; index: number }
       </p>
 
       {/* Points pill */}
-      <div className="flex items-center gap-1.5 bg-[#1a1a1a] border border-white/8 rounded-full px-3 py-1.5">
+      <div className="flex items-center gap-1.5 bg-surface-2 border border-border-subtle rounded-full px-3 py-1.5">
         <Star className="w-3 h-3 text-yellow-400 fill-yellow-400 shrink-0" />
 
-        <span className="text-gray-300 text-xs font-semibold">{champion.points.toLocaleString()} pts</span>
+        <span className="text-fg-muted text-xs font-semibold">{champion.points.toLocaleString()} pts</span>
       </div>
     </div>
   );
@@ -65,11 +65,11 @@ export default function ChampionsSection() {
   const t = useContent();
 
   return (
-    <section className="bg-[#0a0a0a] py-24">
+    <section className="bg-bg py-24">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="text-center mb-12">
-          <h2 className="text-white text-4xl font-extrabold mb-3">{t.champions.title}</h2>
-          <p className="text-gray-500 text-base">{t.champions.subtitle}</p>
+          <h2 className="text-fg text-4xl font-extrabold mb-3">{t.champions.title}</h2>
+          <p className="text-fg-faint text-base">{t.champions.subtitle}</p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {CHAMPIONS.map((champion, i) => (

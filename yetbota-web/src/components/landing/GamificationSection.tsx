@@ -7,17 +7,17 @@ export default function GamificationSection() {
   const t = useContent();
 
   return (
-    <section className="bg-[#0a0a0a] py-24 px-6">
+    <section className="bg-bg py-24 px-6">
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Text */}
         <div>
           <p className="text-brand text-xs font-bold uppercase tracking-widest mb-4">
             {t.gamification.badge}
           </p>
-          <h2 className="text-white text-4xl md:text-5xl font-extrabold leading-tight mb-6">
+          <h2 className="text-fg text-4xl md:text-5xl font-extrabold leading-tight mb-6">
             {t.gamification.title}
           </h2>
-          <p className="text-gray-400 text-base leading-relaxed mb-8">
+          <p className="text-fg-muted text-base leading-relaxed mb-8">
             {t.gamification.description}
           </p>
 
@@ -26,7 +26,7 @@ export default function GamificationSection() {
             {t.gamification.badges.map((b) => (
               <Badge
                 key={b}
-                className="bg-[#1a1a1a] border border-white/10 text-gray-300 text-xs px-4 py-1.5 rounded-full hover:border-brand/40 hover:text-white transition-colors cursor-default"
+                className="bg-surface-2 border border-border-subtle text-fg-muted text-xs px-4 py-1.5 rounded-full hover:border-brand/40 hover:text-fg transition-colors cursor-default"
               >
                 {b}
               </Badge>
@@ -35,21 +35,21 @@ export default function GamificationSection() {
         </div>
 
         {/* Level card */}
-        <div className="bg-[#111111] border border-white/5 rounded-3xl p-6">
+        <div className="bg-bg border border-border-subtle rounded-3xl p-6">
           <div className="grid grid-cols-2 gap-4">
             {/* Current level */}
-            <div className="bg-[#0a0a0a] rounded-2xl p-5 flex flex-col items-center text-center">
+            <div className="bg-bg rounded-2xl p-5 flex flex-col items-center text-center">
               <Trophy className="w-8 h-8 text-brand mb-3" />
-              <p className="text-white font-bold text-base mb-1">{t.gamification.levels.current}</p>
-              <p className="text-gray-500 text-sm">{t.gamification.levels.currentXp}</p>
+              <p className="text-fg font-bold text-base mb-1">{t.gamification.levels.current}</p>
+              <p className="text-fg-faint text-sm">{t.gamification.levels.currentXp}</p>
             </div>
 
             {/* Next level */}
-            <div className="bg-[#0a0a0a] rounded-2xl p-5 flex flex-col items-center text-center">
-              <Award className="w-8 h-8 text-gray-500 mb-3" />
-              <p className="text-white font-bold text-base mb-3">{t.gamification.levels.next}</p>
+            <div className="bg-bg rounded-2xl p-5 flex flex-col items-center text-center">
+              <Award className="w-8 h-8 text-fg-faint mb-3" />
+              <p className="text-fg font-bold text-base mb-3">{t.gamification.levels.next}</p>
               {/* Progress bar */}
-              <div className="w-full bg-[#1e1e1e] rounded-full h-1.5">
+              <div className="w-full bg-surface rounded-full h-1.5">
                 <div
                   className="h-1.5 rounded-full bg-brand"
                   style={{ width: "72%" }}

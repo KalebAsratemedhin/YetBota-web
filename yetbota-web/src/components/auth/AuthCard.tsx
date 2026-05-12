@@ -15,12 +15,12 @@ export default function AuthCard({ title, children, backHref = "/" }: AuthCardPr
       <div className="flex items-center justify-between mb-8 mt-3">
         <Link
           href={backHref}
-          className="flex items-center gap-1.5 text-gray-400 hover:text-white transition-colors text-sm"
+          className="flex items-center gap-1.5 text-fg-muted hover:text-fg transition-colors text-sm"
         >
           <ChevronLeft className="w-4 h-4" />
           <span>Back</span>
         </Link>
-        <span className="text-white font-semibold text-sm">{title}</span>
+        <span className="text-fg font-semibold text-sm">{title}</span>
         <div className="w-14" /> {/* spacer to center title */}
       </div>
 

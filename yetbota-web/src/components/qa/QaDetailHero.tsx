@@ -8,20 +8,21 @@ export default function QaDetailHero({
   badgeLabel,
   askedLabel,
 }: {
-  imageUrl: string;
+  imageUrl?: string | null;
   badgeLabel: string;
   askedLabel: string;
 }) {
+  if (!imageUrl) return null;
+
   return (
     <div className="relative w-full aspect-21/9 rounded-3xl overflow-hidden mb-8 shadow-2xl shadow-brand/10">
       <Image
-        alt="Location map"
+        alt="Question hero"
         src={imageUrl}
         fill
         className="object-cover brightness-75 dark:brightness-50"
         priority
       />
-
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="relative">
           <MapPin className="w-16 h-16 text-brand drop-shadow-[0_0_15px_rgba(34,197,94,0.6)]" />
@@ -40,4 +41,3 @@ export default function QaDetailHero({
     </div>
   );
 }
-

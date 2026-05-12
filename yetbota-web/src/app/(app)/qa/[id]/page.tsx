@@ -2,16 +2,24 @@
 
 import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { ChevronDown, Image as ImageIcon, Send } from "lucide-react";
 import QaDetailHeader from "@/components/qa/QaDetailHeader";
 import QaDetailHero from "@/components/qa/QaDetailHero";
 import QaDetailQuestionSection from "@/components/qa/QaDetailQuestionSection";
+import QaAnswerCard from "@/components/qa/QaAnswerCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useCreateCommentMutation, useGetPostByIdQuery, useListCommentsQuery } from "@/store/api/contentApi";
-import { useGetUserByIdQuery } from "@/store/api/authApi";
+import {
+  useCreateCommentMutation,
+  useGetPostByIdQuery,
+  useListCommentsQuery,
+} from "@/store/api/contentApi";
+import { useGetMeQuery } from "@/store/api/authApi";
 import { useAppSelector } from "@/store/hooks";
-import { Button } from "@/components/ui/button";
 import { getAuthErrorMessage } from "@/lib/authErrors";
 import { useToast } from "@/hooks/use-toast";
+import { resolveApiUrl } from "@/lib/resolveApiUrl";
+
+type SortKey = "top" | "newest";
 
 export default function QaDetailPage() {
   const router = useRouter();
@@ -20,33 +28,71 @@ export default function QaDetailPage() {
 
   const accessToken = useAppSelector((s) => s.auth.accessToken);
   const { toast } = useToast();
+  const { data: me } = useGetMeQuery(undefined, { skip: !accessToken });
+  const meId = me?.user?.id;
 
-  const { data: postRes, isLoading: postLoading, isError: postError, refetch: refetchPost } = useGetPostByIdQuery(
-    { id, resolution: "WEB" },
-    { skip: !accessToken }
-  );
+  const {
+    data: postRes,
+    isLoading: postLoading,
+    isError: postError,
+    refetch: refetchPost,
+  } = useGetPostByIdQuery({ id, resolution: "WEB" });
   const post = postRes?.post;
 
-  const { data: authorRes } = useGetUserByIdQuery(
-    { id: post?.user_id ?? "", resolution: "WEB" },
-    { skip: !accessToken || !post?.user_id }
-  );
-
-  const { data: commentsRes, isLoading: commentsLoading, refetch: refetchComments } = useListCommentsQuery(
-    { post_id: id },
-    { skip: !accessToken }
-  );
+  const {
+    data: commentsRes,
+    isLoading: commentsLoading,
+    refetch: refetchComments,
+  } = useListCommentsQuery({ post_id: id }, { skip: !accessToken });
   const comments = commentsRes?.comments ?? [];
 
   const [newAnswer, setNewAnswer] = useState("");
   const [createComment, { isLoading: posting }] = useCreateCommentMutation();
+  const [sort, setSort] = useState<SortKey>("top");
+  const [sortOpen, setSortOpen] = useState(false);
 
+  const badgeLabel = useMemo(() => (post?.is_question ? "Community Question" : "Post"), [
+    post?.is_question,
+  ]);
   const askedLabel = useMemo(() => {
     if (!post?.created_at) return "Asked";
-    return "Asked";
+    const d = new Date(post.created_at);
+    if (Number.isNaN(d.getTime())) return "Asked";
+    const diffMs = Date.now() - d.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 60) return `Asked ${Math.max(diffMin, 1)}m ago`;
+    const diffHr = Math.floor(diffMin / 60);
+    if (diffHr < 24) return `Asked ${diffHr}h ago`;
+    const diffDay = Math.floor(diffHr / 24);
+    if (diffDay < 7) return `Asked ${diffDay}d ago`;
+    return `Asked ${new Intl.DateTimeFormat(undefined, { day: "2-digit", month: "short" }).format(d)}`;
   }, [post?.created_at]);
 
-  const badgeLabel = useMemo(() => (post?.is_question ? "QUESTION" : "POST"), [post?.is_question]);
+  const { answers, repliesByAnswer, answerCount } = useMemo(() => {
+    const topLevel = comments.filter((c) => !c.comment_id && c.is_answer);
+    const replies = new Map<string, typeof comments>();
+    for (const c of comments) {
+      if (c.comment_id) {
+        const list = replies.get(c.comment_id) ?? [];
+        list.push(c);
+        replies.set(c.comment_id, list);
+      }
+    }
+    for (const [k, list] of replies) {
+      list.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      replies.set(k, list);
+    }
+    const sorted = [...topLevel].sort((a, b) => {
+      if (sort === "newest") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+      const aScore = a.upvote - a.downvote;
+      const bScore = b.upvote - b.downvote;
+      if (bScore !== aScore) return bScore - aScore;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+    return { answers: sorted, repliesByAnswer: replies, answerCount: topLevel.length };
+  }, [comments, sort]);
 
   async function handlePostAnswer() {
     const text = newAnswer.trim();
@@ -58,24 +104,59 @@ export default function QaDetailPage() {
       void refetchPost();
       toast({ title: "Posted" });
     } catch (err) {
-      toast({ variant: "destructive", title: "Failed to post", description: getAuthErrorMessage(err) });
+      toast({
+        variant: "destructive",
+        title: "Failed to post",
+        description: getAuthErrorMessage(err),
+      });
     }
   }
 
+  async function handleReply(parentId: string, text: string) {
+    try {
+      await createComment({
+        post_id: id,
+        comment: text,
+        is_answer: false,
+        comment_id: parentId,
+      }).unwrap();
+      void refetchComments();
+      void refetchPost();
+      toast({ title: "Reply posted" });
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Failed to reply",
+        description: getAuthErrorMessage(err),
+      });
+      throw err;
+    }
+  }
+
+  const sortLabel = sort === "top" ? "Top Rated" : "Newest";
+
   return (
-    <div className="h-screen overflow-hidden bg-background-light dark:bg-[#0a0a0a] text-slate-900 dark:text-slate-100">
+    <div className="h-screen overflow-hidden bg-bg text-fg">
       <QaDetailHeader title="Question Details" onBack={() => router.back()} />
 
-      <ScrollArea className="h-[calc(100vh-64px)]">
-        <main className="w-full px-8 lg:px-32 py-8 pb-32">
-          <QaDetailHero imageUrl="/images/profile/rock-hewn.webp" badgeLabel={badgeLabel} askedLabel={askedLabel} />
+      <ScrollArea className="h-[calc(100vh-80px)]">
+        <main className="max-w-4xl mx-auto px-6 py-8 pb-32">
+          <QaDetailHero
+            imageUrl={post?.photos?.[0]?.photo_url ? resolveApiUrl(post.photos[0].photo_url) : null}
+            badgeLabel={badgeLabel}
+            askedLabel={askedLabel}
+          />
 
           {postLoading ? (
-            <div className="text-slate-500 text-sm">Loading…</div>
+            <div className="text-fg-faint text-sm">Loading…</div>
           ) : postError || !post ? (
-            <div className="text-slate-500 text-sm">
+            <div className="text-fg-faint text-sm">
               Failed to load post.{" "}
-              <button type="button" className="text-brand font-semibold" onClick={() => void refetchPost()}>
+              <button
+                type="button"
+                className="text-brand font-semibold"
+                onClick={() => void refetchPost()}
+              >
                 Retry
               </button>
             </div>
@@ -84,45 +165,63 @@ export default function QaDetailPage() {
               <QaDetailQuestionSection
                 title={post.title}
                 body={post.description}
-                tagLabel={(post.tags?.[0] ?? "Community") as string}
+                tags={post.tags ?? []}
               />
 
               <section className="mb-10">
-                <div className="flex items-center justify-between mb-6 border-b border-slate-200 dark:border-white/10 pb-4">
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500">
-                    {post.comments ?? comments.length} Community Answers
+                <div className="flex items-center justify-between mb-8 border-b border-border-subtle pb-4">
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-fg-muted">
+                    {answerCount} Community {answerCount === 1 ? "Answer" : "Answers"}
                   </h3>
-                  {authorRes?.user ? (
-                    <span className="text-xs text-slate-500">
-                      Asked by{" "}
-                      <span className="text-slate-700 dark:text-slate-300 font-semibold">
-                        {authorRes.user.first_name} {authorRes.user.last_name}
-                      </span>
-                    </span>
-                  ) : null}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setSortOpen((v) => !v)}
+                      className="flex items-center gap-1 text-brand text-sm font-bold hover:opacity-80 transition-opacity"
+                    >
+                      {sortLabel}
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                    {sortOpen && (
+                      <div className="absolute right-0 top-full mt-2 bg-surface border border-border-subtle rounded-xl overflow-hidden shadow-xl z-10 w-36">
+                        {(["top", "newest"] as SortKey[]).map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => {
+                              setSort(s);
+                              setSortOpen(false);
+                            }}
+                            className={
+                              "w-full text-left px-4 py-2 text-sm hover:bg-overlay transition-colors " +
+                              (sort === s ? "text-brand font-semibold" : "text-fg-muted")
+                            }
+                          >
+                            {s === "top" ? "Top Rated" : "Newest"}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {commentsLoading ? (
-                  <div className="text-slate-500 text-sm">Loading answers…</div>
+                  <div className="text-fg-faint text-sm">Loading answers…</div>
+                ) : answers.length === 0 ? (
+                  <div className="bg-overlay border border-border-subtle rounded-2xl p-6 text-sm text-fg-muted">
+                    No answers yet. Be the first.
+                  </div>
                 ) : (
-                  <div className="space-y-4">
-                    {comments.map((c) => (
-                      <article
-                        key={c.id}
-                        className="bg-white dark:bg-[#171717] border border-slate-200 dark:border-[#262626] rounded-2xl p-5"
-                      >
-                        <p className="text-slate-700 dark:text-slate-200 leading-relaxed">{c.comment}</p>
-                        <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
-                          <span>
-                            {c.upvote} up • {c.downvote} down
-                          </span>
-                          <span>{new Date(c.created_at).toLocaleString()}</span>
-                        </div>
-                      </article>
+                  <div className="space-y-8">
+                    {answers.map((a) => (
+                      <QaAnswerCard
+                        key={a.id}
+                        answer={a}
+                        replies={repliesByAnswer.get(a.id) ?? []}
+                        canVote={Boolean(meId && meId !== a.user_id)}
+                        onReply={accessToken ? (t) => handleReply(a.id, t) : undefined}
+                      />
                     ))}
-                    {!comments.length ? (
-                      <div className="text-slate-500 text-sm">No answers yet. Be the first.</div>
-                    ) : null}
                   </div>
                 )}
               </section>
@@ -131,29 +230,43 @@ export default function QaDetailPage() {
         </main>
       </ScrollArea>
 
-      <div className="fixed bottom-0 left-0 md:left-64 right-0 px-8 lg:px-32 py-6 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border-t border-slate-200 dark:border-white/5">
-        <div className="w-full flex items-center gap-4">
-          <div className="relative flex-1">
+      <div className="fixed bottom-0 left-0 lg:left-64 right-0 px-6 py-5 bg-bg/85 backdrop-blur-xl border-t border-border-subtle">
+        <div className="max-w-4xl mx-auto flex items-center gap-4">
+          <div className="relative flex-1 group">
             <input
-              className="w-full bg-slate-100 dark:bg-[#1a1a1a] border-none rounded-2xl py-4 pl-6 pr-6 focus:ring-2 focus:ring-brand transition-all text-slate-900 dark:text-white placeholder:text-slate-400"
+              className="w-full bg-overlay border border-border-subtle rounded-2xl py-4 pl-6 pr-14 focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-fg placeholder:text-fg-faint outline-none"
               placeholder="Type your answer..."
               type="text"
               value={newAnswer}
               onChange={(e) => setNewAnswer(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  void handlePostAnswer();
+                }
+              }}
               disabled={posting || !accessToken}
             />
+            <button
+              type="button"
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-fg-faint hover:text-brand transition-colors"
+              aria-label="Attach image"
+              disabled
+            >
+              <ImageIcon className="w-5 h-5" />
+            </button>
           </div>
-          <Button
+          <button
             type="button"
-            className="bg-brand hover:bg-brand-dark text-black font-bold rounded-2xl h-14 px-6"
-            disabled={posting || !newAnswer.trim() || !accessToken}
             onClick={() => void handlePostAnswer()}
+            disabled={posting || !newAnswer.trim() || !accessToken}
+            className="w-14 h-14 bg-brand text-white rounded-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-brand/30 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+            aria-label="Send answer"
           >
-            {posting ? "Posting…" : "Post"}
-          </Button>
+            <Send className="w-6 h-6" />
+          </button>
         </div>
       </div>
     </div>
   );
 }
-

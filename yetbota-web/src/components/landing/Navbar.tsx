@@ -13,6 +13,7 @@ import { setLocale } from "@/store/localeSlice";
 import type { Locale } from "@/types/landing";
 import { useGetMeQuery } from "@/store/api/authApi";
 import { resolveApiUrl } from "@/lib/resolveApiUrl";
+import HeaderNavLink from "@/components/shared/HeaderNavLink";
 
 function LocalePill({
   locale,
@@ -24,7 +25,7 @@ function LocalePill({
   onLocaleChange: (l: Locale) => void;
 }) {
   return (
-    <div className="flex items-center bg-white/5 rounded-full p-0.5">
+    <div className="flex items-center bg-overlay rounded-full p-0.5">
       {(["en", "am"] as Locale[]).map((l) => (
         <button
           key={l}
@@ -32,7 +33,7 @@ function LocalePill({
           onClick={() => onLocaleChange(l)}
           className={`rounded-full font-semibold transition-all ${
             size === "sm" ? "px-2.5 py-0.5 text-[11px]" : "px-3 py-1 text-xs"
-          } ${locale === l ? "bg-white/15 text-white" : "text-gray-500 hover:text-gray-300"}`}
+          } ${locale === l ? "bg-overlay-strong text-fg" : "text-fg-faint hover:text-fg-muted"}`}
         >
           {l.toUpperCase()}
         </button>
@@ -110,26 +111,22 @@ export default function Navbar() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-white/5">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-bg/95 backdrop-blur-md border-b border-border-subtle shadow-[0_4px_16px_-8px_rgba(15,23,42,0.08)] dark:shadow-none">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
-        <div className="flex items-center justify-between h-14">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <Image src="/images/logo.jpg" alt="Yet Bota" width={36} height={36} className="rounded-lg" />
+            <Image src="/images/logo.jpg" alt="Yet Bota" width={40} height={40} className="rounded-lg" />
 
-            <span className="text-white font-bold text-lg tracking-tight">Yet Bota</span>
+            <span className="text-fg font-bold text-lg tracking-tight">Yet Bota</span>
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-7">
+          <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <Link
-                key={link.id}
-                href={link.href}
-                className="text-sm text-gray-400 hover:text-white transition-colors duration-200"
-              >
+              <HeaderNavLink key={link.id} href={link.href}>
                 {link.label}
-              </Link>
+              </HeaderNavLink>
             ))}
           </nav>
 
@@ -141,7 +138,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => setProfileOpen((v) => !v)}
-                  className="w-9 h-9 rounded-full overflow-hidden border border-white/10 bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center"
+                  className="w-9 h-9 rounded-full overflow-hidden border border-border-subtle bg-overlay hover:bg-overlay-strong transition-colors flex items-center justify-center"
                   aria-label="Open profile menu"
                 >
                   {avatarUrl ? (
@@ -154,34 +151,34 @@ export default function Navbar() {
                       unoptimized
                     />
                   ) : (
-                    <span className="text-[11px] font-bold text-white/85">{initials}</span>
+                    <span className="text-[11px] font-bold text-fg">{initials}</span>
                   )}
                 </button>
 
                 {profileOpen && (
-                  <div className="absolute right-0 mt-2 w-52 rounded-2xl border border-white/10 bg-[#0d0d0d] shadow-[0px_20px_60px_-20px_rgba(0,0,0,0.7)] p-2">
+                  <div className="absolute right-0 mt-2 w-52 rounded-2xl border border-border-subtle bg-surface shadow-[0px_20px_60px_-20px_rgba(0,0,0,0.3)] p-2">
                     <Link
                       href="/profile"
                       onClick={() => setProfileOpen(false)}
-                      className="block px-3 py-2 rounded-xl text-sm text-gray-200 hover:bg-white/5 transition-colors"
+                      className="block px-3 py-2 rounded-xl text-sm text-fg hover:bg-overlay transition-colors"
                     >
                       Profile
                     </Link>
                     <Link
                       href="/settings"
                       onClick={() => setProfileOpen(false)}
-                      className="block px-3 py-2 rounded-xl text-sm text-gray-200 hover:bg-white/5 transition-colors"
+                      className="block px-3 py-2 rounded-xl text-sm text-fg hover:bg-overlay transition-colors"
                     >
                       Settings
                     </Link>
-                    <div className="h-px bg-white/8 my-1" />
+                    <div className="h-px bg-border-subtle my-1" />
                     <button
                       type="button"
                       onClick={() => {
                         setProfileOpen(false);
                         handleSignOut();
                       }}
-                      className="w-full text-left px-3 py-2 rounded-xl text-sm text-gray-200 hover:bg-white/5 transition-colors"
+                      className="w-full text-left px-3 py-2 rounded-xl text-sm text-fg hover:bg-overlay transition-colors"
                     >
                       {t.nav.signOut}
                     </button>
@@ -190,7 +187,7 @@ export default function Navbar() {
               </div>
             ) : (
               <>
-                <Link href="/signin" className="text-sm text-gray-300 hover:text-white transition-colors">
+                <Link href="/signin" className="text-sm text-fg-muted hover:text-fg transition-colors">
                   {t.nav.signIn}
                 </Link>
                 <Button
@@ -211,7 +208,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setProfileOpen((v) => !v)}
-                className="w-9 h-9 rounded-full overflow-hidden border border-white/10 bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center"
+                className="w-9 h-9 rounded-full overflow-hidden border border-border-subtle bg-overlay hover:bg-overlay-strong transition-colors flex items-center justify-center"
                 aria-label="Open profile menu"
               >
                 {avatarUrl ? (
@@ -224,21 +221,21 @@ export default function Navbar() {
                     unoptimized
                   />
                 ) : (
-                  <span className="text-[11px] font-bold text-white/85">{initials}</span>
+                  <span className="text-[11px] font-bold text-fg">{initials}</span>
                 )}
               </button>
             ) : (
-              <Link href="/signin" className="text-sm text-gray-300 hover:text-white transition-colors px-1">
+              <Link href="/signin" className="text-sm text-fg-muted hover:text-fg transition-colors px-1">
                 {t.nav.signIn}
               </Link>
             )}
             <button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}
-              className="w-9 h-9 flex items-center justify-center rounded-lg border border-white/10 hover:border-white/25 transition-colors"
+              className="w-9 h-9 flex items-center justify-center rounded-lg border border-border-subtle hover:border-fg-muted transition-colors"
               aria-label="Toggle menu"
             >
-              {mobileOpen ? <X className="w-4 h-4 text-gray-300" /> : <Menu className="w-4 h-4 text-gray-300" />}
+              {mobileOpen ? <X className="w-4 h-4 text-fg-muted" /> : <Menu className="w-4 h-4 text-fg-muted" />}
             </button>
           </div>
         </div>
@@ -246,7 +243,7 @@ export default function Navbar() {
 
       {/* Mobile profile dropdown */}
       {isSignedIn && profileOpen && (
-        <div className="md:hidden fixed top-14 left-0 right-0 z-50 bg-[#0d0d0d] border-b border-white/5 px-4 py-3">
+        <div className="md:hidden fixed top-20 left-0 right-0 z-50 bg-surface border-b border-border-subtle px-4 py-3">
           <div className="flex flex-col gap-1">
             <Link
               href="/profile"
@@ -254,7 +251,7 @@ export default function Navbar() {
                 setProfileOpen(false);
                 setMobileOpen(false);
               }}
-              className="text-sm text-gray-300 hover:text-white hover:bg-white/5 px-3 py-2.5 rounded-lg transition-colors"
+              className="text-sm text-fg-muted hover:text-fg hover:bg-overlay px-3 py-2.5 rounded-lg transition-colors"
             >
               Profile
             </Link>
@@ -264,7 +261,7 @@ export default function Navbar() {
                 setProfileOpen(false);
                 setMobileOpen(false);
               }}
-              className="text-sm text-gray-300 hover:text-white hover:bg-white/5 px-3 py-2.5 rounded-lg transition-colors"
+              className="text-sm text-fg-muted hover:text-fg hover:bg-overlay px-3 py-2.5 rounded-lg transition-colors"
             >
               Settings
             </Link>
@@ -274,7 +271,7 @@ export default function Navbar() {
                 setProfileOpen(false);
                 handleSignOut();
               }}
-              className="text-sm text-gray-300 hover:text-white hover:bg-white/5 px-3 py-2.5 rounded-lg transition-colors text-left"
+              className="text-sm text-fg-muted hover:text-fg hover:bg-overlay px-3 py-2.5 rounded-lg transition-colors text-left"
             >
               {t.nav.signOut}
             </button>
@@ -284,14 +281,14 @@ export default function Navbar() {
 
       {/* Mobile dropdown */}
       {mobileOpen && (
-        <div className="md:hidden bg-[#0d0d0d] border-t border-white/5 px-4 pb-5 pt-3">
+        <div className="md:hidden bg-surface border-t border-border-subtle px-4 pb-5 pt-3">
           <nav className="flex flex-col gap-1 mb-4">
             {navLinks.map((link) => (
               <Link
                 key={link.id}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="text-sm text-gray-400 hover:text-white hover:bg-white/5 px-3 py-2.5 rounded-lg transition-colors"
+                className="text-sm text-fg-muted hover:text-fg hover:bg-overlay px-3 py-2.5 rounded-lg transition-colors"
               >
                 {link.label}
               </Link>
@@ -302,7 +299,7 @@ export default function Navbar() {
               <Button
                 asChild
                 variant="outline"
-                className="w-full h-10 text-sm border-white/15 text-white hover:bg-white/5 hover:text-white"
+                className="w-full h-10 text-sm border-border-subtle text-fg hover:bg-overlay hover:text-fg"
               >
                 <Link href="/profile" onClick={() => setMobileOpen(false)}>
                   {t.nav.profile}
@@ -311,7 +308,7 @@ export default function Navbar() {
               <Button
                 asChild
                 variant="outline"
-                className="w-full h-10 text-sm border-white/15 text-white hover:bg-white/5 hover:text-white"
+                className="w-full h-10 text-sm border-border-subtle text-fg hover:bg-overlay hover:text-fg"
               >
                 <Link href="/settings" onClick={() => setMobileOpen(false)}>
                   Settings
@@ -320,7 +317,7 @@ export default function Navbar() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-10 text-sm border-white/15 text-white hover:bg-white/5 hover:text-white"
+                className="w-full h-10 text-sm border-border-subtle text-fg hover:bg-overlay hover:text-fg"
                 onClick={handleSignOut}
               >
                 {t.nav.signOut}

@@ -32,10 +32,13 @@ export default function DiscoveryPostCard({ post }: { post: Post }) {
         author: {
           name: authorName,
           avatarUrl: authorAvatarUrl,
+          href: post.user_id ? `/users/${post.user_id}` : undefined,
           locationLabel:
-            typeof post.location?.latitude === "number" && typeof post.location?.longitude === "number"
-              ? `${post.location.latitude.toFixed(2)}, ${post.location.longitude.toFixed(2)}`
-              : "ETHIOPIA",
+            post.address && post.address.trim().length > 0
+              ? post.address
+              : typeof post.location?.latitude === "number" && typeof post.location?.longitude === "number"
+                ? `${post.location.latitude.toFixed(2)}, ${post.location.longitude.toFixed(2)}`
+                : "ETHIOPIA",
         },
         imageUrl: post.photos?.[0]?.photo_url ?? "/images/profile/rock-hewn.webp",
         badgeLabel: post.is_question ? "Question" : undefined,

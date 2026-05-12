@@ -9,7 +9,7 @@ export default function AskGuidelinesCard() {
         <ShieldCheck className="w-5 h-5" />
       </div>
       <div>
-        <h2 className="font-bold text-slate-900 dark:text-white mb-1">Community Guidelines</h2>
+        <h2 className="font-bold text-slate-900 dark:text-fg mb-1">Community Guidelines</h2>
         <p className="text-slate-600 dark:text-zinc-400 text-sm leading-relaxed">
           Stay respectful and avoid spam to keep our community helpful. We want to ensure &apos;Yet Bota&apos;
           remains a safe place for everyone to explore Ethiopia.

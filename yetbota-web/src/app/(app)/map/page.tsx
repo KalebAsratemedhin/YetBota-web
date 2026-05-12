@@ -17,19 +17,19 @@ export default function MapPage() {
   const zoom = num(sp.get("z"), 14);
 
   return (
-    <div className="bg-[#0a0a0a] text-white h-[calc(100dvh-56px)] lg:h-dvh">
+    <div className="bg-bg text-fg h-[calc(100dvh-56px)] lg:h-dvh">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6">
         <div className="flex items-center gap-3 mb-4">
           <Link
             href="/create"
-            className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-white/10 text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
+            className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-border-subtle text-fg-muted hover:text-fg hover:bg-overlay transition-colors"
             aria-label="Back"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
             <h1 className="text-xl font-bold">Map</h1>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-fg-faint">
               {latitude.toFixed(6)}, {longitude.toFixed(6)}
             </p>
           </div>

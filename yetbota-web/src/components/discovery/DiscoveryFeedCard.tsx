@@ -7,23 +7,42 @@ import type { DiscoveryFeedItem } from "@/lib/discoveryMockData";
 
 export default function DiscoveryFeedCard({ item }: { item: DiscoveryFeedItem }) {
   return (
-    <article className="bg-white dark:bg-[#1E1E1E] rounded-3xl overflow-hidden shadow-xl shadow-black/5 border border-slate-200 dark:border-white/5">
+    <article className="bg-white dark:bg-surface rounded-3xl overflow-hidden shadow-xl shadow-black/5 border border-slate-200 dark:border-white/5">
       <div className="p-5 flex items-center justify-between">
-        <div className="flex items-center gap-4 min-w-0">
-          <div className="relative w-12 h-12 rounded-full overflow-hidden bg-slate-200 shrink-0">
-            <Image src={item.author.avatarUrl} alt={item.author.name} fill className="object-cover" />
+        {item.author.href ? (
+          <Link
+            href={item.author.href}
+            className="flex items-center gap-4 min-w-0 rounded-full -m-1 p-1 hover:bg-slate-100 dark:hover:bg-overlay transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
+            aria-label={`View ${item.author.name}'s profile`}
+          >
+            <div className="relative w-12 h-12 rounded-full overflow-hidden bg-slate-200 shrink-0">
+              <Image src={item.author.avatarUrl} alt={item.author.name} fill className="object-cover" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="font-bold truncate">{item.author.name}</h4>
+              <p className="text-sm text-brand flex items-center gap-1 truncate">
+                <span className="text-[10px]">●</span>
+                {item.author.locationLabel}
+              </p>
+            </div>
+          </Link>
+        ) : (
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="relative w-12 h-12 rounded-full overflow-hidden bg-slate-200 shrink-0">
+              <Image src={item.author.avatarUrl} alt={item.author.name} fill className="object-cover" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="font-bold truncate">{item.author.name}</h4>
+              <p className="text-sm text-brand flex items-center gap-1 truncate">
+                <span className="text-[10px]">●</span>
+                {item.author.locationLabel}
+              </p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <h4 className="font-bold truncate">{item.author.name}</h4>
-            <p className="text-sm text-brand flex items-center gap-1 truncate">
-              <span className="text-[10px]">●</span>
-              {item.author.locationLabel}
-            </p>
-          </div>
-        </div>
+        )}
         <button
           type="button"
-          className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+          className="p-2 text-fg-muted hover:text-slate-600 dark:hover:text-fg transition-colors"
           aria-label="More"
         >
           <MoreHorizontal className="w-5 h-5" />

@@ -11,7 +11,7 @@ export default function LocationHero({
 }) {
   return (
     <section className="p-6">
-      <div className="rounded-3xl overflow-hidden aspect-video bg-slate-200 dark:bg-[#161616] shadow-xl">
+      <div className="rounded-3xl overflow-hidden aspect-video bg-slate-200 dark:bg-surface shadow-xl">
         <Image
           alt={title}
           src={imageUrl}

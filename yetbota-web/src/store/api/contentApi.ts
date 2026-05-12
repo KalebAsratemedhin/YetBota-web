@@ -7,8 +7,6 @@ import type {
   CreatePostResponseData,
   ListCommentsQuery,
   ListCommentsResponseData,
-  ListMyPostsQuery,
-  ListMyPostsResponseData,
   ListPostsQuery,
   ListPostsResponseData,
   Post,
@@ -20,26 +18,37 @@ import type {
   VotePostResponseData,
 } from "@/types/content";
 
+// `tags` is the only repeatable list param; everything else is a scalar so
+// fetchBaseQuery's default URLSearchParams serializer would coerce arrays into
+// "a,b" strings. Build the query string ourselves so `?tags=a&tags=b` is sent.
+function buildListPostsParams(query: ListPostsQuery | void | undefined): string | undefined {
+  if (!query) return undefined;
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value === undefined || value === null) continue;
+    if (Array.isArray(value)) {
+      for (const v of value) {
+        if (v !== undefined && v !== null) params.append(key, String(v));
+      }
+      continue;
+    }
+    params.append(key, String(value));
+  }
+  const qs = params.toString();
+  return qs.length > 0 ? qs : undefined;
+}
+
 export const contentApi = contentBaseApi.injectEndpoints({
   endpoints: (builder) => ({
     createPost: builder.mutation<CreatePostResponseData, CreatePostRequest>({
       query: (body) => ({ url: "/posts/", method: "POST", body }),
       invalidatesTags: ["Content"],
     }),
-    listMyPosts: builder.query<ListMyPostsResponseData, ListMyPostsQuery | void>({
-      query: (arg) => ({
-        url: "/posts/mine",
-        method: "GET",
-        params: arg ?? undefined,
-      }),
-      providesTags: ["Content"],
-    }),
     listPosts: builder.query<ListPostsResponseData, ListPostsQuery | void>({
-      query: (arg) => ({
-        url: "/posts/",
-        method: "GET",
-        params: arg ?? undefined,
-      }),
+      query: (arg) => {
+        const qs = buildListPostsParams(arg);
+        return { url: qs ? `/posts/?${qs}` : "/posts/", method: "GET" };
+      },
       providesTags: ["Content"],
     }),
     getPostById: builder.query<CreatePostResponseData, { id: string; resolution?: Resolution }>({
@@ -112,8 +121,6 @@ export const contentApi = contentBaseApi.injectEndpoints({
 
 export const {
   useCreatePostMutation,
-  useListMyPostsQuery,
-  useLazyListMyPostsQuery,
   useListPostsQuery,
   useLazyListPostsQuery,
   useGetPostByIdQuery,
@@ -130,4 +137,3 @@ export const {
   useDeleteCommentByIdMutation,
   useVoteCommentMutation,
 } = contentApi;
-

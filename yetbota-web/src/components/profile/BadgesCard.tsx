@@ -15,13 +15,13 @@ const TINT_MAP: Record<string, string> = {
 
 function BadgeItem({ badge }: { badge: Badge }) {
   const Icon = ICON_MAP[badge.icon] ?? Compass;
-  const tint = TINT_MAP[badge.color] ?? "bg-white/5 border-white/10 text-gray-300";
+  const tint = TINT_MAP[badge.color] ?? "bg-overlay border-border-subtle text-fg-muted";
   return (
     <div className="flex flex-col items-center gap-1">
       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${tint}`}>
         <Icon className="w-6 h-6" />
       </div>
-      <span className="text-[10px] font-bold uppercase tracking-wide text-slate-300/60">
+      <span className="text-[10px] font-bold uppercase tracking-wide text-fg-faint">
         {badge.label}
       </span>
     </div>
@@ -30,10 +30,10 @@ function BadgeItem({ badge }: { badge: Badge }) {
 
 export default function BadgesCard() {
   return (
-    <div className="bg-[#171717] border border-[#262626] rounded-2xl px-4 sm:px-6 py-7 sm:py-9">
+    <div className="bg-surface border border-border-subtle rounded-2xl px-4 sm:px-6 py-7 sm:py-9">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-white font-semibold text-lg">Earned Badges</h3>
-        <button className="text-brand text-xs font-bold hover:text-[#16a34a] transition-colors">
+        <h3 className="text-fg font-semibold text-lg">Earned Badges</h3>
+        <button className="text-brand text-xs font-bold hover:text-brand-dark transition-colors">
           View All
         </button>
       </div>

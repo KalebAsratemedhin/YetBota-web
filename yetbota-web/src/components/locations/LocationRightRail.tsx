@@ -22,8 +22,8 @@ export default function LocationRightRail({
 }) {
   return (
     <aside className="hidden xl:block w-80 p-6 sticky top-0 h-screen space-y-8">
-      <div className="bg-slate-100 dark:bg-[#161616] rounded-3xl p-6">
-        <h3 className="font-bold text-lg mb-4">Location Map</h3>
+      <div className="bg-bg border border-border-subtle rounded-3xl p-6">
+        <h3 className="font-bold text-lg mb-4">Location</h3>
         <div className="relative rounded-2xl overflow-hidden h-48 bg-slate-200 dark:bg-slate-800">
           <OpenStreetMap center={location} marker={location} zoom={14} className="h-48" />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -38,7 +38,7 @@ export default function LocationRightRail({
         </p>
       </div>
 
-      <div className="bg-slate-100 dark:bg-[#161616] rounded-3xl p-6">
+      <div className="bg-bg border border-border-subtle rounded-3xl p-6">
         <h3 className="font-bold text-lg mb-4">Popular Guides</h3>
         <div className="space-y-4">
           {guides.map((g) => (
@@ -52,7 +52,7 @@ export default function LocationRightRail({
               />
               <div>
                 <p className="font-bold text-sm">{g.name}</p>
-                <p className="text-[10px] text-slate-500 uppercase tracking-tighter">
+                <p className="text-[10px] text-fg-faint uppercase tracking-tighter">
                   {g.answersLabel}
                 </p>
               </div>

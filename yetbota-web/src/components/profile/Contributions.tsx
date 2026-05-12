@@ -4,7 +4,9 @@ import { MapPin, SlidersHorizontal, Plus } from "lucide-react";
 import { useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useListMyPostsQuery } from "@/store/api/contentApi";
+import { useListPostsQuery } from "@/store/api/contentApi";
+import { useGetMeQuery } from "@/store/api/authApi";
+import { useAppSelector } from "@/store/hooks";
 import type { Post } from "@/types/content";
 
 function fmtDate(iso?: string | null): string {
@@ -21,17 +23,23 @@ function PostCard({ post }: { post: Post }) {
   const lat = post.location?.latitude;
   const lon = post.location?.longitude;
   const hasCoords = Number.isFinite(lat) && Number.isFinite(lon);
+  const trimmedAddress = post.address?.trim() ?? "";
+  const locationLabel = trimmedAddress.length > 0
+    ? trimmedAddress
+    : hasCoords
+      ? `${lat!.toFixed(4)}, ${lon!.toFixed(4)}`
+      : "Unknown location";
   const likes = typeof post.likes === "number" && Number.isFinite(post.likes) ? post.likes : 0;
   const href = post.is_question ? `/qa/${encodeURIComponent(post.id)}` : `/locations/${encodeURIComponent(post.id)}`;
   return (
     <button
       type="button"
       onClick={() => router.push(href)}
-      className="text-left bg-[#171717] border border-[#262626] rounded-2xl overflow-hidden p-px group cursor-pointer hover:border-white/20 transition-colors flex flex-col"
+      className="text-left bg-surface border border-border-subtle rounded-2xl overflow-hidden p-px group cursor-pointer hover:border-overlay-strong transition-colors flex flex-col"
       aria-label={`Open ${post.is_question ? "question" : "post"}: ${title}`}
     >
       {/* Image */}
-      <div className="relative h-32 overflow-hidden">
+      <div className="relative aspect-[3/2] overflow-hidden">
         {cover ? (
           <Image
             src={cover}
@@ -46,32 +54,38 @@ function PostCard({ post }: { post: Post }) {
 
       {/* Info */}
       <div className="p-4">
-        <p className="text-white text-lg font-bold leading-7 line-clamp-1">
+        <p className="text-fg text-lg font-bold leading-7 line-clamp-1">
           {title}
         </p>
         <div className="flex items-center gap-1 mt-0.5">
-          <MapPin className="w-3 h-3 text-slate-300/60 shrink-0" />
-          <span className="text-slate-300/70 text-xs truncate">
-            {hasCoords ? `${lat!.toFixed(4)}, ${lon!.toFixed(4)}` : "Unknown location"}
-          </span>
+          <MapPin className="w-3 h-3 text-fg-faint shrink-0" />
+          <span className="text-fg-muted text-xs truncate">{locationLabel}</span>
         </div>
 
         <div className="flex items-center justify-between pt-2.5 text-[10px]">
-          <span className="text-slate-500">Added {fmtDate(post.created_at)}</span>
-          <span className="text-slate-300/70">{likes} likes</span>
+          <span className="text-fg-faint">Added {fmtDate(post.created_at)}</span>
+          <span className="text-fg-muted">{likes} likes</span>
         </div>
       </div>
     </button>
   );
 }
 
-export default function ContributionsGrid() {
-  const queryArg = useMemo(() => ({ limit: 4, page: 1, resolution: "MOBILE" as const }), []);
-  const { data, isLoading } = useListMyPostsQuery(queryArg);
+export default function ContributionsGrid({ userId: userIdProp }: { userId?: string } = {}) {
+  const accessToken = useAppSelector((s) => s.auth.accessToken);
+  const { data: me } = useGetMeQuery(undefined, { skip: !accessToken });
+  const meId = me?.user?.id;
+  const targetUserId = userIdProp ?? meId;
+  const isSelf = !userIdProp || userIdProp === meId;
+  const queryArg = useMemo(
+    () => (targetUserId ? { user_id: targetUserId, page: 1, page_size: 4, resolution: "MOBILE" as const } : undefined),
+    [targetUserId]
+  );
+  const { data, isLoading } = useListPostsQuery(queryArg ?? {}, { skip: !targetUserId });
   const posts = data?.posts ?? [];
 
   return (
-    <div className="bg-[#0f0f0f] border border-[#262626] rounded-2xl p-4 overflow-hidden flex flex-col min-h-0">
+    <div className="bg-bg border border-border-subtle rounded-2xl p-4 overflow-hidden flex flex-col min-h-0">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 shrink-0">
         <div className="flex items-center gap-2">
@@ -80,19 +94,21 @@ export default function ContributionsGrid() {
               <div key={i} className="w-1.5 h-1.5 bg-brand rounded-sm" />
             ))}
           </div>
-          <h3 className="text-white font-semibold text-lg">Your Contributions</h3>
+          <h3 className="text-fg font-semibold text-lg">{isSelf ? "Your Contributions" : "Contributions"}</h3>
         </div>
         <div className="flex items-center gap-1.5">
-          <button className="w-10 h-10 flex items-center justify-center border border-white/10 rounded-xl hover:bg-white/5 transition-colors">
-            <SlidersHorizontal className="w-4 h-4 text-gray-300/70" />
+          <button className="w-10 h-10 flex items-center justify-center border border-border-subtle rounded-xl hover:bg-overlay transition-colors">
+            <SlidersHorizontal className="w-4 h-4 text-fg-muted" />
           </button>
-          <Link
-            href="/create"
-            className="w-10 h-10 bg-brand hover:bg-[#16a34a] rounded-full flex items-center justify-center transition-colors"
-            aria-label="Create post"
-          >
-            <Plus className="w-5 h-5 text-black" />
-          </Link>
+          {isSelf && (
+            <Link
+              href="/create"
+              className="w-10 h-10 bg-brand hover:bg-brand-dark rounded-full flex items-center justify-center transition-colors"
+              aria-label="Create post"
+            >
+              <Plus className="w-5 h-5 text-black" />
+            </Link>
+          )}
         </div>
       </div>
 
@@ -100,15 +116,15 @@ export default function ContributionsGrid() {
       <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-rows-2 gap-4 flex-1 min-h-0">
         {isLoading ? (
           <>
-            <div className="bg-[#171717] border border-[#262626] rounded-2xl h-48" />
-            <div className="bg-[#171717] border border-[#262626] rounded-2xl h-48" />
+            <div className="bg-surface border border-border-subtle rounded-2xl aspect-[5/4]" />
+            <div className="bg-surface border border-border-subtle rounded-2xl aspect-[5/4]" />
           </>
         ) : posts.length > 0 ? (
           posts.slice(0, 4).map((p) => <PostCard key={p.id} post={p} />)
-        ) : (
-          <div className="col-span-1 sm:col-span-2 bg-[#171717] border border-[#262626] rounded-2xl p-6 text-sm text-gray-400 flex items-center justify-between gap-4">
+        ) : isSelf ? (
+          <div className="col-span-1 sm:col-span-2 bg-surface border border-border-subtle rounded-2xl p-6 text-sm text-fg-muted flex items-center justify-between gap-4">
             <div>
-              <div className="text-white font-semibold">No posts yet</div>
+              <div className="text-fg font-semibold">No posts yet</div>
               <div className="mt-1">Create your first post and it will appear here.</div>
             </div>
             <Link
@@ -117,6 +133,11 @@ export default function ContributionsGrid() {
             >
               Create post
             </Link>
+          </div>
+        ) : (
+          <div className="col-span-1 sm:col-span-2 bg-surface border border-border-subtle rounded-2xl p-6 text-sm text-fg-muted">
+            <div className="text-fg font-semibold">No posts yet</div>
+            <div className="mt-1">This user has not shared any posts.</div>
           </div>
         )}
       </div>

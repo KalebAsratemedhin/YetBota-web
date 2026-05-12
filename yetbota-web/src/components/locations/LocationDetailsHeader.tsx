@@ -7,35 +7,36 @@ export default function LocationDetailsHeader() {
   const router = useRouter();
 
   return (
-    <header className="sticky top-0 z-10 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md px-6 py-4 flex items-center justify-between border-b border-slate-200 dark:border-[#262626]">
-      <div className="flex items-center gap-4">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="p-2 hover:bg-slate-100 dark:hover:bg-[#161616] rounded-full transition-colors"
-          aria-label="Back"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <h2 className="text-lg font-bold">Post Details</h2>
-      </div>
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          className="p-2 hover:bg-slate-100 dark:hover:bg-[#161616] rounded-full"
-          aria-label="Share"
-        >
-          <Share2 className="w-5 h-5" />
-        </button>
-        <button
-          type="button"
-          className="p-2 hover:bg-slate-100 dark:hover:bg-[#161616] rounded-full"
-          aria-label="More"
-        >
-          <MoreHorizontal className="w-5 h-5" />
-        </button>
+    <header className="sticky top-0 z-40 bg-bg/95 backdrop-blur-md border-b border-border-subtle shadow-[0_4px_16px_-8px_rgba(15,23,42,0.08)] dark:shadow-none">
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-8 h-20 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="p-2 hover:bg-overlay rounded-full transition-colors text-fg-muted hover:text-fg"
+            aria-label="Back"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h2 className="text-lg font-bold text-fg">Post Details</h2>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="p-2 hover:bg-overlay rounded-full transition-colors text-fg-muted hover:text-fg"
+            aria-label="Share"
+          >
+            <Share2 className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            className="p-2 hover:bg-overlay rounded-full transition-colors text-fg-muted hover:text-fg"
+            aria-label="More"
+          >
+            <MoreHorizontal className="w-5 h-5" />
+          </button>
+        </div>
       </div>
     </header>
   );
 }
-

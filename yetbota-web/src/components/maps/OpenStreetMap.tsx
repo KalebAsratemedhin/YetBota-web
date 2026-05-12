@@ -216,7 +216,7 @@ export default function OpenStreetMap({
 
   return (
     <div className={`flex flex-col ${className ?? ""}`}>
-      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#111] flex-1 min-h-0">
+      <div className="relative overflow-hidden rounded-2xl border border-border-subtle bg-surface flex-1 min-h-0">
         {hasValidCenter ? (
           <div
             ref={mapElRef}
@@ -229,7 +229,7 @@ export default function OpenStreetMap({
             }}
           />
         ) : (
-          <div className="absolute inset-0 w-full h-full flex items-center justify-center text-gray-400 text-sm">
+          <div className="absolute inset-0 w-full h-full flex items-center justify-center text-fg-muted text-sm">
             Map unavailable
           </div>
         )}
@@ -248,15 +248,15 @@ export default function OpenStreetMap({
 
       {mode === "pick" ? (
         <div className="mt-3 shrink-0">
-          <label className="text-sm text-gray-300 font-medium mb-1.5 block">Coordinates</label>
+          <label className="text-sm text-fg-muted font-medium mb-1.5 block">Coordinates</label>
           <input
             value={coordText}
             onChange={(e) => setCoordText(e.target.value)}
             placeholder="latitude, longitude"
-            className="w-full bg-[#1a1a1a] border border-white/8 rounded-2xl px-5 h-14 text-white placeholder-gray-600 text-base outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 transition-all"
+            className="w-full bg-surface-2 border border-border-subtle rounded-2xl px-5 h-14 text-fg placeholder-gray-600 text-base outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 transition-all"
             inputMode="decimal"
           />
-          <p className="mt-2 text-xs text-gray-500">Paste coords from OpenStreetMap (lat, lon).</p>
+          <p className="mt-2 text-xs text-fg-faint">Paste coords from OpenStreetMap (lat, lon).</p>
         </div>
       ) : (
         <div className="mt-3 shrink-0" />
