@@ -32,6 +32,6 @@ export const aiBaseApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AI"],
+  tagTypes: ["AI", "AIChats", "AIMessages"],
   endpoints: () => ({}),
 });
