@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
-  Home, Compass, MessageSquare, Sparkles, User, Settings
+  Home, Compass, Bell, MessageSquare, Sparkles, User, Settings
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +26,7 @@ interface AppSidebarProps {
 export const NAV_ITEMS = [
   { id: "home",      label: "Home",         icon: Home,          href: "/"          },
   { id: "discover",  label: "Discover",     icon: Compass,       href: "/discovery" },
+  { id: "notifications", label: "Notifications", icon: Bell,    href: "/notifications" },
   { id: "qa",        label: "QA Feed",      icon: MessageSquare, href: "/qa"        },
   { id: "assistant", label: "AI Assistant", icon: Sparkles,      href: "/assistant" },
   { id: "profile",   label: "Profile",      icon: User,          href: "/profile"   },
@@ -60,7 +61,10 @@ export default function AppSidebar({ user, children, title = "Yet Bota", classNa
       <nav className="px-3 py-4 shrink-0">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          const isActive =
+            item.href === "/"
+              ? pathname === "/"
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.id}
