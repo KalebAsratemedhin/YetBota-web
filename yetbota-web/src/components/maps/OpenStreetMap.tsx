@@ -84,7 +84,10 @@ export default function OpenStreetMap({
     mode === "pick" ? `${m.latitude.toFixed(6)}, ${m.longitude.toFixed(6)}` : ""
   );
 
-  const parsed = mode === "pick" ? parseLatLng(coordText) : null;
+  const parsed = useMemo(
+    () => (mode === "pick" ? parseLatLng(coordText) : null),
+    [mode, coordText]
+  );
 
   useEffect(() => {
     if (mode !== "pick") return;
@@ -99,14 +102,6 @@ export default function OpenStreetMap({
     if (!el) return;
 
     if (!mapRef.current) {
-      // On mobile, the browser can steal swipe gestures for page scroll/back-swipe.
-      // Prevent default on touchmove so Leaflet gets the full drag gesture.
-      const stopTouchMove = (e: TouchEvent) => {
-        // Only block single-finger panning; allow pinch zoom gestures to behave normally.
-        if (e.touches.length === 1) e.preventDefault();
-      };
-      el.addEventListener("touchmove", stopTouchMove, { passive: false });
-
       const map = L.map(el, {
         zoomControl: true,
         attributionControl: false,
@@ -124,18 +119,13 @@ export default function OpenStreetMap({
 
       const initial = L.latLng(m.latitude, m.longitude);
       map.setView(initial, z);
-      map.dragging.enable();
-      map.scrollWheelZoom.enable();
-      map.touchZoom.enable();
-      map.doubleClickZoom.enable();
 
-      // In pick mode, keep the marker non-interactive so swipe/drag pans the map reliably.
-      // Location changes happen via map taps/clicks (not by dragging the marker).
+      // In pick mode the marker is draggable; map panning still works for
+      // anywhere off the marker. Off-marker clicks reposition the marker too.
       const mk = L.marker(initial, {
         icon: markerIcon,
-        draggable: false,
-        interactive: mode !== "pick",
-        keyboard: mode !== "pick",
+        draggable: mode === "pick",
+        keyboard: true,
       });
       mk.addTo(map);
 
@@ -145,37 +135,34 @@ export default function OpenStreetMap({
           mk.setLatLng(ll);
           setCoordText(`${ll.lat.toFixed(6)}, ${ll.lng.toFixed(6)}`);
         });
+
+        mk.on("dragend", () => {
+          const ll = mk.getLatLng();
+          setCoordText(`${ll.lat.toFixed(6)}, ${ll.lng.toFixed(6)}`);
+        });
       }
 
       mapRef.current = map;
       markerRef.current = mk;
 
-      // When rendered in a modal, Leaflet often needs a size recalculation
-      // after layout to allow panning/zooming immediately.
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          map.invalidateSize(true);
-        });
-      });
-      // Some mobile browsers/layouts still need a delayed invalidate.
-      setTimeout(() => {
-        map.invalidateSize(true);
-      }, 150);
+      // Recalculate size once the map signals it's ready — covers modal / lazy mount.
       map.whenReady(() => {
         map.invalidateSize(true);
       });
 
-      // Clean up touch listener when map unmounts.
-      (map as unknown as { __yetbotaStopTouchMove?: (e: TouchEvent) => void }).__yetbotaStopTouchMove = stopTouchMove;
+      // Keep size in sync if the container ever resizes (modal open/close, layout shifts).
+      const ro = new ResizeObserver(() => {
+        map.invalidateSize(true);
+      });
+      ro.observe(el);
+      (map as unknown as { __yetbotaResizeObserver?: ResizeObserver }).__yetbotaResizeObserver = ro;
     }
 
     return () => {
       const map = mapRef.current;
       if (map) {
-        const stopTouchMove = (map as unknown as { __yetbotaStopTouchMove?: (e: TouchEvent) => void }).__yetbotaStopTouchMove;
-        if (stopTouchMove) {
-          el.removeEventListener("touchmove", stopTouchMove as (e: Event) => void);
-        }
+        const ro = (map as unknown as { __yetbotaResizeObserver?: ResizeObserver }).__yetbotaResizeObserver;
+        ro?.disconnect();
         map.remove();
         mapRef.current = null;
         markerRef.current = null;
@@ -184,24 +171,16 @@ export default function OpenStreetMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasValidCenter, markerIcon]);
 
-  useEffect(() => {
-    if (!hasValidCenter) return;
-    const map = mapRef.current;
-    const mk = markerRef.current;
-    if (!map || !mk) return;
-
-    const ll = L.latLng(m.latitude, m.longitude);
-    mk.setLatLng(ll);
-    map.setView(ll, z, { animate: false });
-  }, [hasValidCenter, m.latitude, m.longitude, z]);
-
+  // Sync marker position when props update (e.g., external state changes).
+  // We intentionally don't call map.setView here — that would fight the user's
+  // own panning every time onPick echoes through the parent and back as props.
   useEffect(() => {
     if (!hasValidCenter) return;
     const mk = markerRef.current;
     if (!mk) return;
-    // Marker dragging is intentionally disabled; panning should always work.
-    mk.dragging?.disable?.();
-  }, [hasValidCenter, mode]);
+    const ll = L.latLng(m.latitude, m.longitude);
+    mk.setLatLng(ll);
+  }, [hasValidCenter, m.latitude, m.longitude]);
 
   useEffect(() => {
     if (!hasValidCenter) return;

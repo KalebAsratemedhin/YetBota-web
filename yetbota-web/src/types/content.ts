@@ -66,6 +66,25 @@ export interface ListPostsResponseData {
   page_size: number;
 }
 
+// Feed APIs (/v1/feed) — personalized, ranked, cursor-paginated, auth-only.
+export interface FeedQuery {
+  // Required, must be between 1 and 100.
+  page_size: number;
+  // Omit/empty for the first page. For later pages pass the previous
+  // response's `next_cursor` verbatim (format `cursor:<number>`).
+  cursor?: string;
+}
+
+export interface FeedResponseData {
+  posts: Post[];
+  // Empty/absent when the end of the feed is reached.
+  next_cursor?: string;
+}
+
+export interface MarkFeedViewedRequest {
+  post_ids: string[];
+}
+
 export interface CreatePostRequest {
   title: string;
   description: string;

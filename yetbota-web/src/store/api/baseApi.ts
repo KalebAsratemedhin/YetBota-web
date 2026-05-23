@@ -9,6 +9,7 @@ import { logout, setCredentials } from "@/store/authSlice";
 import type { AuthState } from "@/store/authSlice";
 import type { RefreshResponseData } from "@/types/auth";
 import { unwrapEnvelope } from "@/store/api/apiEnvelope";
+import { clearSessionCookie } from "@/lib/sessionCookie";
 
 type AuthAwareRoot = { auth: AuthState };
 
@@ -33,6 +34,7 @@ function clearAuthEverywhere(api: { dispatch: (a: unknown) => void }) {
     try {
       window.localStorage.removeItem("yetbota.localAuth");
     } catch {}
+    clearSessionCookie();
   }
 }
 
@@ -88,6 +90,7 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
 
   const refreshToken = (api.getState() as AuthAwareRoot).auth.refreshToken;
   if (!refreshToken) {
+    clearAuthEverywhere(api);
     return result;
   }
 
@@ -95,7 +98,7 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
     refreshLock = (async () => {
       const username = (api.getState() as AuthAwareRoot).auth.user?.username;
       if (!username) {
-        api.dispatch(logout());
+        clearAuthEverywhere(api);
         return;
       }
 
@@ -111,14 +114,25 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
 
       if (refreshResult.data) {
         const data = refreshResult.data as RefreshResponseData;
-        api.dispatch(
-          setCredentials({
-            accessToken: data.access_token,
-            refreshToken: data.refresh_token ?? refreshToken,
-          })
-        );
+        const creds = {
+          accessToken: data.access_token,
+          refreshToken: data.refresh_token ?? refreshToken,
+        };
+        api.dispatch(setCredentials(creds));
+        if (typeof window !== "undefined") {
+          try {
+            const raw = window.localStorage.getItem("yetbota.localAuth");
+            const prev = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+            window.localStorage.setItem(
+              "yetbota.localAuth",
+              JSON.stringify({ ...prev, ...creds })
+            );
+          } catch {
+            // ignore
+          }
+        }
       } else {
-        api.dispatch(logout());
+        clearAuthEverywhere(api);
       }
     })().finally(() => {
       refreshLock = null;

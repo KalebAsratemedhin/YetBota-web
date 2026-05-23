@@ -10,7 +10,7 @@ export default function QaDetailHeader({
   onBack: () => void;
 }) {
   return (
-    <nav className="sticky top-0 z-40 border-b border-border-subtle bg-bg/95 backdrop-blur-md shadow-[0_4px_16px_-8px_rgba(15,23,42,0.08)] dark:shadow-none">
+    <nav className="sticky top-0 z-40 border-b border-border-subtle bg-surface/95 backdrop-blur-md shadow-[0_4px_24px_-12px_rgba(15,23,42,0.12)] dark:shadow-[0_4px_24px_-12px_rgba(0,0,0,0.6)]">
       <div className="w-full px-6 sm:px-8 lg:px-32 h-20 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button

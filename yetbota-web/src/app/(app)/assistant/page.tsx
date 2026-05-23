@@ -10,7 +10,9 @@ import {
   type ChatMessage,
 } from "@/lib/assistantMockData";
 import {
-  useChatMutation,
+  useCreateChatMutation,
+  useSendMessageMutation,
+  useDeleteChatMutation,
   useListChatsQuery,
   useListMessagesQuery,
   type AssistantMessage,
@@ -51,21 +53,23 @@ export default function AssistantPage() {
     return first.toUpperCase();
   }, [me?.user?.first_name, me?.user?.username]);
 
-  const [chat, { isLoading: isTyping }] = useChatMutation();
+  const [createChat] = useCreateChatMutation();
+  const [sendMessage, { isLoading: isTyping }] = useSendMessageMutation();
+  const [deleteChat] = useDeleteChatMutation();
 
   const { data: chatsPage } = useListChatsQuery(
     { user_id: userId ?? "", limit: 20 },
     { skip: !userId }
   );
-  const chats = chatsPage?.items ?? [];
+  const chats = chatsPage?.chats ?? [];
 
   const {
     data: messagesPage,
     error: messagesError,
     isFetching: messagesLoading,
   } = useListMessagesQuery(
-    { chat_id: activeChatId ?? "", user_id: userId ?? "", limit: 200 },
-    { skip: !activeChatId || !userId }
+    { chat_id: activeChatId ?? "", limit: 200 },
+    { skip: !activeChatId }
   );
 
   // Pull server transcript into local state when the active chat changes / its
@@ -73,8 +77,8 @@ export default function AssistantPage() {
   // sends don't fight the cache.
   useEffect(() => {
     if (!activeChatId) return;
-    if (!messagesPage?.items) return;
-    setMessages(messagesPage.items.map(fromServerMessage));
+    if (!messagesPage?.messages) return;
+    setMessages(messagesPage.messages.map(fromServerMessage));
   }, [activeChatId, messagesPage]);
 
   // Chat does not exist (or doesn't belong to this user) -> reset to fresh.
@@ -101,6 +105,15 @@ export default function AssistantPage() {
 
   const handleSend = useCallback(
     async (text: string) => {
+      if (!userId) {
+        toast({
+          variant: "destructive",
+          title: "Sign in to chat",
+          description: "You need to be signed in to talk to the assistant.",
+        });
+        return;
+      }
+
       const userMsg: ChatMessage = {
         id: `tmp-u-${Date.now()}`,
         role: "user",
@@ -110,24 +123,28 @@ export default function AssistantPage() {
       setMessages((prev) => [...prev, userMsg]);
 
       try {
-        const res = await chat({
-          text,
-          user_id: userId ?? null,
-          chat_id: activeChatId ?? null,
-        }).unwrap();
+        // Ensure a chat exists before sending. We hold the id locally and only
+        // promote it to activeChatId after the reply lands, so the message-list
+        // query doesn't fire against the still-empty chat and wipe the optimistic
+        // messages.
+        let chatId = activeChatId;
+        if (!chatId) {
+          const created = await createChat({ user_id: userId }).unwrap();
+          chatId = created.id;
+        }
+
+        const reply = await sendMessage({ chat_id: chatId, text, user_id: userId }).unwrap();
 
         const aiMsg: ChatMessage = {
-          id: `tmp-a-${Date.now() + 1}`,
+          id: reply.id,
           role: "ai",
-          text: res.answer,
-          citations: res.citations,
-          timestamp: new Date(),
+          text: reply.content,
+          citations: reply.citations,
+          timestamp: new Date(reply.created_at),
         };
         setMessages((prev) => [...prev, aiMsg]);
 
-        if (res.chat_id && res.chat_id !== activeChatId) {
-          setActiveChatId(res.chat_id);
-        }
+        if (chatId !== activeChatId) setActiveChatId(chatId);
       } catch (err) {
         const status =
           typeof err === "object" && err !== null && "status" in err
@@ -150,7 +167,7 @@ export default function AssistantPage() {
         ]);
       }
     },
-    [activeChatId, chat, toast, userId]
+    [activeChatId, createChat, sendMessage, toast, userId]
   );
 
   const handleNewChat = () => {
@@ -158,6 +175,25 @@ export default function AssistantPage() {
     setMessages(INITIAL_MESSAGES);
     setMoreOpen(false);
   };
+
+  const handleDeleteChat = useCallback(
+    async (id: string) => {
+      try {
+        await deleteChat({ chat_id: id, user_id: userId }).unwrap();
+        if (id === activeChatId) {
+          setActiveChatId(null);
+          setMessages(INITIAL_MESSAGES);
+        }
+      } catch {
+        toast({
+          variant: "destructive",
+          title: "Couldn't delete chat",
+          description: "Please try again.",
+        });
+      }
+    },
+    [activeChatId, deleteChat, toast, userId]
+  );
 
   const handleSwitchChat = (id: string) => {
     if (id === activeChatId) return;
@@ -211,7 +247,7 @@ export default function AssistantPage() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 space-y-2">
+        <div className="flex-1 overflow-y-auto scrollbar-themed px-4 sm:px-6 py-4 sm:py-6 space-y-2">
           {activeChatId && messagesLoading && messages.length === 0 ? (
             <div className="text-fg-faint text-sm">Loading conversation…</div>
           ) : (
@@ -256,62 +292,69 @@ export default function AssistantPage() {
       </div>
 
       <aside className="hidden lg:flex w-80 shrink-0 border-l border-border-subtle bg-surface flex-col">
-        <div className="px-5 h-20 border-b border-border-subtle flex items-center justify-between">
+        <div className="px-5 h-20 border-b border-border-subtle flex items-center">
           <p className="text-fg text-sm font-semibold">Recent Chats</p>
-          <button
-            onClick={handleNewChat}
-            className="flex items-center gap-1 text-xs text-brand hover:opacity-80 transition-opacity font-semibold"
-            aria-label="Start a new chat"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            New
-          </button>
         </div>
 
         <div className="px-3 py-4 flex-1 overflow-y-auto">
           {!userId ? (
-            <p className="text-xs text-fg-faint px-3 py-2">
+            <p className="text-sm text-fg-muted px-3 py-2">
               Sign in to keep your chat history.
             </p>
           ) : chats.length === 0 ? (
-            <p className="text-xs text-fg-faint px-3 py-2">
+            <p className="text-sm text-fg-muted px-3 py-2">
               No chats yet. Ask the assistant anything to start one.
             </p>
           ) : (
             <div className="space-y-0.5">
               {chats.map((c) => (
-                <button
+                <div
                   key={c.id}
-                  onClick={() => handleSwitchChat(c.id)}
                   className={cn(
-                    "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-sm transition-colors",
+                    "group/chat relative flex items-center rounded-xl transition-colors",
                     activeChatId === c.id
-                      ? "bg-brand/10 text-fg border border-brand/20"
-                      : "text-fg-muted hover:text-fg hover:bg-overlay"
+                      ? "bg-brand/10 border border-brand/20"
+                      : "hover:bg-overlay"
                   )}
-                  title={c.title}
                 >
-                  <div
+                  <button
+                    onClick={() => handleSwitchChat(c.id)}
                     className={cn(
-                      "w-2 h-2 rounded-sm shrink-0",
-                      activeChatId === c.id ? "bg-brand" : "bg-fg-faint"
+                      "flex-1 min-w-0 flex items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors",
+                      activeChatId === c.id ? "text-fg" : "text-fg-muted group-hover/chat:text-fg"
                     )}
-                  />
-                  <span className="truncate text-xs">{c.title}</span>
-                </button>
+                    title={c.title}
+                  >
+                    <div
+                      className={cn(
+                        "w-2 h-2 rounded-sm shrink-0",
+                        activeChatId === c.id ? "bg-brand" : "bg-fg-faint"
+                      )}
+                    />
+                    <span className="truncate text-sm">{c.title}</span>
+                  </button>
+                  <button
+                    onClick={() => void handleDeleteChat(c.id)}
+                    className="shrink-0 mr-1.5 p-1 rounded-lg text-fg-faint opacity-0 group-hover/chat:opacity-100 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                    aria-label={`Delete chat: ${c.title}`}
+                    title="Delete chat"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               ))}
             </div>
           )}
 
-          <p className="text-[10px] font-bold uppercase tracking-widest text-fg-faint px-3 mt-5 mb-2">
+          <p className="text-xs font-bold uppercase tracking-widest text-fg-muted px-3 mt-5 mb-2.5">
             Suggested Topics
           </p>
-          <div className="flex flex-wrap gap-1.5 px-1">
+          <div className="flex flex-wrap gap-2 px-1">
             {SUGGESTED_TOPICS.map((topic) => (
               <button
                 key={topic.id}
                 onClick={() => handleQuickAction(topic.label)}
-                className="text-[10px] text-fg-faint hover:text-brand bg-overlay hover:bg-brand/10 border border-border-subtle hover:border-brand/30 px-2.5 py-1 rounded-full transition-colors"
+                className="text-sm text-fg-muted hover:text-brand bg-overlay hover:bg-brand/10 border border-border-subtle hover:border-brand/30 px-3 py-1.5 rounded-full transition-colors"
               >
                 {topic.label}
               </button>

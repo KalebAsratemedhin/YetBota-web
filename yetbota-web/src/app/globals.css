@@ -184,4 +184,27 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Theme-aware thin scrollbar. The thumb tracks --surface-3, so it is a light
+     slate in light theme and a dark gray in dark theme. */
+  .scrollbar-themed {
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface-3) transparent;
+  }
+  .scrollbar-themed::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scrollbar-themed::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-themed::-webkit-scrollbar-thumb {
+    background-color: var(--surface-3);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  .scrollbar-themed::-webkit-scrollbar-thumb:hover {
+    background-color: var(--fg-faint);
+  }
 }

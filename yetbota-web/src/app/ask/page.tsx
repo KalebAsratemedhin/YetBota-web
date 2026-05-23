@@ -10,7 +10,6 @@ import AskMobileBottomNav from "@/components/ask/AskMobileBottomNav";
 import CreatePostLocationModal from "@/components/create/CreatePostLocationModal";
 import { useCreatePostMutation } from "@/store/api/contentApi";
 import { useToast } from "@/hooks/use-toast";
-import { rememberMyPostId } from "@/lib/myPostsStorage";
 
 const DEFAULT_ASK_TAGS = ["Recommendations", "LocalEvents", "Safety", "General"];
 const ASK_TIPS = [
@@ -75,7 +74,6 @@ export default function AskQuestionPage() {
         ...(location ? { location } : {}),
       }).unwrap();
 
-      rememberMyPostId(res.post.id);
       toast({ title: "Posted", description: "Your question was published." });
       router.push(`/qa/${encodeURIComponent(res.post.id)}`);
     } catch {

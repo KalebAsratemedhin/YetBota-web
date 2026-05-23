@@ -1,7 +1,17 @@
 "use client";
+import { useRef } from "react";
 import { Trophy, ShieldCheck, Camera, MessageSquare, Star } from "lucide-react";
+import AutoScroll from "embla-carousel-auto-scroll";
 import { useContent } from "@/lib/useContent";
 import { CHAMPIONS, type Champion } from "@/lib/dummydata";
+import Reveal from "@/components/landing/Reveal";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
 
 // TODO: Replace with RTK Query when backend is ready:
 // const { data: champions } = useGetChampionsQuery();
@@ -27,19 +37,20 @@ const ROLE_COLORS = [
   "text-orange-400",
 ];
 
-function ChampionCard({ champion, index }: { champion: Champion; index: number }) {
+function ChampionItem({ champion, index }: { champion: Champion; index: number }) {
   const initials = champion.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
   const BadgeIcon = BADGE_ICONS[champion.badgeIcon];
+  const colorIdx = index % AVATAR_COLORS.length;
 
   return (
-    <div className="bg-bg border border-border-subtle rounded-3xl p-6 flex flex-col items-start hover:border-brand/20 transition-colors">
+    <div className="flex flex-col items-center text-center px-2 group">
       {/* Avatar with badge icon */}
       <div className="relative mb-4">
-        <div className={`w-16 h-16 ${AVATAR_COLORS[index]} rounded-full flex items-center justify-center text-lg font-bold text-fg border-2 border-brand/40`}>
+        <div className={`w-20 h-20 ${AVATAR_COLORS[colorIdx]} rounded-full flex items-center justify-center text-xl font-bold text-white border-2 border-brand/40 group-hover:scale-110 group-hover:border-brand transition-all duration-300`}>
           {initials}
         </div>
-        <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-surface-2 border border-border-subtle rounded-full flex items-center justify-center">
-          <BadgeIcon className="w-3.5 h-3.5 text-brand" />
+        <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-bg border border-border-subtle rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+          <BadgeIcon className="w-4 h-4 text-brand" />
         </div>
       </div>
 
@@ -47,15 +58,14 @@ function ChampionCard({ champion, index }: { champion: Champion; index: number }
       <p className="text-fg font-bold text-base mb-0.5">{champion.name}</p>
 
       {/* Role */}
-      <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${ROLE_COLORS[index]}`}>
+      <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${ROLE_COLORS[colorIdx]}`}>
         {champion.roleKey}
       </p>
 
-      {/* Points pill */}
-      <div className="flex items-center gap-1.5 bg-surface-2 border border-border-subtle rounded-full px-3 py-1.5">
-        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400 shrink-0" />
-
-        <span className="text-fg-muted text-xs font-semibold">{champion.points.toLocaleString()} pts</span>
+      {/* Points */}
+      <div className="inline-flex items-center gap-1.5">
+        <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400 shrink-0" />
+        <span className="text-fg-muted text-sm font-semibold">{champion.points.toLocaleString()} pts</span>
       </div>
     </div>
   );
@@ -63,19 +73,38 @@ function ChampionCard({ champion, index }: { champion: Champion; index: number }
 
 export default function ChampionsSection() {
   const t = useContent();
+  const autoScroll = useRef(
+    AutoScroll({ speed: 1, startDelay: 0, stopOnInteraction: false, playOnInit: true })
+  );
+
+  // Duplicate so there's always overflow for a continuous loop.
+  const slides = [...CHAMPIONS, ...CHAMPIONS];
 
   return (
-    <section className="bg-bg py-24">
+    <section className="bg-stone-100 dark:bg-bg py-16">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="text-center mb-12">
+        <Reveal className="text-center mb-12">
           <h2 className="text-fg text-4xl font-extrabold mb-3">{t.champions.title}</h2>
           <p className="text-fg-faint text-base">{t.champions.subtitle}</p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {CHAMPIONS.map((champion, i) => (
-            <ChampionCard key={champion.id} champion={champion} index={i} />
-          ))}
-        </div>
+        </Reveal>
+
+        <Carousel
+          opts={{ align: "start", loop: true }}
+          plugins={[autoScroll.current]}
+          className="w-full max-w-4xl mx-auto"
+          onMouseEnter={() => autoScroll.current.stop()}
+          onMouseLeave={() => autoScroll.current.play()}
+        >
+          <CarouselContent className="py-6">
+            {slides.map((champion, i) => (
+              <CarouselItem key={`${champion.id}-${i}`} className="basis-1/2 md:basis-1/4">
+                <ChampionItem champion={champion} index={i} />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="hidden sm:inline-flex bg-bg" />
+          <CarouselNext className="hidden sm:inline-flex bg-bg" />
+        </Carousel>
       </div>
     </section>
   );

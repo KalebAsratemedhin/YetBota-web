@@ -38,8 +38,8 @@ export default function AppSidebar({ user, children, title = "Yet Bota", classNa
   return (
     <aside
       className={cn(
-        "w-64 shrink-0 bg-bg border-r border-brand/20 flex flex-col h-full",
-        "shadow-[4px_0_16px_-8px_rgba(15,23,42,0.08)] dark:shadow-none",
+        "w-64 shrink-0 bg-surface border-r border-border-subtle flex flex-col h-full",
+        "shadow-[4px_0_24px_-12px_rgba(15,23,42,0.12)] dark:shadow-[4px_0_24px_-12px_rgba(0,0,0,0.6)]",
         className
       )}
     >

@@ -7,7 +7,7 @@ export default function LocationDetailsHeader() {
   const router = useRouter();
 
   return (
-    <header className="sticky top-0 z-40 bg-bg/95 backdrop-blur-md border-b border-border-subtle shadow-[0_4px_16px_-8px_rgba(15,23,42,0.08)] dark:shadow-none">
+    <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur-md border-b border-border-subtle shadow-[0_4px_24px_-12px_rgba(15,23,42,0.12)] dark:shadow-[0_4px_24px_-12px_rgba(0,0,0,0.6)]">
       <div className="max-w-[1440px] mx-auto px-6 sm:px-8 h-20 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button

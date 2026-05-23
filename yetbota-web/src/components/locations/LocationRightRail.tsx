@@ -2,7 +2,16 @@
 
 import Image from "next/image";
 import { MapPin } from "lucide-react";
-import OpenStreetMap from "@/components/maps/OpenStreetMap";
+import dynamic from "next/dynamic";
+
+const OpenStreetMap = dynamic(() => import("@/components/maps/OpenStreetMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-48 rounded-2xl border border-border-subtle bg-surface flex items-center justify-center text-fg-muted text-sm">
+      Loading map…
+    </div>
+  ),
+});
 
 export interface PopularGuide {
   id: string;

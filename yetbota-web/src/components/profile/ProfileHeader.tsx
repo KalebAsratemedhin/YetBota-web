@@ -79,7 +79,7 @@ export default function ProfileHeader({ user, onProfileImageUploaded, readOnly =
       </div>
 
       {/* Avatar + info */}
-      <div className="flex flex-col sm:flex-row sm:items-end items-start gap-4 sm:gap-6 px-4 sm:px-6 -mt-14 sm:-mt-18 lg:-mt-20 relative z-10">
+      <div className="flex flex-col lg:flex-row lg:items-end items-start gap-4 lg:gap-6 px-4 sm:px-6 -mt-14 sm:-mt-18 lg:-mt-20 relative z-10">
         {/* Avatar */}
         <div className="relative shrink-0">
           <div className="relative w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 rounded-3xl bg-[#e8b89a] border-4 border-bg flex items-center justify-center shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.35)] overflow-hidden">
@@ -149,7 +149,7 @@ export default function ProfileHeader({ user, onProfileImageUploaded, readOnly =
 
             <Link
               href="/settings"
-              className="sm:shrink-0 sm:mb-2 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border-subtle bg-surface text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors self-end sm:self-auto"
+              className="lg:shrink-0 lg:mb-2 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border-subtle bg-surface text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors self-end lg:self-auto"
               aria-label="Settings"
             >
               <Settings className="w-5 h-5" />

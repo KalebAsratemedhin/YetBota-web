@@ -3,15 +3,17 @@ import { Send, Pencil, HelpCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useContent } from "@/lib/useContent";
 import Link from "next/link";
+import Reveal from "@/components/landing/Reveal";
 
 export default function AssistantSection() {
   const t = useContent();
 
   return (
-    <section className="bg-bg py-20 px-6">
+    <section className="bg-bg py-14 px-6">
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-6">
         {/* Ask Assistant */}
-        <div className="bg-bg border border-border-subtle rounded-3xl p-6">
+        <Reveal direction="left" className="h-full">
+        <div className="h-full bg-bg border border-border-subtle rounded-3xl p-6 hover:border-brand/40 hover:shadow-xl hover:shadow-brand/10 transition-all duration-300">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-9 h-9 bg-brand/20 rounded-xl flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-brand" />
@@ -60,9 +62,11 @@ export default function AssistantSection() {
             </Link>
           </div>
         </div>
+        </Reveal>
 
         {/* Help the Community */}
-        <div className="bg-bg border border-border-subtle rounded-3xl p-6 flex flex-col">
+        <Reveal direction="right" delay={150} className="h-full">
+        <div className="h-full bg-bg border border-border-subtle rounded-3xl p-6 flex flex-col hover:border-brand/40 hover:shadow-xl hover:shadow-brand/10 transition-all duration-300">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-9 h-9 bg-brand/20 rounded-xl flex items-center justify-center">
               <HelpCircle className="w-5 h-5 text-brand" />
@@ -114,6 +118,7 @@ export default function AssistantSection() {
             {t.community.browseQuestions} →
           </Link>
         </div>
+        </Reveal>
       </div>
     </section>
   );

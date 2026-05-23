@@ -1,5 +1,6 @@
 import { baseApi } from "@/store/api/baseApi";
 import { setCredentials } from "@/store/authSlice";
+import { setSessionCookie } from "@/lib/sessionCookie";
 import type {
   AuthorizationRequest,
   ChangeMobileRequest,
@@ -48,6 +49,7 @@ async function applyAuthSuccess(
     } catch {
       // ignore
     }
+    setSessionCookie();
   }
 }
 

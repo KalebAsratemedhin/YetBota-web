@@ -25,11 +25,11 @@ export default function CreatePostTags({
   }
 
   return (
-    <div className="space-y-4">
-      <label className="text-sm font-semibold text-fg-faint dark:text-slate-400 uppercase tracking-wider ml-1">
+    <div className="space-y-3">
+      <label className="text-xs font-semibold text-fg-faint dark:text-slate-400 uppercase tracking-wider ml-1">
         Popular Tags
       </label>
-      <div className="flex flex-wrap gap-3 items-center">
+      <div className="flex flex-wrap gap-2 items-center">
         {tags.map((t) => {
           const isActive = selected.includes(t);
           return (
@@ -39,8 +39,8 @@ export default function CreatePostTags({
               onClick={() => onToggle(t)}
               className={
                 isActive
-                  ? "px-5 py-2 rounded-full border border-brand bg-brand/10 text-brand font-medium hover:bg-brand/20 transition-all"
-                  : "px-5 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-surface text-slate-600 dark:text-slate-300 font-medium hover:border-brand/50 transition-all"
+                  ? "px-4 py-2 text-sm rounded-full border border-brand bg-brand/10 text-brand font-semibold transition-all duration-150 hover:bg-brand/20 hover:border-brand hover:-translate-y-0.5 hover:shadow-sm hover:shadow-brand/20 active:translate-y-0"
+                  : "px-4 py-2 text-sm rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-surface text-slate-600 dark:text-slate-300 font-medium transition-all duration-150 hover:border-brand/60 hover:bg-brand/5 hover:text-brand hover:-translate-y-0.5 hover:shadow-sm active:translate-y-0"
               }
             >
               {t}
@@ -76,7 +76,7 @@ export default function CreatePostTags({
                 setDraft("");
                 setAdding(false);
               }}
-              className="p-1 rounded-full hover:bg-overlay text-fg-muted"
+              className="p-0.5 rounded-full hover:bg-overlay text-fg-muted"
               aria-label="Cancel new tag"
             >
               <X className="w-3.5 h-3.5" />
@@ -86,9 +86,9 @@ export default function CreatePostTags({
           <button
             type="button"
             onClick={() => setAdding(true)}
-            className="px-5 py-2 rounded-full border border-dashed border-slate-300 dark:border-slate-700 text-brand flex items-center gap-2 font-medium hover:bg-brand/10 transition-all"
+            className="px-4 py-2 text-sm rounded-full border border-dashed border-slate-300 dark:border-slate-700 text-brand flex items-center gap-1.5 font-semibold transition-all duration-150 hover:bg-brand/10 hover:border-brand hover:border-solid hover:-translate-y-0.5 hover:shadow-sm hover:shadow-brand/20 active:translate-y-0"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
             <span>Add</span>
           </button>
         )}

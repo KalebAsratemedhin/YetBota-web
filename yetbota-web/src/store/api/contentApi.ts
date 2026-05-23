@@ -5,10 +5,13 @@ import type {
   CreateCommentResponseData,
   CreatePostRequest,
   CreatePostResponseData,
+  FeedQuery,
+  FeedResponseData,
   ListCommentsQuery,
   ListCommentsResponseData,
   ListPostsQuery,
   ListPostsResponseData,
+  MarkFeedViewedRequest,
   Post,
   Resolution,
   UpdatePostRequest,
@@ -50,6 +53,19 @@ export const contentApi = contentBaseApi.injectEndpoints({
         return { url: qs ? `/posts/?${qs}` : "/posts/", method: "GET" };
       },
       providesTags: ["Content"],
+    }),
+    getFeed: builder.query<FeedResponseData, FeedQuery>({
+      query: ({ page_size, cursor }) => {
+        const params = new URLSearchParams();
+        params.set("page_size", String(page_size));
+        // Send the server-issued cursor verbatim; URLSearchParams encodes it.
+        if (cursor) params.set("cursor", cursor);
+        return { url: `/feed/?${params.toString()}`, method: "GET" };
+      },
+      providesTags: ["Content"],
+    }),
+    markFeedViewed: builder.mutation<void, MarkFeedViewedRequest>({
+      query: (body) => ({ url: "/feed/viewed", method: "POST", body }),
     }),
     getPostById: builder.query<CreatePostResponseData, { id: string; resolution?: Resolution }>({
       query: ({ id, resolution }) => ({
@@ -123,6 +139,9 @@ export const {
   useCreatePostMutation,
   useListPostsQuery,
   useLazyListPostsQuery,
+  useGetFeedQuery,
+  useLazyGetFeedQuery,
+  useMarkFeedViewedMutation,
   useGetPostByIdQuery,
   useLazyGetPostByIdQuery,
   useGetPostsByIdsQuery,

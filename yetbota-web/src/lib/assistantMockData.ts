@@ -1,5 +1,6 @@
-// Mock data for AI Assistant — chat is wired to the live AI service via useChatMutation;
-// the helpers below still seed mock recent-chats / suggested-topics until the backend exposes them.
+// Mock data for AI Assistant — chat is wired to the live AI service via the
+// createChat / sendMessage / listChats / listMessages hooks in aiApi;
+// the helpers below still seed mock suggested-topics until the backend exposes them.
 
 import type { Citation } from "@/store/api/aiApi";
 

@@ -381,11 +381,18 @@ export default function LocationComments({
         </div>
         <div className="relative flex-1">
           <input
-            className="w-full bg-white dark:bg-surface border border-slate-200 dark:border-border-subtle rounded-2xl py-3 px-5 pr-12 focus:ring-brand focus:border-brand"
+            className="w-full bg-white dark:bg-surface border border-brand/30 hover:border-brand/50 focus:border-brand focus:ring-2 focus:ring-brand/20 focus:outline-none rounded-2xl py-3 px-5 pr-12 transition-colors placeholder:text-fg-faint"
             placeholder="Write a comment..."
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                e.preventDefault();
+                if (posting || !accessToken || !text.trim()) return;
+                void handleSend();
+              }
+            }}
             disabled={posting || !accessToken}
           />
           <button
