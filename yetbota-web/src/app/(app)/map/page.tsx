@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -18,7 +19,7 @@ function num(v: string | null, fallback: number): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
-export default function MapPage() {
+function MapView() {
   const router = useRouter();
   const sp = useSearchParams();
   const latitude = num(sp.get("lat"), 9.03);
@@ -55,6 +56,20 @@ export default function MapPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function MapPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="bg-bg text-fg h-[calc(100dvh-56px)] lg:h-dvh flex items-center justify-center text-fg-muted text-sm">
+          Loading map…
+        </div>
+      }
+    >
+      <MapView />
+    </Suspense>
   );
 }
 

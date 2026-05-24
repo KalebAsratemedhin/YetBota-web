@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Navbar } from "@/components/landing";
 import DiscoveryFilters from "@/components/discovery/DiscoveryFilters";
 import type { DiscoverySort } from "@/components/discovery/DiscoveryFilters";
@@ -20,7 +20,7 @@ import type { GeoLocation, ListPostsQuery, Post } from "@/types/content";
 const PAGE_SIZE = 15;
 const PROXIMITY_RADIUS_KM = 25;
 
-export default function DiscoveryPage() {
+function DiscoveryContent() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -442,5 +442,13 @@ export default function DiscoveryPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function DiscoveryPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-bg" />}>
+      <DiscoveryContent />
+    </Suspense>
   );
 }
