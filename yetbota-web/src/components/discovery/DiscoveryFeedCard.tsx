@@ -52,14 +52,14 @@ export default function DiscoveryFeedCard({ item }: { item: DiscoveryFeedItem })
       <div className="relative px-4">
         <Link
           href={`/locations/${item.id}`}
-          className="block relative rounded-[2rem] overflow-hidden group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
+          className="block relative rounded-[2rem] overflow-hidden group cursor-pointer bg-slate-100 dark:bg-overlay focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
         >
           <Image
             src={item.imageUrl}
             alt=""
             width={1200}
             height={900}
-            className="w-full h-[500px] object-cover"
+            className="w-full h-[500px] object-contain"
             priority={false}
           />
           {item.badgeLabel && (

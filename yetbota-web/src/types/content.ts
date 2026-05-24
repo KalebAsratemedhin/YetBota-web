@@ -27,6 +27,8 @@ export interface Post {
   user_id: string;
   tags: string[];
   is_question: boolean;
+  // Present only when this question references another post; omitted otherwise.
+  attached_post_id?: string;
   // photos, location and address are omitted from the response when empty.
   photos?: PostPhoto[];
   location?: GeoLocation;
@@ -85,12 +87,40 @@ export interface MarkFeedViewedRequest {
   post_ids: string[];
 }
 
+// GET /v1/posts/{id}/interactions — the *current user's* own vote state for a
+// post and its comments. Aggregate counts still come from the post/comment
+// read endpoints; this is purely "what did I vote".
+export interface PostInteractions {
+  // null when the user hasn't voted on the post.
+  post_vote: VoteTypePost | null;
+  // commentId -> vote. Only voted-on comments appear; {} if none.
+  comment_votes: Record<string, VoteTypeComment>;
+  // true if the caller follows the post's author. Always false when the
+  // caller is the author.
+  following_author: boolean;
+  // true if the caller has saved/bookmarked the post.
+  saved: boolean;
+}
+
+// POST/DELETE /v1/posts/{id}/save — toggle a bookmark. Returns the new state.
+export type SaveResult = { saved: boolean };
+
+// GET /v1/posts/saved — the caller's saved posts, most-recently-saved first.
+// Response shape is identical to ListPostsResponseData.
+export interface SavedPostsQuery {
+  page?: number;
+  page_size?: number;
+  resolution?: Resolution;
+}
+
 export interface CreatePostRequest {
   title: string;
   description: string;
   tags?: string[];
   is_question?: boolean;
   address?: string;
+  // Only valid when is_question is true — the post this question is about.
+  attached_post_id?: string;
   photos?: Array<{ photo_base64: string; position: number }>;
   location?: GeoLocation;
 }
@@ -102,6 +132,8 @@ export interface UpdatePostRequest {
   description: string;
   tags?: string[];
   address?: string;
+  // Presence-aware: omit to leave unchanged, "" to clear, a uuid to set.
+  attached_post_id?: string;
   upsert_photos?: Array<{ photo_base64: string; position: number }>;
   location?: GeoLocation;
 }

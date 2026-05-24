@@ -71,7 +71,8 @@ export interface UserPrivate {
   username: string;
   mobile: string;
   rating: number;
-  badges: string[];
+  // omitempty on the wire — absent when the user has earned no badges.
+  badges?: string[];
   contributions: number;
   followers: number;
   following: number;
@@ -117,7 +118,7 @@ export interface UserPublicData {
   username: string;
   mobile_verified: boolean;
   rating: number;
-  badges: string[];
+  badges?: string[];
   contributions: number;
   followers: number;
   following: number;

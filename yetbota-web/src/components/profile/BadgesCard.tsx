@@ -1,49 +1,55 @@
-import { Compass, ShieldCheck, Map, Camera, Heart } from "lucide-react";
-import { EARNED_BADGES, type Badge } from "@/lib/profileMockData";
+import { Compass, ShieldCheck, Map, Camera, Heart, Award } from "lucide-react";
+import { earnedBadges, type BadgeMeta } from "@/lib/badges";
 
 const ICON_MAP: Record<string, React.ElementType> = {
   Compass, ShieldCheck, Map, Camera, Heart,
 };
 
-const TINT_MAP: Record<string, string> = {
-  "bg-emerald-600": "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
-  "bg-yellow-600": "bg-yellow-500/10 border-yellow-500/20 text-yellow-400",
-  "bg-blue-600": "bg-blue-500/10 border-blue-500/20 text-blue-400",
-  "bg-purple-600": "bg-purple-500/10 border-purple-500/20 text-purple-400",
-  "bg-rose-600": "bg-rose-500/10 border-rose-500/20 text-rose-400",
-};
-
-function BadgeItem({ badge }: { badge: Badge }) {
+function BadgeItem({ badge }: { badge: BadgeMeta }) {
   const Icon = ICON_MAP[badge.icon] ?? Compass;
-  const tint = TINT_MAP[badge.color] ?? "bg-overlay border-border-subtle text-fg-muted";
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${tint}`}>
-        <Icon className="w-6 h-6" />
+    <div className="flex flex-col items-center gap-1 w-20">
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${badge.tint}`}>
+        <Icon className="w-5 h-5" />
       </div>
-      <span className="text-[10px] font-bold uppercase tracking-wide text-fg-faint">
+      <span className="text-[10px] font-bold uppercase tracking-wide text-fg-faint text-center leading-tight">
         {badge.label}
       </span>
     </div>
   );
 }
 
-export default function BadgesCard() {
+export default function BadgesCard({ badges }: { badges: string[] }) {
+  const earned = earnedBadges(badges);
+
   return (
-    <div className="bg-surface border border-border-subtle rounded-2xl px-4 sm:px-6 py-7 sm:py-9">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-surface border border-border-subtle rounded-2xl px-4 sm:px-6 py-4 sm:py-5 h-full">
+      <div className="flex items-center justify-between mb-4">
         <h3 className="text-fg font-semibold text-lg">Earned Badges</h3>
-        <button className="text-brand text-xs font-bold hover:text-brand-dark transition-colors">
-          View All
-        </button>
+        {earned.length > 0 ? (
+          <span className="text-fg-faint text-xs font-bold">{earned.length} earned</span>
+        ) : null}
       </div>
-      <div className="-mx-2 px-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex items-start gap-6 min-w-max">
-          {EARNED_BADGES.map((badge) => (
-            <BadgeItem key={badge.id} badge={badge} />
-          ))}
+
+      {earned.length === 0 ? (
+        <div className="flex flex-col items-center justify-center text-center gap-2 py-3">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center border border-border-subtle bg-overlay text-fg-muted">
+            <Award className="w-5 h-5" />
+          </div>
+          <p className="text-fg-faint text-sm">No badges yet</p>
+          <p className="text-fg-faint text-xs max-w-xs">
+            Earn badges as your reputation score climbs — the first arrives at 1600.
+          </p>
         </div>
-      </div>
+      ) : (
+        <div className="-mx-2 px-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex items-start gap-6 min-w-max">
+            {earned.map((badge) => (
+              <BadgeItem key={badge.slug} badge={badge} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

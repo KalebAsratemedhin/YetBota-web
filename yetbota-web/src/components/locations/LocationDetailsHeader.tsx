@@ -1,9 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowLeft, MoreHorizontal, Share2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import PostActionMenus from "@/components/common/PostActionMenus";
 
-export default function LocationDetailsHeader() {
+export default function LocationDetailsHeader({
+  title = "YetBota",
+  saved = false,
+  onToggleSave,
+  saveLoading,
+}: {
+  title?: string;
+  saved?: boolean;
+  onToggleSave?: () => void;
+  saveLoading?: boolean;
+}) {
   const router = useRouter();
 
   return (
@@ -20,22 +31,13 @@ export default function LocationDetailsHeader() {
           </button>
           <h2 className="text-lg font-bold text-fg">Post Details</h2>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="p-2 hover:bg-overlay rounded-full transition-colors text-fg-muted hover:text-fg"
-            aria-label="Share"
-          >
-            <Share2 className="w-5 h-5" />
-          </button>
-          <button
-            type="button"
-            className="p-2 hover:bg-overlay rounded-full transition-colors text-fg-muted hover:text-fg"
-            aria-label="More"
-          >
-            <MoreHorizontal className="w-5 h-5" />
-          </button>
-        </div>
+
+        <PostActionMenus
+          shareTitle={title}
+          saved={saved}
+          onToggleSave={onToggleSave}
+          saveLoading={saveLoading}
+        />
       </div>
     </header>
   );

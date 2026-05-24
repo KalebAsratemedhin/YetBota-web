@@ -35,32 +35,6 @@ function timeLabel(iso?: string): string {
   }).format(d);
 }
 
-function voteStorageKey(commentId: string) {
-  return `yetbota.commentVote.${commentId}`;
-}
-
-function readStoredVote(commentId: string): "upvote" | "downvote" | null {
-  if (!commentId) return null;
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.localStorage.getItem(voteStorageKey(commentId));
-    if (raw === "upvote" || raw === "downvote") return raw;
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function writeStoredVote(commentId: string, vote: "upvote" | "downvote") {
-  if (!commentId) return;
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(voteStorageKey(commentId), vote);
-  } catch {
-    // ignore
-  }
-}
-
 function truncateText(s: string, max: number) {
   const t = s.trim();
   if (t.length <= max) return t;
@@ -74,6 +48,7 @@ function CommentNode({
   commentById,
   currentUserAvatarUrl,
   currentUserId,
+  commentVotes,
   onRefetch,
 }: {
   c: Comment;
@@ -82,6 +57,9 @@ function CommentNode({
   commentById: Map<string, Comment>;
   currentUserAvatarUrl: string;
   currentUserId?: string;
+  // The current user's votes keyed by comment id. `undefined` until the
+  // interactions endpoint resolves; an object (possibly `{}`) once loaded.
+  commentVotes?: Record<string, "upvote" | "downvote">;
   onRefetch: () => void;
 }) {
   const accessToken = useAppSelector((s) => s.auth.accessToken);
@@ -94,7 +72,10 @@ function CommentNode({
   const [createComment, { isLoading: replying }] = useCreateCommentMutation();
   const [replyOpen, setReplyOpen] = useState(false);
   const [replyText, setReplyText] = useState("");
-  const [myVote, setMyVote] = useState<"upvote" | "downvote" | null>(() => readStoredVote(c.id));
+  // `undefined` = user hasn't voted this session; defer to the server value.
+  const [myVoteOverride, setMyVoteOverride] = useState<"upvote" | "downvote" | null | undefined>(undefined);
+  const myVote: "upvote" | "downvote" | null =
+    myVoteOverride !== undefined ? myVoteOverride : commentVotes?.[c.id] ?? null;
   const [voteOverride, setVoteOverride] = useState<{ upvote: number; downvote: number } | null>(null);
   const upCount = voteOverride?.upvote ?? (typeof c.upvote === "number" ? c.upvote : 0);
   const downCount = voteOverride?.downvote ?? (typeof c.downvote === "number" ? c.downvote : 0);
@@ -124,8 +105,7 @@ function CommentNode({
   async function handleVote(next: "upvote" | "downvote") {
     if (!c.id) return;
     try {
-      setMyVote(next);
-      writeStoredVote(c.id, next);
+      setMyVoteOverride(next);
       const res = await voteComment({ id: c.id, body: { vote_type: next } }).unwrap();
       if (typeof res.upvote === "number" && typeof res.downvote === "number") {
         setVoteOverride({ upvote: res.upvote, downvote: res.downvote });
@@ -133,7 +113,8 @@ function CommentNode({
       onRefetch();
     } catch (err) {
       toast({ variant: "destructive", title: "Failed to vote", description: getAuthErrorMessage(err) });
-      setMyVote(readStoredVote(c.id));
+      // Roll back to the server's value.
+      setMyVoteOverride(undefined);
     }
   }
 
@@ -297,6 +278,7 @@ function CommentNode({
               commentById={commentById}
               currentUserAvatarUrl={currentUserAvatarUrl}
               currentUserId={currentUserId}
+              commentVotes={commentVotes}
               onRefetch={onRefetch}
             />
           ))}
@@ -310,11 +292,13 @@ export default function LocationComments({
   postId,
   currentUserAvatarUrl,
   currentUserId,
+  commentVotes,
   onCommentPosted,
 }: {
   postId: string;
   currentUserAvatarUrl: string;
   currentUserId?: string;
+  commentVotes?: Record<string, "upvote" | "downvote">;
   onCommentPosted?: () => void;
 }) {
   const accessToken = useAppSelector((s) => s.auth.accessToken);
@@ -429,6 +413,7 @@ export default function LocationComments({
               commentById={commentById}
               currentUserAvatarUrl={currentUserAvatarUrl}
               currentUserId={currentUserId}
+              commentVotes={commentVotes}
               onRefetch={() => {
                 void refetch();
                 onCommentPosted?.();

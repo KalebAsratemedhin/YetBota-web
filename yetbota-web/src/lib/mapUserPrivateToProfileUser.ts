@@ -26,6 +26,9 @@ export function mapUserPrivateToProfileUser(user: UserPrivate): ProfileUser {
     followers: formatFollowersLabel(user.followers ?? 0),
     following: user.following ?? 0,
     avatarUrl: user.profile_url ? resolveApiUrl(user.profile_url) : undefined,
+    score: rating,
+    // `badges` is omitempty on the wire — default to [] when absent.
+    badges: user.badges ?? [],
     level,
     xp,
     xpToNext,

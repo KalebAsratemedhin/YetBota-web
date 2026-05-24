@@ -48,7 +48,6 @@ export default function HeroSection() {
           </Button>
           <Button
             size="lg"
-            variant="outline"
             asChild
             className="border-2 border-white bg-white text-black font-bold hover:bg-transparent hover:text-white rounded-xl px-8 py-4 text-base w-full sm:w-auto transition-colors duration-200"
           >

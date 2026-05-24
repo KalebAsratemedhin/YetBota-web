@@ -110,16 +110,21 @@ export interface QaAnswerCardProps {
   answer: Comment;
   replies: Comment[];
   canVote: boolean;
+  // The current user's existing vote on this answer, from the post-interactions
+  // endpoint (`comment_votes`). null/absent = not voted.
+  initialVote?: "upvote" | "downvote" | null;
   onReply?: (text: string) => Promise<void> | void;
 }
 
-export default function QaAnswerCard({ answer, replies, canVote, onReply }: QaAnswerCardProps) {
+export default function QaAnswerCard({ answer, replies, canVote, initialVote, onReply }: QaAnswerCardProps) {
   const { name, avatarUrl, initials, profileHref } = useAuthor(answer.user_id);
   const { toast } = useToast();
 
   const [optimisticUpvote, setOptimisticUpvote] = useState<number | null>(null);
   const [optimisticDownvote, setOptimisticDownvote] = useState<number | null>(null);
-  const [myVote, setMyVote] = useState<"upvote" | "downvote" | null>(null);
+  // `undefined` = user hasn't voted this session, so defer to the server value.
+  const [voteOverride, setVoteOverride] = useState<"upvote" | "downvote" | null | undefined>(undefined);
+  const myVote = voteOverride !== undefined ? voteOverride : initialVote ?? null;
   const [voteComment, { isLoading: voting }] = useVoteCommentMutation();
 
   const upvotes = optimisticUpvote ?? answer.upvote;
@@ -136,7 +141,7 @@ export default function QaAnswerCard({ answer, replies, canVote, onReply }: QaAn
     if (!canVote || voting) return;
     const previousMy = myVote;
     const nextMy = previousMy === kind ? null : kind;
-    setMyVote(nextMy);
+    setVoteOverride(nextMy);
     setOptimisticUpvote(
       kind === "upvote"
         ? answer.upvote + (nextMy === "upvote" ? 1 : 0) - (previousMy === "upvote" ? 1 : 0)
@@ -150,7 +155,7 @@ export default function QaAnswerCard({ answer, replies, canVote, onReply }: QaAn
     try {
       await voteComment({ id: answer.id, body: { vote_type: kind } }).unwrap();
     } catch (err) {
-      setMyVote(previousMy);
+      setVoteOverride(undefined);
       setOptimisticUpvote(null);
       setOptimisticDownvote(null);
       toast({

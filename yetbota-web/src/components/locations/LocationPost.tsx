@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ThumbsDown, ThumbsUp, MessageCircle, MessageSquareText } from "lucide-react";
+import { ThumbsDown, ThumbsUp, MessageCircle, MessageSquareText, Bookmark } from "lucide-react";
 
 export interface LocationPostAuthor {
   id?: string;
@@ -31,6 +31,9 @@ export default function LocationPost({
   onVote,
   voting,
   canVote = true,
+  saved = false,
+  onToggleSave,
+  saveLoading,
 }: {
   author: LocationPostAuthor;
   title: string;
@@ -50,6 +53,9 @@ export default function LocationPost({
   onVote?: (next: "like" | "dislike") => void;
   voting?: boolean;
   canVote?: boolean;
+  saved?: boolean;
+  onToggleSave?: () => void;
+  saveLoading?: boolean;
 }) {
   const safeDislikes = typeof dislikes === "number" && Number.isFinite(dislikes) ? dislikes : 0;
   const safeQaCount = typeof qaCount === "number" && Number.isFinite(qaCount) ? qaCount : 0;
@@ -203,6 +209,20 @@ export default function LocationPost({
             <span className="font-bold">{safeQaCount}</span>
           </button>
         </div>
+
+        <button
+          type="button"
+          onClick={onToggleSave}
+          disabled={saveLoading}
+          aria-pressed={saved}
+          aria-label={saved ? "Remove bookmark" : "Bookmark"}
+          className={
+            "ml-auto transition-colors disabled:opacity-60 " +
+            (saved ? "text-brand" : "text-fg-faint dark:text-slate-400 hover:text-brand")
+          }
+        >
+          <Bookmark className={"w-5 h-5 " + (saved ? "fill-brand" : "")} />
+        </button>
       </div>
     </article>
   );

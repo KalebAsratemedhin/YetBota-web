@@ -6,12 +6,17 @@ import { ChevronDown, Image as ImageIcon, Send } from "lucide-react";
 import QaDetailHeader from "@/components/qa/QaDetailHeader";
 import QaDetailHero from "@/components/qa/QaDetailHero";
 import QaDetailQuestionSection from "@/components/qa/QaDetailQuestionSection";
+import QaAttachedPostCard from "@/components/qa/QaAttachedPostCard";
 import QaAnswerCard from "@/components/qa/QaAnswerCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   useCreateCommentMutation,
   useGetPostByIdQuery,
+  useGetPostInteractionsQuery,
   useListCommentsQuery,
+  useSavePostMutation,
+  useUnsavePostMutation,
+  useVotePostMutation,
 } from "@/store/api/contentApi";
 import { useGetMeQuery } from "@/store/api/authApi";
 import { useAppSelector } from "@/store/hooks";
@@ -39,6 +44,15 @@ export default function QaDetailPage() {
   } = useGetPostByIdQuery({ id, resolution: "WEB" });
   const post = postRes?.post;
 
+  // When this question references another post, fetch it for the "In reference
+  // to" preview. GET /v1/posts/{id} is public, so no auth gate.
+  const attachedId = post?.is_question ? post.attached_post_id : undefined;
+  const { data: attachedRes } = useGetPostByIdQuery(
+    { id: attachedId ?? "", resolution: "WEB" },
+    { skip: !attachedId }
+  );
+  const attachedPost = attachedRes?.post ?? null;
+
   const {
     data: commentsRes,
     isLoading: commentsLoading,
@@ -50,6 +64,50 @@ export default function QaDetailPage() {
   const [createComment, { isLoading: posting }] = useCreateCommentMutation();
   const [sort, setSort] = useState<SortKey>("top");
   const [sortOpen, setSortOpen] = useState(false);
+
+  // Bookmark — server (interactions.saved) is the source of truth; the override
+  // only applies while a save/unsave request is in flight.
+  const { data: interactions } = useGetPostInteractionsQuery({ id }, { skip: !accessToken || !id });
+  const [savedOverride, setSavedOverride] = useState<boolean | null>(null);
+  const isSaved = savedOverride ?? interactions?.saved ?? false;
+  const [savePost, { isLoading: saving }] = useSavePostMutation();
+  const [unsavePost, { isLoading: unsaving }] = useUnsavePostMutation();
+
+  async function handleToggleSave() {
+    if (!post?.id) return;
+    const next = !isSaved;
+    try {
+      setSavedOverride(next);
+      if (next) {
+        await savePost({ id: post.id }).unwrap();
+      } else {
+        await unsavePost({ id: post.id }).unwrap();
+      }
+    } catch (err) {
+      toast({ variant: "destructive", title: "Failed", description: getAuthErrorMessage(err) });
+      setSavedOverride(null);
+    }
+  }
+
+  // Question (post) vote — server (interactions.post_vote) is the source of
+  // truth; the override applies while the request is in flight.
+  const [postVoteOverride, setPostVoteOverride] = useState<"like" | "dislike" | null | undefined>(undefined);
+  const myPostVote = postVoteOverride !== undefined ? postVoteOverride : interactions?.post_vote ?? null;
+  const [votePost, { isLoading: votingPost }] = useVotePostMutation();
+  const canVotePost = Boolean(meId && post?.user_id && meId !== post.user_id);
+
+  async function handleVoteQuestion(kind: "like" | "dislike") {
+    if (!post?.id) return;
+    try {
+      setPostVoteOverride(kind);
+      await votePost({ id: post.id, body: { vote_type: kind } }).unwrap();
+      // Counts come from the post read endpoint (single source of truth).
+      void refetchPost();
+    } catch (err) {
+      toast({ variant: "destructive", title: "Failed to vote", description: getAuthErrorMessage(err) });
+      setPostVoteOverride(undefined);
+    }
+  }
 
   const badgeLabel = useMemo(() => (post?.is_question ? "Community Question" : "Post"), [
     post?.is_question,
@@ -137,7 +195,14 @@ export default function QaDetailPage() {
 
   return (
     <div className="h-screen overflow-hidden bg-bg text-fg">
-      <QaDetailHeader title="Question Details" onBack={() => router.back()} />
+      <QaDetailHeader
+        title="Question Details"
+        onBack={() => router.back()}
+        shareTitle={post?.title}
+        saved={isSaved}
+        onToggleSave={accessToken ? () => void handleToggleSave() : undefined}
+        saveLoading={saving || unsaving}
+      />
 
       <ScrollArea className="h-[calc(100vh-80px)]">
         <main className="max-w-4xl mx-auto px-6 py-8 pb-32">
@@ -166,7 +231,15 @@ export default function QaDetailPage() {
                 title={post.title}
                 body={post.description}
                 tags={post.tags ?? []}
+                likes={post.likes}
+                dislikes={post.dislikes}
+                vote={myPostVote}
+                onVote={accessToken ? (kind) => void handleVoteQuestion(kind) : undefined}
+                canVote={canVotePost}
+                voting={votingPost}
               />
+
+              {attachedPost ? <QaAttachedPostCard post={attachedPost} /> : null}
 
               <section className="mb-10">
                 <div className="flex items-center justify-between mb-8 border-b border-border-subtle pb-4">
@@ -219,6 +292,7 @@ export default function QaDetailPage() {
                         answer={a}
                         replies={repliesByAnswer.get(a.id) ?? []}
                         canVote={Boolean(meId && meId !== a.user_id)}
+                        initialVote={interactions?.comment_votes?.[a.id] ?? null}
                         onReply={accessToken ? (t) => handleReply(a.id, t) : undefined}
                       />
                     ))}

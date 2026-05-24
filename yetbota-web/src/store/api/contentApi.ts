@@ -13,7 +13,10 @@ import type {
   ListPostsResponseData,
   MarkFeedViewedRequest,
   Post,
+  PostInteractions,
   Resolution,
+  SaveResult,
+  SavedPostsQuery,
   UpdatePostRequest,
   VoteCommentRequest,
   VoteCommentResponseData,
@@ -67,6 +70,13 @@ export const contentApi = contentBaseApi.injectEndpoints({
     markFeedViewed: builder.mutation<void, MarkFeedViewedRequest>({
       query: (body) => ({ url: "/feed/viewed", method: "POST", body }),
     }),
+    getPostInteractions: builder.query<PostInteractions, { id: string }>({
+      query: ({ id }) => ({
+        url: `/posts/${encodeURIComponent(id)}/interactions`,
+        method: "GET",
+      }),
+      providesTags: ["Content"],
+    }),
     getPostById: builder.query<CreatePostResponseData, { id: string; resolution?: Resolution }>({
       query: ({ id, resolution }) => ({
         url: `/posts/${encodeURIComponent(id)}`,
@@ -111,6 +121,18 @@ export const contentApi = contentBaseApi.injectEndpoints({
         body,
       }),
     }),
+    savePost: builder.mutation<SaveResult, { id: string }>({
+      query: ({ id }) => ({ url: `/posts/${encodeURIComponent(id)}/save`, method: "POST" }),
+      invalidatesTags: ["Content"],
+    }),
+    unsavePost: builder.mutation<SaveResult, { id: string }>({
+      query: ({ id }) => ({ url: `/posts/${encodeURIComponent(id)}/save`, method: "DELETE" }),
+      invalidatesTags: ["Content"],
+    }),
+    listSavedPosts: builder.query<ListPostsResponseData, SavedPostsQuery | void>({
+      query: (arg) => ({ url: "/posts/saved", method: "GET", params: arg ?? undefined }),
+      providesTags: ["Content"],
+    }),
 
     createComment: builder.mutation<CreateCommentResponseData, CreateCommentRequest>({
       query: (body) => ({ url: "/comments/", method: "POST", body }),
@@ -142,12 +164,18 @@ export const {
   useGetFeedQuery,
   useLazyGetFeedQuery,
   useMarkFeedViewedMutation,
+  useGetPostInteractionsQuery,
+  useLazyGetPostInteractionsQuery,
   useGetPostByIdQuery,
   useLazyGetPostByIdQuery,
   useGetPostsByIdsQuery,
   useLazyGetPostsByIdsQuery,
   useUpdatePostByIdMutation,
   useVotePostMutation,
+  useSavePostMutation,
+  useUnsavePostMutation,
+  useListSavedPostsQuery,
+  useLazyListSavedPostsQuery,
   useCreateCommentMutation,
   useListCommentsQuery,
   useLazyListCommentsQuery,

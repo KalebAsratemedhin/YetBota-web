@@ -14,9 +14,19 @@ import { getLocationDetails } from "@/lib/locationDetailsMockData";
 import { useAppSelector } from "@/store/hooks";
 import { useFollowUserMutation, useGetMeQuery, useGetUserByIdQuery, useUnfollowUserMutation } from "@/store/api/authApi";
 import { resolveApiUrl } from "@/lib/resolveApiUrl";
-import { useGetPostByIdQuery, useListCommentsQuery, useVotePostMutation } from "@/store/api/contentApi";
+import {
+  useGetFeedQuery,
+  useGetPostByIdQuery,
+  useGetPostInteractionsQuery,
+  useListCommentsQuery,
+  useSavePostMutation,
+  useUnsavePostMutation,
+  useVotePostMutation,
+} from "@/store/api/contentApi";
 import { useToast } from "@/hooks/use-toast";
 import { getAuthErrorMessage } from "@/lib/authErrors";
+
+const SIMILAR_LIMIT = 6;
 
 function approxTimeLabel(iso?: string): string {
   if (!iso) return "";
@@ -35,59 +45,6 @@ function approxTimeLabel(iso?: string): string {
   if (diffDays > 1 && diffDays < 6) return `${diffDays} days ago`;
 
   return new Intl.DateTimeFormat(undefined, { day: "2-digit", month: "short", year: "numeric" }).format(d);
-}
-
-function voteStorageKey(postId: string) {
-  return `yetbota.postVote.${postId}`;
-}
-
-function readStoredVote(postId: string): "like" | "dislike" | null {
-  if (!postId) return null;
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.localStorage.getItem(voteStorageKey(postId));
-    if (raw === "like" || raw === "dislike") return raw;
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function writeStoredVote(postId: string, vote: "like" | "dislike") {
-  if (!postId) return;
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(voteStorageKey(postId), vote);
-  } catch {
-    // ignore
-  }
-}
-
-function followStorageKey(meId: string, followeeId: string) {
-  return `yetbota.following.${meId}.${followeeId}`;
-}
-
-function readStoredFollowing(meId?: string, followeeId?: string): boolean | null {
-  if (!meId || !followeeId) return null;
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.localStorage.getItem(followStorageKey(meId, followeeId));
-    if (raw === "true") return true;
-    if (raw === "false") return false;
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function writeStoredFollowing(meId: string, followeeId: string, following: boolean) {
-  if (!meId || !followeeId) return;
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(followStorageKey(meId, followeeId), following ? "true" : "false");
-  } catch {
-    // ignore
-  }
 }
 
 export default function LocationDetailsPage() {
@@ -110,11 +67,32 @@ export default function LocationDetailsPage() {
   const { toast } = useToast();
   const currentUserAvatarUrl = me?.user?.profile_url ? resolveApiUrl(me.user.profile_url) : data.currentUserAvatarUrl;
   const [activeTab, setActiveTab] = useState<"comments" | "qa">("comments");
-  const [myVote, setMyVote] = useState<"like" | "dislike" | null>(() => readStoredVote(id));
+
+  // The current user's own vote state (post + comments), fetched from the
+  // server — the single source of truth.
+  const { data: interactions } = useGetPostInteractionsQuery({ id }, { skip: !accessToken || !id });
+  // `undefined` = user hasn't voted this session, so defer to the server value.
+  const [voteOverride, setVoteOverride] = useState<"like" | "dislike" | null | undefined>(undefined);
+  const myVote: "like" | "dislike" | null =
+    voteOverride !== undefined ? voteOverride : interactions?.post_vote ?? null;
   const [votePost, { isLoading: voting }] = useVotePostMutation();
   const [followOverride, setFollowOverride] = useState<boolean | null>(null);
   const [followUser, { isLoading: followLoading }] = useFollowUserMutation();
   const [unfollowUser, { isLoading: unfollowLoading }] = useUnfollowUserMutation();
+  // Bookmark state — server (interactions.saved) is the source of truth; the
+  // override only applies while a save/unsave request is in flight.
+  const [savedOverride, setSavedOverride] = useState<boolean | null>(null);
+  const [savePost, { isLoading: saving }] = useSavePostMutation();
+  const [unsavePost, { isLoading: unsaving }] = useUnsavePostMutation();
+  const isSaved = savedOverride ?? interactions?.saved ?? false;
+
+  // "Similar Places" pulls from the personalized feed (auth-only); drop the
+  // post we're already viewing and cap the grid.
+  const { data: feedRes, isLoading: feedLoading } = useGetFeedQuery(
+    { page_size: SIMILAR_LIMIT + 1 },
+    { skip: !accessToken }
+  );
+  const similarPosts = (feedRes?.posts ?? []).filter((p) => p.id !== id).slice(0, SIMILAR_LIMIT);
 
   const {
     data: commentsRes,
@@ -149,17 +127,16 @@ export default function LocationDetailsPage() {
   const meId = me?.user?.id;
   const authorId = post?.user_id;
   const canFollow = Boolean(meId && authorId && meId !== authorId);
-  const storedFollowing = readStoredFollowing(meId, authorId);
-  const isFollowing = followOverride ?? storedFollowing ?? false;
+  // Server is the source of truth (interactions.following_author); the override
+  // only applies while a follow/unfollow request is in flight.
+  const isFollowing = followOverride ?? interactions?.following_author ?? false;
   const followBusy = followLoading || unfollowLoading;
 
   async function handleToggleFollow() {
     if (!meId || !authorId || meId === authorId) return;
+    const next = !isFollowing;
     try {
-      const next = !isFollowing;
       setFollowOverride(next);
-      writeStoredFollowing(meId, authorId, next);
-
       if (next) {
         await followUser({ followee_id: authorId }).unwrap();
       } else {
@@ -167,29 +144,50 @@ export default function LocationDetailsPage() {
       }
     } catch (err) {
       toast({ variant: "destructive", title: "Failed", description: getAuthErrorMessage(err) });
-      const fallback = readStoredFollowing(meId, authorId);
-      setFollowOverride(fallback ?? false);
+      // Roll back to the server's value.
+      setFollowOverride(null);
+    }
+  }
+
+  async function handleToggleSave() {
+    if (!post?.id) return;
+    const next = !isSaved;
+    try {
+      setSavedOverride(next);
+      if (next) {
+        await savePost({ id: post.id }).unwrap();
+      } else {
+        await unsavePost({ id: post.id }).unwrap();
+      }
+    } catch (err) {
+      toast({ variant: "destructive", title: "Failed", description: getAuthErrorMessage(err) });
+      // Roll back to the server's value.
+      setSavedOverride(null);
     }
   }
 
   async function handleVote(next: "like" | "dislike") {
     if (!post?.id) return;
     try {
-      setMyVote(next);
-      writeStoredVote(post.id, next);
+      setVoteOverride(next);
       await votePost({ id: post.id, body: { vote_type: next } }).unwrap();
       // Update counts via refetch (single source of truth).
       void refetchPost();
     } catch (err) {
       toast({ variant: "destructive", title: "Failed to vote", description: getAuthErrorMessage(err) });
-      const fallback = readStoredVote(post.id);
-      setMyVote(fallback);
+      // Roll back to the server's value.
+      setVoteOverride(undefined);
     }
   }
 
   return (
     <div className="bg-bg text-fg min-h-screen">
-      <LocationDetailsHeader />
+      <LocationDetailsHeader
+        title={heroTitle}
+        saved={isSaved}
+        onToggleSave={accessToken ? () => void handleToggleSave() : undefined}
+        saveLoading={saving || unsaving}
+      />
       <div className="flex max-w-[1440px] mx-auto min-h-screen relative">
         <main className="w-full lg:max-w-4xl lg:mx-auto min-h-screen">
           {postLoading ? (
@@ -232,6 +230,9 @@ export default function LocationDetailsPage() {
                 onVote={(next) => void handleVote(next)}
                 voting={voting}
                 canVote={Boolean(me?.user?.id && post?.user_id && me.user.id !== post.user_id)}
+                saved={isSaved}
+                onToggleSave={() => void handleToggleSave()}
+                saveLoading={saving || unsaving}
               />
             </>
           )}
@@ -241,6 +242,7 @@ export default function LocationDetailsPage() {
                 postId={id}
                 currentUserAvatarUrl={currentUserAvatarUrl}
                 currentUserId={me?.user?.id}
+                commentVotes={interactions?.comment_votes}
                 onCommentPosted={() => {
                   void refetchPost();
                   void refetchComments();
@@ -252,7 +254,7 @@ export default function LocationDetailsPage() {
               <LocationCommunityQaMini items={data.qa} />
             </div>
           )}
-          <SimilarPlacesGrid places={data.similarPlaces} />
+          <SimilarPlacesGrid posts={similarPosts} loading={Boolean(accessToken) && feedLoading} />
         </main>
 
         <LocationRightRail
