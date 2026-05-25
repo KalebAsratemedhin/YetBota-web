@@ -17,6 +17,7 @@ import { useVoteCommentMutation } from "@/store/api/contentApi";
 import { resolveApiUrl } from "@/lib/resolveApiUrl";
 import { getAuthErrorMessage } from "@/lib/authErrors";
 import { useToast } from "@/hooks/use-toast";
+import ReportDialog from "@/components/common/ReportDialog";
 
 function approxTimeLabel(iso: string): string {
   if (!iso) return "";
@@ -134,6 +135,10 @@ export default function QaAnswerCard({ answer, replies, canVote, initialVote, on
   const [showReplies, setShowReplies] = useState(true);
   const [replying, setReplying] = useState(false);
   const [draft, setDraft] = useState("");
+  const [reportOpen, setReportOpen] = useState(false);
+  // Same gate as voting: must be signed in and not the author (self-reports are
+  // rejected server-side anyway).
+  const canReport = canVote;
 
   const visibleReplies = useMemo(() => replies, [replies]);
 
@@ -261,14 +266,25 @@ export default function QaAnswerCard({ answer, replies, canVote, initialVote, on
               <span className="text-xs text-fg-faint">{approxTimeLabel(answer.created_at)}</span>
             </div>
           </div>
-          <button
-            type="button"
-            className="text-fg-faint hover:text-fg-muted transition-colors p-1 rounded-md hover:bg-overlay"
-            aria-label="Flag"
-          >
-            <Flag className="w-4 h-4" />
-          </button>
+          {canReport ? (
+            <button
+              type="button"
+              onClick={() => setReportOpen(true)}
+              className="text-fg-faint hover:text-fg-muted transition-colors p-1 rounded-md hover:bg-overlay"
+              aria-label="Report answer"
+            >
+              <Flag className="w-4 h-4" />
+            </button>
+          ) : null}
         </div>
+
+        <ReportDialog
+          open={reportOpen}
+          onClose={() => setReportOpen(false)}
+          contentType="COMMENT"
+          contentId={answer.id}
+          contentLabel="answer"
+        />
 
         <p className="text-fg-muted mb-4 leading-relaxed whitespace-pre-wrap">{answer.comment}</p>
 

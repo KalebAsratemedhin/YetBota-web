@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Bookmark, Flag, Link2, MoreHorizontal, Send, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ReportDialog from "@/components/common/ReportDialog";
+import type { ModContentType } from "@/types/moderation";
 
 type ShareTarget = { id: string; label: string; href: string };
 
@@ -26,15 +28,29 @@ export default function PostActionMenus({
   saved = false,
   onToggleSave,
   saveLoading,
+  reportContentId,
+  reportContentType = "POST",
+  reportLabel = "post",
+  canReport = true,
 }: {
   shareTitle?: string;
   saved?: boolean;
   onToggleSave?: () => void;
   saveLoading?: boolean;
+  // When `reportContentId` is set and `canReport` is true, the More menu shows
+  // a working Report item that opens the reporting dialog. Omit on content the
+  // user can't report (own content / signed out).
+  reportContentId?: string;
+  reportContentType?: ModContentType;
+  reportLabel?: string;
+  canReport?: boolean;
 }) {
   const { toast } = useToast();
   const [openMenu, setOpenMenu] = useState<"share" | "more" | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
+
+  const showReport = Boolean(reportContentId) && canReport;
 
   useEffect(() => {
     if (!openMenu) return;
@@ -130,6 +146,7 @@ export default function PostActionMenus({
       </div>
 
       {/* More */}
+      {onToggleSave || showReport ? (
       <div className="relative">
         <button
           type="button"
@@ -161,14 +178,34 @@ export default function PostActionMenus({
                 {saved ? "Remove bookmark" : "Bookmark"}
               </button>
             ) : null}
-            {/* Reporting isn't implemented yet — button only. */}
-            <button type="button" role="menuitem" onClick={() => setOpenMenu(null)} className={itemClass}>
-              <Flag className="w-4 h-4 text-fg-muted" />
-              Report
-            </button>
+            {showReport ? (
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setOpenMenu(null);
+                  setReportOpen(true);
+                }}
+                className={itemClass}
+              >
+                <Flag className="w-4 h-4 text-fg-muted" />
+                Report
+              </button>
+            ) : null}
           </div>
         ) : null}
       </div>
+      ) : null}
+
+      {reportContentId ? (
+        <ReportDialog
+          open={reportOpen}
+          onClose={() => setReportOpen(false)}
+          contentType={reportContentType}
+          contentId={reportContentId}
+          contentLabel={reportLabel}
+        />
+      ) : null}
     </div>
   );
 }

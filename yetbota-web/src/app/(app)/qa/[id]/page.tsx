@@ -202,6 +202,9 @@ export default function QaDetailPage() {
         saved={isSaved}
         onToggleSave={accessToken ? () => void handleToggleSave() : undefined}
         saveLoading={saving || unsaving}
+        reportContentId={post?.id}
+        reportLabel={post?.is_question ? "question" : "post"}
+        canReport={Boolean(meId && post?.user_id && meId !== post.user_id)}
       />
 
       <ScrollArea className="h-[calc(100vh-80px)]">

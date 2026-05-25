@@ -15,6 +15,7 @@ import {
 } from "@/store/api/contentApi";
 import DiscoveryPostCard from "@/components/discovery/DiscoveryPostCard";
 import { useAppSelector } from "@/store/hooks";
+import RedirectAdminsToPortal from "@/components/admin/RedirectAdminsToPortal";
 import type { GeoLocation, ListPostsQuery, Post } from "@/types/content";
 
 const PAGE_SIZE = 15;
@@ -447,8 +448,10 @@ function DiscoveryContent() {
 
 export default function DiscoveryPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-bg" />}>
-      <DiscoveryContent />
-    </Suspense>
+    <RedirectAdminsToPortal authedSurface>
+      <Suspense fallback={<div className="min-h-screen bg-bg" />}>
+        <DiscoveryContent />
+      </Suspense>
+    </RedirectAdminsToPortal>
   );
 }

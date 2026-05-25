@@ -10,6 +10,7 @@ import AskMobileBottomNav from "@/components/ask/AskMobileBottomNav";
 import CreatePostLocationModal from "@/components/create/CreatePostLocationModal";
 import { useCreatePostMutation, useGetPostByIdQuery } from "@/store/api/contentApi";
 import { useToast } from "@/hooks/use-toast";
+import RedirectAdminsToPortal from "@/components/admin/RedirectAdminsToPortal";
 
 const DEFAULT_ASK_TAGS = ["Recommendations", "LocalEvents", "Safety", "General"];
 // Holds the in-progress question while the user steps over to /discovery to pick
@@ -162,6 +163,7 @@ export default function AskQuestionPage() {
     : "Help people nearby find your post";
 
   return (
+    <RedirectAdminsToPortal authedSurface>
     <div className="bg-bg text-fg min-h-screen transition-colors duration-200">
       <AskQuestionTopNav title="Ask a Question" onClose={() => router.back()} />
 
@@ -217,5 +219,6 @@ export default function AskQuestionPage() {
         onChange={setLocation}
       />
     </div>
+    </RedirectAdminsToPortal>
   );
 }

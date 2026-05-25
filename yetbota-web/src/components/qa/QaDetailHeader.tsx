@@ -10,6 +10,9 @@ export default function QaDetailHeader({
   saved,
   onToggleSave,
   saveLoading,
+  reportContentId,
+  reportLabel,
+  canReport,
 }: {
   title: string;
   onBack: () => void;
@@ -17,6 +20,9 @@ export default function QaDetailHeader({
   saved?: boolean;
   onToggleSave?: () => void;
   saveLoading?: boolean;
+  reportContentId?: string;
+  reportLabel?: string;
+  canReport?: boolean;
 }) {
   return (
     <nav className="sticky top-0 z-40 border-b border-border-subtle bg-surface/95 backdrop-blur-md shadow-[0_4px_24px_-12px_rgba(15,23,42,0.12)] dark:shadow-[0_4px_24px_-12px_rgba(0,0,0,0.6)]">
@@ -38,6 +44,10 @@ export default function QaDetailHeader({
           saved={saved}
           onToggleSave={onToggleSave}
           saveLoading={saveLoading}
+          reportContentId={reportContentId}
+          reportContentType="POST"
+          reportLabel={reportLabel}
+          canReport={canReport}
         />
       </div>
     </nav>

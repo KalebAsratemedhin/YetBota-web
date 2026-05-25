@@ -9,11 +9,15 @@ export default function LocationDetailsHeader({
   saved = false,
   onToggleSave,
   saveLoading,
+  reportContentId,
+  canReport,
 }: {
   title?: string;
   saved?: boolean;
   onToggleSave?: () => void;
   saveLoading?: boolean;
+  reportContentId?: string;
+  canReport?: boolean;
 }) {
   const router = useRouter();
 
@@ -37,6 +41,10 @@ export default function LocationDetailsHeader({
           saved={saved}
           onToggleSave={onToggleSave}
           saveLoading={saveLoading}
+          reportContentId={reportContentId}
+          reportContentType="POST"
+          reportLabel="post"
+          canReport={canReport}
         />
       </div>
     </header>

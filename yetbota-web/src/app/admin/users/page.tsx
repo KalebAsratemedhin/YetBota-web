@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import {
   Search,
@@ -10,7 +9,6 @@ import {
   BadgeCheck,
   Ban,
   RotateCcw,
-  Eye,
 } from "lucide-react";
 import {
   PageHeader,
@@ -164,21 +162,15 @@ function UserRow({ user, onChanged }: { user: UserPrivate; onChanged: () => void
             disabled={isLoading}
             title={banned ? "Lift ban" : "Ban user"}
             className={cn(
-              "rounded-lg p-2 transition-all disabled:opacity-40",
+              "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all disabled:opacity-40",
               banned
                 ? "text-brand hover:bg-brand/10"
-                : "text-fg-faint hover:bg-red-500/10 hover:text-red-500"
+                : "text-fg-muted hover:bg-red-500/10 hover:text-red-500"
             )}
           >
-            {banned ? <RotateCcw className="h-[18px] w-[18px]" /> : <Ban className="h-[18px] w-[18px]" />}
+            {banned ? <RotateCcw className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
+            {banned ? "Unban" : "Ban"}
           </button>
-          <Link
-            href={`/users/${user.id}`}
-            title="View profile"
-            className="rounded-lg p-2 text-fg-faint transition-all hover:bg-overlay hover:text-fg"
-          >
-            <Eye className="h-[18px] w-[18px]" />
-          </Link>
         </div>
       </td>
     </tr>

@@ -7,6 +7,7 @@ import { Menu, X } from "lucide-react";
 import { useAppSelector } from "@/store/hooks";
 import { useGetMeQuery } from "@/store/api/authApi";
 import { mapUserPrivateToSidebarUser } from "@/lib/mapUserPrivateToSidebarUser";
+import RedirectAdminsToPortal from "@/components/admin/RedirectAdminsToPortal";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const accessToken = useAppSelector((s) => s.auth.accessToken);
@@ -15,6 +16,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
+    <RedirectAdminsToPortal authedSurface>
     <div className="flex h-dvh bg-bg overflow-hidden">
       <AppSidebar
         user={{ name: user.name, role: user.role, level: user.level, avatarUrl: user.avatarUrl }}
@@ -68,6 +70,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="h-full overflow-y-auto">{children}</div>
       </div>
     </div>
+    </RedirectAdminsToPortal>
   );
 }
 
