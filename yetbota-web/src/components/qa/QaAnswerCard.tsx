@@ -11,7 +11,6 @@ import {
   Reply as ReplyIcon,
 } from "lucide-react";
 import type { Comment } from "@/types/content";
-import { useAppSelector } from "@/store/hooks";
 import { useGetUserByIdQuery } from "@/store/api/authApi";
 import { useVoteCommentMutation } from "@/store/api/contentApi";
 import { resolveApiUrl } from "@/lib/resolveApiUrl";
@@ -35,10 +34,10 @@ function approxTimeLabel(iso: string): string {
 }
 
 function useAuthor(userId: string | undefined) {
-  const accessToken = useAppSelector((s) => s.auth.accessToken);
+  // GET /v1/users/{id} is a public profile read — no auth gate needed.
   const { data } = useGetUserByIdQuery(
     { id: userId ?? "", resolution: "WEB" },
-    { skip: !accessToken || !userId }
+    { skip: !userId }
   );
   const user = data?.user;
   const name = user

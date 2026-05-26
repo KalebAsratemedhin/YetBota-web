@@ -1,7 +1,9 @@
 "use client";
 
-import { Coffee, LocateFixed, Search, TrendingUp } from "lucide-react";
+import { useMemo } from "react";
+import { LocateFixed, Search, TrendingUp } from "lucide-react";
 import { DISCOVERY_FILTER_CHIPS } from "@/lib/discoveryMockData";
+import { useTrendingPosts } from "@/lib/useTrendingPosts";
 
 export type DiscoverySort = "proximity" | "trending" | null;
 
@@ -29,6 +31,20 @@ export default function DiscoveryFilters({
   const baseBtn = "w-full flex items-center gap-3 p-3 rounded-xl font-medium transition-colors";
   const activeBtn = "bg-brand text-white shadow-lg shadow-brand/20";
   const idleBtn = "hover:bg-brand/10";
+
+  // Popular tags = the static chips plus tags surfaced from trending posts,
+  // deduped (same RTK query as the right rail, so no extra request).
+  const { posts: trendingPlaces } = useTrendingPosts({ isQuestion: false, limit: 4 });
+  const popularTags = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          ...DISCOVERY_FILTER_CHIPS.map((c) => c.id),
+          ...trendingPlaces.flatMap((p) => p.tags ?? []),
+        ])
+      ),
+    [trendingPlaces]
+  );
 
   return (
     <div className="w-full">
@@ -65,14 +81,6 @@ export default function DiscoveryFilters({
             >
               <TrendingUp className="w-4 h-4" /> Trending
             </button>
-            <button
-              type="button"
-              onClick={() => onToggleTag("coffee")}
-              aria-pressed={tags.includes("coffee")}
-              className={`${baseBtn} ${tags.includes("coffee") ? activeBtn : idleBtn}`}
-            >
-              <Coffee className="w-4 h-4" /> Coffee Houses
-            </button>
           </div>
           {geoError ? <p className="mt-3 text-xs text-red-500">{geoError}</p> : null}
         </div>
@@ -82,13 +90,13 @@ export default function DiscoveryFilters({
             Popular Tags
           </h3>
           <div className="flex flex-wrap gap-2">
-            {DISCOVERY_FILTER_CHIPS.map((chip) => {
-              const active = tags.includes(chip.id);
+            {popularTags.map((tag) => {
+              const active = tags.includes(tag);
               return (
                 <button
                   type="button"
-                  key={chip.id}
-                  onClick={() => onToggleTag(chip.id)}
+                  key={tag}
+                  onClick={() => onToggleTag(tag)}
                   aria-pressed={active}
                   className={
                     "px-3 py-1 rounded-full text-sm font-medium transition-colors border " +
@@ -97,7 +105,7 @@ export default function DiscoveryFilters({
                       : "bg-brand/5 border-brand/15 hover:bg-brand/10 hover:text-brand")
                   }
                 >
-                  #{chip.id}
+                  #{tag}
                 </button>
               );
             })}

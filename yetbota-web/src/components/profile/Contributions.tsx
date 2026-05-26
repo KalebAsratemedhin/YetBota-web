@@ -12,6 +12,8 @@ import type { Post } from "@/types/content";
 type ContributionTab = "locations" | "questions" | "saved";
 
 const PAGE_SIZE = 8;
+// Signed-out visitors get a teaser of someone else's profile before a sign-in prompt.
+const PREVIEW_LIMIT = 3;
 
 function fmtDate(iso?: string | null): string {
   if (!iso) return "";
@@ -124,6 +126,11 @@ export default function ContributionsGrid({ userId: userIdProp }: { userId?: str
   const posts = (isSavedTab ? savedData?.posts : postsData?.posts) ?? [];
   const loading = isSavedTab ? savedFetching : postsFetching;
 
+  // Signed-out viewers of another user's profile see only a few posts, then a
+  // sign-in prompt.
+  const previewOnly = !accessToken && Boolean(userIdProp);
+  const visiblePosts = previewOnly ? posts.slice(0, PREVIEW_LIMIT) : posts;
+
   const emptyText = isSavedTab
     ? "You haven't saved any posts yet."
     : tab === "questions"
@@ -173,7 +180,23 @@ export default function ContributionsGrid({ userId: userIdProp }: { userId?: str
             <div key={i} className="bg-surface border border-border-subtle rounded-xl aspect-[5/4] animate-pulse" />
           ))
         ) : posts.length > 0 ? (
-          posts.map((p) => <PostCard key={p.id} post={p} />)
+          <>
+            {visiblePosts.map((p) => <PostCard key={p.id} post={p} />)}
+            {previewOnly && (
+              <div className="col-span-1 sm:col-span-2 lg:col-span-3 bg-surface border border-border-subtle rounded-xl p-6 text-center flex flex-col items-center gap-1.5">
+                <p className="text-fg font-semibold text-sm">Sign in to see more</p>
+                <p className="text-fg-muted text-xs">
+                  Create a free account to view this member&apos;s full activity.
+                </p>
+                <Link
+                  href="/signin"
+                  className="mt-2 inline-flex items-center justify-center h-9 px-5 rounded-xl bg-brand text-black font-semibold text-sm hover:bg-brand-dark transition-colors"
+                >
+                  Sign in
+                </Link>
+              </div>
+            )}
+          </>
         ) : (
           <div className="col-span-1 sm:col-span-2 lg:col-span-3 bg-surface border border-border-subtle rounded-xl p-6 text-sm text-fg-muted flex items-center justify-between gap-4">
             <div>

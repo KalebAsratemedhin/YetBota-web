@@ -2,10 +2,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import {
-  Home, Compass, MessageSquare, Sparkles, User, Settings
-} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronUp, Home, Compass, Bell, MessageSquare, Sparkles, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import UserMenu from "@/components/shared/UserMenu";
 
 export interface SidebarUser {
   name: string;
@@ -26,6 +26,7 @@ interface AppSidebarProps {
 export const NAV_ITEMS = [
   { id: "home",      label: "Home",         icon: Home,          href: "/"          },
   { id: "discover",  label: "Discover",     icon: Compass,       href: "/discovery" },
+  { id: "notifications", label: "Notifications", icon: Bell,    href: "/notifications" },
   { id: "qa",        label: "QA Feed",      icon: MessageSquare, href: "/qa"        },
   { id: "assistant", label: "AI Assistant", icon: Sparkles,      href: "/assistant" },
   { id: "profile",   label: "Profile",      icon: User,          href: "/profile"   },
@@ -34,6 +35,25 @@ export const NAV_ITEMS = [
 export default function AppSidebar({ user, children, title = "Yet Bota", className, onNavigate }: AppSidebarProps) {
   const pathname = usePathname();
   const initials = user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function onDocPointerDown(e: PointerEvent) {
+      const el = menuRef.current;
+      if (el && e.target instanceof Node && !el.contains(e.target)) setMenuOpen(false);
+    }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setMenuOpen(false);
+    }
+    document.addEventListener("pointerdown", onDocPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onDocPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [menuOpen]);
 
   return (
     <aside
@@ -60,7 +80,10 @@ export default function AppSidebar({ user, children, title = "Yet Bota", classNa
       <nav className="px-3 py-4 shrink-0">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          const isActive =
+            item.href === "/"
+              ? pathname === "/"
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.id}
@@ -90,8 +113,23 @@ export default function AppSidebar({ user, children, title = "Yet Bota", classNa
       {!children && <div className="flex-1" />}
 
       {/* User footer */}
-      <div className="px-5 py-4 border-t border-border-subtle flex items-center justify-between gap-2 shrink-0">
-        <Link href="/profile" className="flex items-center gap-2 min-w-0 group">
+      <div className="relative px-3 py-4 border-t border-border-subtle shrink-0" ref={menuRef}>
+        {menuOpen && (
+          <UserMenu
+            className="absolute bottom-full left-3 right-3 mb-2"
+            onClose={() => {
+              setMenuOpen(false);
+              onNavigate?.();
+            }}
+          />
+        )}
+        <button
+          type="button"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          className="w-full flex items-center gap-2 min-w-0 px-2 py-1.5 rounded-xl hover:bg-overlay transition-colors"
+        >
           <div className="w-7 h-7 rounded-full bg-brand overflow-hidden flex items-center justify-center shrink-0">
             {user.avatarUrl ? (
               <Image alt="" src={user.avatarUrl} width={28} height={28} className="w-full h-full object-cover" unoptimized />
@@ -99,17 +137,18 @@ export default function AppSidebar({ user, children, title = "Yet Bota", classNa
               <span className="text-black text-[10px] font-bold">{initials}</span>
             )}
           </div>
-          <div className="min-w-0">
-            <p className="text-fg text-xs font-semibold truncate group-hover:text-brand transition-colors">
-              {user.name}
-            </p>
+          <div className="min-w-0 text-left">
+            <p className="text-fg text-xs font-semibold truncate">{user.name}</p>
             <p className="text-[10px] text-fg-muted truncate">
               {user.level ? `Level ${user.level}` : user.role}
             </p>
           </div>
-        </Link>
-        <button type="button" className="shrink-0 hover:bg-overlay p-1 rounded-lg transition-colors">
-          <Settings className="w-3.5 h-3.5 text-fg-muted" />
+          <ChevronUp
+            className={cn(
+              "w-4 h-4 text-fg-muted shrink-0 ml-auto transition-transform",
+              menuOpen ? "" : "rotate-180"
+            )}
+          />
         </button>
       </div>
     </aside>

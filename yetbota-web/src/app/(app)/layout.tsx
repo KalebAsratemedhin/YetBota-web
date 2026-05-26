@@ -8,6 +8,7 @@ import { useAppSelector } from "@/store/hooks";
 import { useGetMeQuery } from "@/store/api/authApi";
 import { mapUserPrivateToSidebarUser } from "@/lib/mapUserPrivateToSidebarUser";
 import RedirectAdminsToPortal from "@/components/admin/RedirectAdminsToPortal";
+import PushRegistration from "@/components/notifications/PushRegistration";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const accessToken = useAppSelector((s) => s.auth.accessToken);
@@ -17,6 +18,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <RedirectAdminsToPortal authedSurface>
+    <PushRegistration />
     <div className="flex h-dvh bg-bg overflow-hidden">
       <AppSidebar
         user={{ name: user.name, role: user.role, level: user.level, avatarUrl: user.avatarUrl }}
