@@ -3,7 +3,6 @@
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ReputationCard from "@/components/profile/ReputationCard";
 import BadgesCard from "@/components/profile/BadgesCard";
-import RecentActivityCard from "@/components/profile/RecentActivityCard";
 import ContributionsGrid from "@/components/profile/Contributions";
 import { MOCK_PROFILE_USER } from "@/lib/profileMockData";
 import { mapUserPrivateToProfileUser } from "@/lib/mapUserPrivateToProfileUser";
@@ -58,10 +57,7 @@ export default function ProfileContent() {
             <BadgesCard badges={user.badges} />
           </div>
 
-          <div className="col-span-12 lg:col-span-4">
-            <RecentActivityCard />
-          </div>
-          <div className="col-span-12 lg:col-span-8">
+          <div className="col-span-12">
             <ContributionsGrid />
           </div>
         </div>

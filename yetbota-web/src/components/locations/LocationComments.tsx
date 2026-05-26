@@ -48,7 +48,6 @@ function CommentNode({
   commentById,
   currentUserAvatarUrl,
   currentUserId,
-  commentVotes,
   onRefetch,
 }: {
   c: Comment;
@@ -57,9 +56,6 @@ function CommentNode({
   commentById: Map<string, Comment>;
   currentUserAvatarUrl: string;
   currentUserId?: string;
-  // The current user's votes keyed by comment id. `undefined` until the
-  // interactions endpoint resolves; an object (possibly `{}`) once loaded.
-  commentVotes?: Record<string, "upvote" | "downvote">;
   onRefetch: () => void;
 }) {
   const accessToken = useAppSelector((s) => s.auth.accessToken);
@@ -72,10 +68,11 @@ function CommentNode({
   const [createComment, { isLoading: replying }] = useCreateCommentMutation();
   const [replyOpen, setReplyOpen] = useState(false);
   const [replyText, setReplyText] = useState("");
-  // `undefined` = user hasn't voted this session; defer to the server value.
+  // `undefined` = user hasn't voted this session; defer to the server value
+  // (the comment's own user_vote, from the comments list API).
   const [myVoteOverride, setMyVoteOverride] = useState<"upvote" | "downvote" | null | undefined>(undefined);
   const myVote: "upvote" | "downvote" | null =
-    myVoteOverride !== undefined ? myVoteOverride : commentVotes?.[c.id] ?? null;
+    myVoteOverride !== undefined ? myVoteOverride : c.user_vote ?? null;
   const [voteOverride, setVoteOverride] = useState<{ upvote: number; downvote: number } | null>(null);
   const upCount = voteOverride?.upvote ?? (typeof c.upvote === "number" ? c.upvote : 0);
   const downCount = voteOverride?.downvote ?? (typeof c.downvote === "number" ? c.downvote : 0);
@@ -278,7 +275,6 @@ function CommentNode({
               commentById={commentById}
               currentUserAvatarUrl={currentUserAvatarUrl}
               currentUserId={currentUserId}
-              commentVotes={commentVotes}
               onRefetch={onRefetch}
             />
           ))}
@@ -292,13 +288,11 @@ export default function LocationComments({
   postId,
   currentUserAvatarUrl,
   currentUserId,
-  commentVotes,
   onCommentPosted,
 }: {
   postId: string;
   currentUserAvatarUrl: string;
   currentUserId?: string;
-  commentVotes?: Record<string, "upvote" | "downvote">;
   onCommentPosted?: () => void;
 }) {
   const accessToken = useAppSelector((s) => s.auth.accessToken);
@@ -413,7 +407,6 @@ export default function LocationComments({
               commentById={commentById}
               currentUserAvatarUrl={currentUserAvatarUrl}
               currentUserId={currentUserId}
-              commentVotes={commentVotes}
               onRefetch={() => {
                 void refetch();
                 onCommentPosted?.();

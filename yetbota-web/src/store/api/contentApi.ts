@@ -13,7 +13,6 @@ import type {
   ListPostsResponseData,
   MarkFeedViewedRequest,
   Post,
-  PostInteractions,
   Resolution,
   SaveResult,
   SavedPostsQuery,
@@ -70,13 +69,6 @@ export const contentApi = contentBaseApi.injectEndpoints({
     markFeedViewed: builder.mutation<void, MarkFeedViewedRequest>({
       query: (body) => ({ url: "/feed/viewed", method: "POST", body }),
     }),
-    getPostInteractions: builder.query<PostInteractions, { id: string }>({
-      query: ({ id }) => ({
-        url: `/posts/${encodeURIComponent(id)}/interactions`,
-        method: "GET",
-      }),
-      providesTags: ["Content"],
-    }),
     getPostById: builder.query<CreatePostResponseData, { id: string; resolution?: Resolution }>({
       query: ({ id, resolution }) => ({
         url: `/posts/${encodeURIComponent(id)}`,
@@ -129,8 +121,13 @@ export const contentApi = contentBaseApi.injectEndpoints({
       query: ({ id }) => ({ url: `/posts/${encodeURIComponent(id)}/save`, method: "DELETE" }),
       invalidatesTags: ["Content"],
     }),
+    // GET /posts/saved was removed; the saved list is now the post list filtered
+    // to the caller's bookmarks. Requires a token for saved=true to resolve.
     listSavedPosts: builder.query<ListPostsResponseData, SavedPostsQuery | void>({
-      query: (arg) => ({ url: "/posts/saved", method: "GET", params: arg ?? undefined }),
+      query: (arg) => {
+        const qs = buildListPostsParams({ ...(arg ?? {}), saved: true });
+        return { url: `/posts/?${qs}`, method: "GET" };
+      },
       providesTags: ["Content"],
     }),
 
@@ -164,8 +161,6 @@ export const {
   useGetFeedQuery,
   useLazyGetFeedQuery,
   useMarkFeedViewedMutation,
-  useGetPostInteractionsQuery,
-  useLazyGetPostInteractionsQuery,
   useGetPostByIdQuery,
   useLazyGetPostByIdQuery,
   useGetPostsByIdsQuery,

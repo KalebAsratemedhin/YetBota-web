@@ -55,6 +55,11 @@ export const moderationApi = contentBaseApi.injectEndpoints({
       invalidatesTags: (_result, _err, arg) => [
         { type: "ModerationCase" as const, id: arg.id },
         { type: "ModerationCase" as const, id: LIST_ID },
+        // A moderation action writes the audit trail and shifts overview/report
+        // counts, so refresh those admin dashboard reads too.
+        { type: "AdminAudit" as const, id: LIST_ID },
+        { type: "AdminStats" as const, id: "ACTIVITY" },
+        { type: "AdminStats" as const, id: "OVERVIEW" },
       ],
     }),
 

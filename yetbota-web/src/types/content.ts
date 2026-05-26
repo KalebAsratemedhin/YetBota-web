@@ -35,6 +35,15 @@ export interface Post {
   address?: string;
   created_at: string;
   updated_at: string;
+
+  // Viewer-specific state, populated only on authenticated reads (post details
+  // and list); absent on anonymous calls. Replaces the removed
+  // GET /posts/{id}/interactions endpoint. The post vote is serialized as
+  // `interaction` (omitted when the caller hasn't voted); comment votes come
+  // from the comments list API (see Comment.user_vote), not the post.
+  interaction?: VoteTypePost;
+  saved?: boolean;
+  following_author?: boolean;
 }
 
 export interface ListPostsQuery {
@@ -43,6 +52,11 @@ export interface ListPostsQuery {
   tags?: string[];
   is_question?: boolean;
   search?: string;
+  // Caller's saved posts only (requires a token). Replaces GET /posts/saved.
+  saved?: boolean;
+  // Questions attached to this post. Combine with is_question=true to replace
+  // the removed GET /posts/{id}/questions.
+  attached_post_id?: string;
 
   // Geo-radius (all three required together if any one is provided)
   near_lat?: number;
@@ -87,26 +101,11 @@ export interface MarkFeedViewedRequest {
   post_ids: string[];
 }
 
-// GET /v1/posts/{id}/interactions — the *current user's* own vote state for a
-// post and its comments. Aggregate counts still come from the post/comment
-// read endpoints; this is purely "what did I vote".
-export interface PostInteractions {
-  // null when the user hasn't voted on the post.
-  post_vote: VoteTypePost | null;
-  // commentId -> vote. Only voted-on comments appear; {} if none.
-  comment_votes: Record<string, VoteTypeComment>;
-  // true if the caller follows the post's author. Always false when the
-  // caller is the author.
-  following_author: boolean;
-  // true if the caller has saved/bookmarked the post.
-  saved: boolean;
-}
-
 // POST/DELETE /v1/posts/{id}/save — toggle a bookmark. Returns the new state.
 export type SaveResult = { saved: boolean };
 
-// GET /v1/posts/saved — the caller's saved posts, most-recently-saved first.
-// Response shape is identical to ListPostsResponseData.
+// The caller's saved posts. Fetched via GET /posts/?saved=true (the dedicated
+// GET /posts/saved endpoint was removed); response shape is ListPostsResponseData.
 export interface SavedPostsQuery {
   page?: number;
   page_size?: number;
@@ -152,6 +151,10 @@ export interface Comment {
   comment_id?: string;
   created_at: string;
   updated_at: string;
+  // The caller's vote on this comment (authenticated reads only); omitted/null
+  // if they haven't voted. Replaces the per-comment entry of the removed
+  // interactions endpoint's comment_votes map.
+  user_vote?: VoteTypeComment | null;
 }
 
 export interface CreateCommentRequest {

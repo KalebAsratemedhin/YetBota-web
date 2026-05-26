@@ -120,6 +120,8 @@ function DiscoveryContent() {
       searchLoadingRef.current = true;
       try {
         const query: ListPostsQuery = {
+          // Discovery surfaces posts, not questions (those live in the Q&A feed).
+          is_question: false,
           search: debouncedSearch || undefined,
           tags: tags.length ? tags : undefined,
           sort_by: sort === "trending" ? "likes" : undefined,
@@ -302,14 +304,17 @@ function DiscoveryContent() {
         </div>
       );
     }
-    if (feedPosts.length === 0) {
+    // The personalized feed (/v1/feed) can't filter by type, so drop questions
+    // here — discovery surfaces posts, not questions (those live in the Q&A feed).
+    const postFeedPosts = feedPosts.filter((p) => !p.is_question);
+    if (postFeedPosts.length === 0 && feedReachedEnd) {
       return (
         <div className="bg-overlay border border-border-subtle rounded-3xl p-6 text-sm text-fg-muted">
           Your feed is empty for now. Check back soon.
         </div>
       );
     }
-    return renderPostList(feedPosts, !feedReachedEnd, feedFetching);
+    return renderPostList(postFeedPosts, !feedReachedEnd, feedFetching);
   }
 
   return (

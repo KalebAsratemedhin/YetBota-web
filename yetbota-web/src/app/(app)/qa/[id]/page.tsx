@@ -12,7 +12,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   useCreateCommentMutation,
   useGetPostByIdQuery,
-  useGetPostInteractionsQuery,
   useListCommentsQuery,
   useSavePostMutation,
   useUnsavePostMutation,
@@ -65,11 +64,10 @@ export default function QaDetailPage() {
   const [sort, setSort] = useState<SortKey>("top");
   const [sortOpen, setSortOpen] = useState(false);
 
-  // Bookmark — server (interactions.saved) is the source of truth; the override
+  // Bookmark — post details (post.saved) is the source of truth; the override
   // only applies while a save/unsave request is in flight.
-  const { data: interactions } = useGetPostInteractionsQuery({ id }, { skip: !accessToken || !id });
   const [savedOverride, setSavedOverride] = useState<boolean | null>(null);
-  const isSaved = savedOverride ?? interactions?.saved ?? false;
+  const isSaved = savedOverride ?? post?.saved ?? false;
   const [savePost, { isLoading: saving }] = useSavePostMutation();
   const [unsavePost, { isLoading: unsaving }] = useUnsavePostMutation();
 
@@ -89,10 +87,10 @@ export default function QaDetailPage() {
     }
   }
 
-  // Question (post) vote — server (interactions.post_vote) is the source of
+  // Question (post) vote — post details (post.interaction) is the source of
   // truth; the override applies while the request is in flight.
   const [postVoteOverride, setPostVoteOverride] = useState<"like" | "dislike" | null | undefined>(undefined);
-  const myPostVote = postVoteOverride !== undefined ? postVoteOverride : interactions?.post_vote ?? null;
+  const myPostVote = postVoteOverride !== undefined ? postVoteOverride : post?.interaction ?? null;
   const [votePost, { isLoading: votingPost }] = useVotePostMutation();
   const canVotePost = Boolean(meId && post?.user_id && meId !== post.user_id);
 
@@ -295,7 +293,7 @@ export default function QaDetailPage() {
                         answer={a}
                         replies={repliesByAnswer.get(a.id) ?? []}
                         canVote={Boolean(meId && meId !== a.user_id)}
-                        initialVote={interactions?.comment_votes?.[a.id] ?? null}
+                        initialVote={a.user_vote ?? null}
                         onReply={accessToken ? (t) => handleReply(a.id, t) : undefined}
                       />
                     ))}

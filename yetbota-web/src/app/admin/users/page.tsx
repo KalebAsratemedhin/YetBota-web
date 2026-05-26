@@ -18,11 +18,13 @@ import {
   type Tone,
 } from "@/components/admin/AdminUI";
 import { useListUsersQuery, useUpdateUserByIdMutation } from "@/store/api/authApi";
+import { useGetAdminUserStatsQuery } from "@/store/api/adminApi";
 import { USER_STATUS, isBanned, isInactive } from "@/lib/adminRole";
 import { earnedBadges } from "@/lib/badges";
 import { tierProgress } from "@/lib/badges";
 import { resolveApiUrl } from "@/lib/resolveApiUrl";
 import { getAuthErrorMessage } from "@/lib/authErrors";
+import { formatChangePct, trendTone } from "@/lib/adminDashboard";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import type { UserPrivate } from "@/types/auth";
@@ -178,7 +180,6 @@ function UserRow({ user, onChanged }: { user: UserPrivate; onChanged: () => void
 }
 
 export default function AdminUsersPage() {
-  const { toast } = useToast();
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
@@ -196,7 +197,8 @@ export default function AdminUsersPage() {
   const { data, isLoading, isFetching, isError, refetch } = useListUsersQuery({
     limit: PAGE_SIZE,
     page,
-    username: search || undefined,
+    // `q` searches username + first/last name (no email column on the backend).
+    q: search || undefined,
     status: status || undefined,
   });
 
@@ -206,6 +208,7 @@ export default function AdminUsersPage() {
     limit: 1,
     status: USER_STATUS.BANNED,
   });
+  const { data: userStats } = useGetAdminUserStatsQuery();
 
   // updateUserById only invalidates the id-specific User tag, so the list and
   // banned count (which provide the general tag) need an explicit refetch.
@@ -228,8 +231,26 @@ export default function AdminUsersPage() {
         icon: UsersIcon,
         iconTone: "brand" as Tone,
       },
-      { label: "Newly Joined Today", value: "145", delta: "+5%", deltaTone: "brand" as Tone, icon: UserPlus, iconTone: "brand" as Tone },
-      { label: "High Reputation Users", value: "3,421", icon: BadgeCheck, iconTone: "blue" as Tone },
+      {
+        label: "Newly Joined Today",
+        value: userStats ? userStats.newly_joined_today.value.toLocaleString() : "—",
+        delta: formatChangePct(userStats?.newly_joined_today.change_pct),
+        deltaTone: trendTone(
+          userStats && userStats.newly_joined_today.change_pct !== undefined
+            ? userStats.newly_joined_today.change_pct >= 0
+              ? "up"
+              : "down"
+            : "flat"
+        ),
+        icon: UserPlus,
+        iconTone: "brand" as Tone,
+      },
+      {
+        label: "High Reputation Users",
+        value: userStats ? userStats.high_reputation_users.value.toLocaleString() : "—",
+        icon: BadgeCheck,
+        iconTone: "blue" as Tone,
+      },
       {
         label: "Banned Users",
         value: bannedData ? bannedData.pagination.total.toLocaleString() : "—",
@@ -237,7 +258,7 @@ export default function AdminUsersPage() {
         iconTone: "red" as Tone,
       },
     ],
-    [totalData, bannedData]
+    [totalData, bannedData, userStats]
   );
 
   return (
@@ -261,7 +282,7 @@ export default function AdminUsersPage() {
             type="search"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search by username..."
+            placeholder="Search by name or username..."
             className="w-full rounded-xl border border-border-subtle bg-surface-2 py-2.5 pl-10 pr-4 text-sm text-fg outline-none transition-all placeholder:text-fg-faint focus:border-brand/50 focus:ring-1 focus:ring-brand/20"
           />
         </div>
@@ -279,19 +300,6 @@ export default function AdminUsersPage() {
             </option>
           ))}
         </select>
-        <button
-          type="button"
-          onClick={() =>
-            toast({
-              title: "Not available yet",
-              description: "Admin user creation isn't wired to the backend.",
-            })
-          }
-          className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
-        >
-          <UserPlus className="h-4 w-4" />
-          Add User
-        </button>
       </div>
 
       {/* Table */}

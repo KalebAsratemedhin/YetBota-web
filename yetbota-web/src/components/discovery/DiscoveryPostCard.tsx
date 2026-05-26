@@ -47,6 +47,10 @@ export default function DiscoveryPostCard({ post }: { post: Post }) {
         tags: post.tags ?? [],
         likes: compactNum(post.likes ?? 0),
         comments: compactNum(post.comments ?? 0),
+        // Viewer state from the (authenticated) feed/list response; absent on
+        // anonymous reads, in which case both default to off.
+        liked: post.interaction === "like",
+        bookmarked: post.saved ?? false,
       }}
     />
   );

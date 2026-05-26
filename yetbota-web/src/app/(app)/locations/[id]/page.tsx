@@ -6,7 +6,7 @@ import LocationDetailsHeader from "@/components/locations/LocationDetailsHeader"
 import LocationHero from "@/components/locations/LocationHero";
 import LocationPost from "@/components/locations/LocationPost";
 import LocationComments from "@/components/locations/LocationComments";
-import LocationCommunityQaMini from "@/components/locations/LocationCommunityQaMini";
+import LocationAttachedQa from "@/components/locations/LocationAttachedQa";
 import SimilarPlacesGrid from "@/components/locations/SimilarPlacesGrid";
 import LocationRightRail from "@/components/locations/LocationRightRail";
 import MobileBottomNav from "@/components/locations/MobileBottomNav";
@@ -17,8 +17,8 @@ import { resolveApiUrl } from "@/lib/resolveApiUrl";
 import {
   useGetFeedQuery,
   useGetPostByIdQuery,
-  useGetPostInteractionsQuery,
   useListCommentsQuery,
+  useListPostsQuery,
   useSavePostMutation,
   useUnsavePostMutation,
   useVotePostMutation,
@@ -68,23 +68,22 @@ export default function LocationDetailsPage() {
   const currentUserAvatarUrl = me?.user?.profile_url ? resolveApiUrl(me.user.profile_url) : data.currentUserAvatarUrl;
   const [activeTab, setActiveTab] = useState<"comments" | "qa">("comments");
 
-  // The current user's own vote state (post + comments), fetched from the
-  // server — the single source of truth.
-  const { data: interactions } = useGetPostInteractionsQuery({ id }, { skip: !accessToken || !id });
+  // The current user's own vote state comes from post details (post.interaction)
+  // — the single source of truth.
   // `undefined` = user hasn't voted this session, so defer to the server value.
   const [voteOverride, setVoteOverride] = useState<"like" | "dislike" | null | undefined>(undefined);
   const myVote: "like" | "dislike" | null =
-    voteOverride !== undefined ? voteOverride : interactions?.post_vote ?? null;
+    voteOverride !== undefined ? voteOverride : post?.interaction ?? null;
   const [votePost, { isLoading: voting }] = useVotePostMutation();
   const [followOverride, setFollowOverride] = useState<boolean | null>(null);
   const [followUser, { isLoading: followLoading }] = useFollowUserMutation();
   const [unfollowUser, { isLoading: unfollowLoading }] = useUnfollowUserMutation();
-  // Bookmark state — server (interactions.saved) is the source of truth; the
+  // Bookmark state — post details (post.saved) is the source of truth; the
   // override only applies while a save/unsave request is in flight.
   const [savedOverride, setSavedOverride] = useState<boolean | null>(null);
   const [savePost, { isLoading: saving }] = useSavePostMutation();
   const [unsavePost, { isLoading: unsaving }] = useUnsavePostMutation();
-  const isSaved = savedOverride ?? interactions?.saved ?? false;
+  const isSaved = savedOverride ?? post?.saved ?? false;
 
   // "Similar Places" pulls from the personalized feed (auth-only); drop the
   // post we're already viewing and cap the grid.
@@ -99,7 +98,28 @@ export default function LocationDetailsPage() {
     refetch: refetchComments,
   } = useListCommentsQuery({ post_id: id }, { skip: !accessToken || !id });
   const commentCount = (commentsRes?.comments ?? []).filter((c) => !c.comment_id && !c.is_answer).length;
-  const qaCount = (commentsRes?.comments ?? []).filter((c) => !c.comment_id && c.is_answer).length;
+
+  // Community Q&A — questions attached to this post (GET /v1/posts/ filtered to
+  // questions whose attached_post_id is this post). Public/optional-auth.
+  const {
+    data: attachedQaRes,
+    isLoading: qaLoading,
+    isError: qaError,
+  } = useListPostsQuery(
+    {
+      is_question: true,
+      attached_post_id: id,
+      page: 1,
+      page_size: 6,
+      sort_by: "created_at",
+      sort_dir: "desc",
+      resolution: "WEB",
+    },
+    { skip: !id }
+  );
+  const attachedQuestions = attachedQaRes?.posts ?? [];
+  const qaCount =
+    typeof attachedQaRes?.total === "number" ? attachedQaRes.total : attachedQuestions.length;
 
   const heroTitle = post?.title ?? data.title;
   const heroImageUrl = post?.photos?.[0]?.photo_url ?? data.heroImageUrl;
@@ -127,9 +147,9 @@ export default function LocationDetailsPage() {
   const meId = me?.user?.id;
   const authorId = post?.user_id;
   const canFollow = Boolean(meId && authorId && meId !== authorId);
-  // Server is the source of truth (interactions.following_author); the override
+  // Post details (post.following_author) is the source of truth; the override
   // only applies while a follow/unfollow request is in flight.
-  const isFollowing = followOverride ?? interactions?.following_author ?? false;
+  const isFollowing = followOverride ?? post?.following_author ?? false;
   const followBusy = followLoading || unfollowLoading;
 
   async function handleToggleFollow() {
@@ -244,7 +264,6 @@ export default function LocationDetailsPage() {
                 postId={id}
                 currentUserAvatarUrl={currentUserAvatarUrl}
                 currentUserId={me?.user?.id}
-                commentVotes={interactions?.comment_votes}
                 onCommentPosted={() => {
                   void refetchPost();
                   void refetchComments();
@@ -253,7 +272,7 @@ export default function LocationDetailsPage() {
             </div>
           ) : (
             <div id="community-qa">
-              <LocationCommunityQaMini items={data.qa} />
+              <LocationAttachedQa posts={attachedQuestions} loading={qaLoading} error={qaError} />
             </div>
           )}
           <SimilarPlacesGrid posts={similarPosts} loading={Boolean(accessToken) && feedLoading} />

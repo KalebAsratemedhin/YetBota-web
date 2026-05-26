@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   Flag,
   Users,
-  Terminal,
   Settings,
   LogOut,
   Moon,
@@ -28,7 +27,6 @@ const NAV_ITEMS = [
   { label: "Overview", icon: LayoutDashboard, href: "/admin" },
   { label: "Reports", icon: Flag, href: "/admin/reports" },
   { label: "Users", icon: Users, href: "/admin/users" },
-  { label: "System Logs", icon: Terminal, href: "/admin/system-logs" },
   { label: "Settings", icon: Settings, href: "/admin/settings" },
 ];
 

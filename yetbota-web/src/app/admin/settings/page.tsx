@@ -210,23 +210,6 @@ function SettingsForm({ user }: { user: UserPrivate }) {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
         </div>
-
-        <div className="flex items-center justify-between rounded-xl border border-border-subtle bg-surface-2 p-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <p className="text-fg font-semibold">Two-Factor Authentication</p>
-              <span className="rounded-full bg-fg-faint/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-fg-muted">
-                Soon
-              </span>
-            </div>
-            <p className="text-fg-muted text-xs">
-              Secure your account with a secondary mobile device
-            </p>
-          </div>
-          <span className="relative inline-flex h-6 w-11 cursor-not-allowed items-center rounded-full bg-surface-3 opacity-60">
-            <span className="ml-0.5 h-5 w-5 rounded-full bg-white" />
-          </span>
-        </div>
       </SectionCard>
 
       <div className="flex justify-end gap-4 pt-2">

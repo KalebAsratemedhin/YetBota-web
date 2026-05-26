@@ -1,82 +1,25 @@
 "use client";
 
 import Link from "next/link";
+import { Users, MessageSquare, MapPin, Download, Gavel } from "lucide-react";
+import { PageHeader, StatCard } from "@/components/admin/AdminUI";
+import AuditTrail from "@/components/admin/AuditTrail";
 import {
-  Users,
-  MapPin,
-  Activity,
-  MessageSquare,
-  Download,
-  Gavel,
-  MessageSquarePlus,
-  ThumbsUp,
-  Flag,
-  UserPlus,
-  type LucideIcon,
-} from "lucide-react";
-import { PageHeader, StatCard, SectionCard, TonePill, type Tone } from "@/components/admin/AdminUI";
-import { cn } from "@/lib/utils";
-
-// Representative figures — no analytics backend exists yet. Shaped so a future
-// `useGetAdminOverviewQuery()` can drop straight in.
-const STATS = [
-  { label: "Total Users", value: "124,802", delta: "+12%", deltaTone: "brand" as Tone, icon: Users },
-  { label: "Total Locations", value: "1,420", delta: "+5%", deltaTone: "brand" as Tone, icon: MapPin },
-  { label: "Daily Active Users", value: "12,504", delta: "-2%", deltaTone: "red" as Tone, icon: Activity },
-  { label: "Total Questions", value: "45,210", delta: "+18%", deltaTone: "brand" as Tone, icon: MessageSquare },
-];
-
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-type ActivityItem = {
-  icon: LucideIcon;
-  tone: Tone;
-  title: string;
-  detail: string;
-  meta: string;
-  action?: { label: string; href: string };
-};
-
-const ACTIVITY: ActivityItem[] = [
-  {
-    icon: MessageSquarePlus,
-    tone: "blue",
-    title: "New Post by @sarah_explorer",
-    detail: "\"Hidden waterfalls in the northern valley...\"",
-    meta: "2m ago",
-  },
-  {
-    icon: ThumbsUp,
-    tone: "brand",
-    title: "Upvote Milestone",
-    detail: "Post \"Best Coffee in Addis\" reached 500 upvotes",
-    meta: "15m ago",
-  },
-  {
-    icon: Flag,
-    tone: "red",
-    title: "New Report Logged",
-    detail: "Inappropriate content reported at Location #1402",
-    meta: "",
-    action: { label: "Review", href: "/admin/reports" },
-  },
-  {
-    icon: UserPlus,
-    tone: "purple",
-    title: "New Guide Verified",
-    detail: "User @kebede_j has been promoted to Guide status",
-    meta: "1h ago",
-  },
-];
+  useGetAdminOverviewStatsQuery,
+  useGetAdminOverviewGrowthQuery,
+} from "@/store/api/adminApi";
+import { trendTone, formatChangePct, buildSparklinePaths } from "@/lib/adminDashboard";
 
 function Sparkline({
   gradientId,
   line,
   area,
+  labels,
 }: {
   gradientId: string;
   line: string;
   area: string;
+  labels: string[];
 }) {
   return (
     <div className="relative h-44 w-full">
@@ -91,53 +34,57 @@ function Sparkline({
             <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
           </linearGradient>
         </defs>
-        <path d={area} fill={`url(#${gradientId})`} />
-        <path d={line} fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth={3} />
+        {area && <path d={area} fill={`url(#${gradientId})`} />}
+        {line && (
+          <path d={line} fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth={3} />
+        )}
       </svg>
-      <div className="mt-4 flex justify-between text-[10px] font-bold uppercase tracking-widest text-fg-faint">
-        {DAYS.map((d) => (
-          <span key={d}>{d}</span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function GrowthCard({
-  title,
-  subtitle,
-  total,
-  trend,
-  gradientId,
-  line,
-  area,
-}: {
-  title: string;
-  subtitle: string;
-  total: string;
-  trend: string;
-  gradientId: string;
-  line: string;
-  area: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-border-subtle bg-surface p-6 shadow-sm">
-      <div className="mb-6 flex items-start justify-between">
-        <div>
-          <h3 className="text-fg text-lg font-bold">{title}</h3>
-          <p className="text-fg-muted text-sm">{subtitle}</p>
+      {labels.length > 0 && labels.length <= 12 && (
+        <div className="mt-4 flex justify-between text-[10px] font-bold uppercase tracking-widest text-fg-faint">
+          {labels.map((d, i) => (
+            <span key={`${d}-${i}`}>{d}</span>
+          ))}
         </div>
-        <div className="text-right">
-          <span className="text-fg text-2xl font-bold">{total}</span>
-          <p className="text-brand text-xs font-bold">{trend}</p>
-        </div>
-      </div>
-      <Sparkline gradientId={gradientId} line={line} area={area} />
+      )}
     </div>
   );
 }
 
 export default function AdminOverviewPage() {
+  const { data: stats, isLoading: statsLoading } = useGetAdminOverviewStatsQuery();
+  const { data: growth, isLoading: growthLoading } = useGetAdminOverviewGrowthQuery({ range: "7d" });
+
+  const statCards = stats
+    ? [
+        {
+          label: "Total Users",
+          value: stats.total_users.value.toLocaleString(),
+          delta: formatChangePct(stats.total_users.change_pct),
+          deltaTone: trendTone(stats.total_users.direction),
+          icon: Users,
+        },
+        {
+          label: "Total Questions",
+          value: stats.total_questions.value.toLocaleString(),
+          delta: formatChangePct(stats.total_questions.change_pct),
+          deltaTone: trendTone(stats.total_questions.direction),
+          icon: MessageSquare,
+        },
+        {
+          label: "Total Locations",
+          value: stats.total_locations.value.toLocaleString(),
+          delta: formatChangePct(stats.total_locations.change_pct),
+          deltaTone: trendTone(stats.total_locations.direction),
+          icon: MapPin,
+        },
+      ]
+    : [];
+
+  const growthPaths = growth
+    ? buildSparklinePaths(growth.points.map((p) => p.value))
+    : { line: "", area: "" };
+  const growthLabels = growth?.points.map((p) => p.label) ?? [];
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -164,88 +111,53 @@ export default function AdminOverviewPage() {
       />
 
       {/* Key stats */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {STATS.map((s) => (
-          <StatCard
-            key={s.label}
-            label={s.label}
-            value={s.value}
-            delta={s.delta}
-            deltaTone={s.deltaTone}
-            icon={s.icon}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        {statsLoading
+          ? [0, 1, 2].map((i) => <StatCard key={i} label="Loading…" value="—" />)
+          : statCards.map((s) => (
+              <StatCard
+                key={s.label}
+                label={s.label}
+                value={s.value}
+                delta={s.delta}
+                deltaTone={s.deltaTone}
+                icon={s.icon}
+              />
+            ))}
+      </div>
+
+      {/* Growth chart */}
+      <div className="rounded-2xl border border-border-subtle bg-surface p-6 shadow-sm">
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <h3 className="text-fg text-lg font-bold">User Growth</h3>
+            <p className="text-fg-muted text-sm">Cumulative registrations</p>
+          </div>
+          <div className="text-right">
+            <span className="text-fg text-2xl font-bold">
+              {growth ? growth.total.toLocaleString() : "—"}
+            </span>
+            {growth?.delta_label && (
+              <p className="text-brand text-xs font-bold">{growth.delta_label}</p>
+            )}
+          </div>
+        </div>
+        {growthLoading ? (
+          <div className="flex h-44 items-center justify-center text-sm text-fg-muted">
+            Loading chart…
+          </div>
+        ) : (
+          <Sparkline
+            gradientId="gradientUser"
+            line={growthPaths.line}
+            area={growthPaths.area}
+            labels={growthLabels}
           />
-        ))}
+        )}
       </div>
 
-      {/* Growth charts */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <GrowthCard
-          title="User Growth"
-          subtitle="Monthly user registrations"
-          total="124.8k"
-          trend="+2.4k this week"
-          gradientId="gradientUser"
-          line="M0,80 Q50,70 100,85 T200,40 T300,50 T400,20"
-          area="M0,80 Q50,70 100,85 T200,40 T300,50 T400,20 V100 H0 Z"
-        />
-        <GrowthCard
-          title="Location Growth"
-          subtitle="Expansion of indexed spots"
-          total="1.4k"
-          trend="+42 this week"
-          gradientId="gradientLoc"
-          line="M0,90 Q50,85 100,70 T200,60 T300,30 T400,45"
-          area="M0,90 Q50,85 100,70 T200,60 T300,30 T400,45 V100 H0 Z"
-        />
-      </div>
-
-      {/* Recent activity */}
-      <SectionCard
-        title="Recent Community Activity"
-        action={<TonePill tone="brand">Live updates</TonePill>}
-        bodyClassName="p-0"
-      >
-        <ul className="divide-y divide-border-subtle">
-          {ACTIVITY.map((item) => {
-            const Icon = item.icon;
-            return (
-              <li
-                key={item.title}
-                className="flex items-center gap-4 px-6 py-4 transition-colors hover:bg-overlay"
-              >
-                <span
-                  className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
-                    item.tone === "brand"
-                      ? "bg-brand/10 text-brand"
-                      : item.tone === "blue"
-                        ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                        : item.tone === "red"
-                          ? "bg-red-500/10 text-red-600 dark:text-red-400"
-                          : "bg-purple-500/10 text-purple-600 dark:text-purple-400"
-                  )}
-                >
-                  <Icon className="h-5 w-5" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-fg truncate text-sm font-semibold">{item.title}</p>
-                  <p className="text-fg-muted truncate text-xs">{item.detail}</p>
-                </div>
-                {item.action ? (
-                  <Link
-                    href={item.action.href}
-                    className="text-brand shrink-0 text-xs font-bold hover:underline"
-                  >
-                    {item.action.label}
-                  </Link>
-                ) : (
-                  <span className="text-fg-faint shrink-0 text-xs">{item.meta}</span>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      </SectionCard>
+      {/* System audit log */}
+      <AuditTrail />
     </div>
   );
 }
