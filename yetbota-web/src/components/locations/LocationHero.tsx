@@ -17,7 +17,7 @@ export default function LocationHero({
           src={imageUrl}
           width={1600}
           height={900}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
           priority={false}
         />
       </div>

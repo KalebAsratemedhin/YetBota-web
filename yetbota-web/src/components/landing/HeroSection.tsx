@@ -2,6 +2,8 @@
 import { Button } from "@/components/ui/button";
 import { useContent } from "@/lib/useContent";
 import Link from "next/link";
+import Reveal from "@/components/landing/Reveal";
+import { ChevronDown } from "lucide-react";
 
 export default function HeroSection() {
   const t = useContent();
@@ -21,18 +23,22 @@ export default function HeroSection() {
        
 
         {/* Heading */}
-        <h1 className="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6">
-          {t.hero.title}{" "}
-          <span className="text-brand">{t.hero.titleHighlight}</span>
-        </h1>
+        <Reveal>
+          <h1 className="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6">
+            {t.hero.title}{" "}
+            <span className="text-brand">{t.hero.titleHighlight}</span>
+          </h1>
+        </Reveal>
 
         {/* Subtitle */}
-        <p className="text-white/80 text-lg md:text-xl max-w-xl mx-auto mb-10 leading-relaxed">
-          {t.hero.subtitle}
-        </p>
+        <Reveal delay={150}>
+          <p className="text-white/80 text-lg md:text-xl max-w-xl mx-auto mb-10 leading-relaxed">
+            {t.hero.subtitle}
+          </p>
+        </Reveal>
 
         {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <Reveal delay={300} className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Button
             size="lg"
             asChild
@@ -42,13 +48,17 @@ export default function HeroSection() {
           </Button>
           <Button
             size="lg"
-            variant="outline"
             asChild
-            className="border-white/30 text-white hover:bg-white/10 rounded-xl px-8 py-4 text-base w-full sm:w-auto bg-white/5"
+            className="border-2 border-white bg-white text-black font-bold hover:bg-transparent hover:text-white rounded-xl px-8 py-4 text-base w-full sm:w-auto transition-colors duration-200"
           >
             <Link href="/create">{t.hero.ctaContribute}</Link>
           </Button>
-        </div>
+        </Reveal>
+      </div>
+
+      {/* Scroll cue */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
+        <ChevronDown className="w-7 h-7 text-white/70" />
       </div>
     </section>
   );

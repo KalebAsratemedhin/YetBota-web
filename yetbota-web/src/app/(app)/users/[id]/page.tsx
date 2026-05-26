@@ -77,7 +77,7 @@ export default function PublicUserProfilePage() {
             <ReputationCard user={user} />
           </div>
           <div className="col-span-12 lg:col-span-8">
-            <BadgesCard />
+            <BadgesCard badges={user.badges} />
           </div>
           <div className="col-span-12">
             <ContributionsGrid userId={id} />

@@ -14,7 +14,7 @@ export default function AskQuestionTopNav({
   const pathname = usePathname();
 
   return (
-    <nav className="sticky top-0 z-40 border-b border-border-subtle bg-bg/95 backdrop-blur-md shadow-[0_4px_16px_-8px_rgba(15,23,42,0.08)] dark:shadow-none">
+    <nav className="sticky top-0 z-40 border-b border-border-subtle bg-surface/95 backdrop-blur-md shadow-[0_4px_24px_-12px_rgba(15,23,42,0.12)] dark:shadow-[0_4px_24px_-12px_rgba(0,0,0,0.6)]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center gap-4">

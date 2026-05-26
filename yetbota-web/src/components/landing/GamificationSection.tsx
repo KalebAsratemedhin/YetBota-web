@@ -2,15 +2,17 @@
 import { Trophy, Award } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useContent } from "@/lib/useContent";
+import Reveal from "@/components/landing/Reveal";
+import AnimatedBar from "@/components/landing/AnimatedBar";
 
 export default function GamificationSection() {
   const t = useContent();
 
   return (
-    <section className="bg-bg py-24 px-6">
+    <section className="bg-stone-100 dark:bg-surface py-16 px-6">
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Text */}
-        <div>
+        <Reveal direction="left">
           <p className="text-brand text-xs font-bold uppercase tracking-widest mb-4">
             {t.gamification.badge}
           </p>
@@ -32,14 +34,14 @@ export default function GamificationSection() {
               </Badge>
             ))}
           </div>
-        </div>
+        </Reveal>
 
         {/* Level card */}
-        <div className="bg-bg border border-border-subtle rounded-3xl p-6">
+        <Reveal direction="right" delay={150} className="bg-bg border border-border-subtle rounded-3xl p-6 hover:border-brand/40 hover:shadow-xl hover:shadow-brand/10 transition-all duration-300">
           <div className="grid grid-cols-2 gap-4">
             {/* Current level */}
-            <div className="bg-bg rounded-2xl p-5 flex flex-col items-center text-center">
-              <Trophy className="w-8 h-8 text-brand mb-3" />
+            <div className="bg-bg rounded-2xl p-5 flex flex-col items-center text-center group">
+              <Trophy className="w-8 h-8 text-brand mb-3 group-hover:scale-125 group-hover:-rotate-6 transition-transform duration-300" />
               <p className="text-fg font-bold text-base mb-1">{t.gamification.levels.current}</p>
               <p className="text-fg-faint text-sm">{t.gamification.levels.currentXp}</p>
             </div>
@@ -49,15 +51,10 @@ export default function GamificationSection() {
               <Award className="w-8 h-8 text-fg-faint mb-3" />
               <p className="text-fg font-bold text-base mb-3">{t.gamification.levels.next}</p>
               {/* Progress bar */}
-              <div className="w-full bg-surface rounded-full h-1.5">
-                <div
-                  className="h-1.5 rounded-full bg-brand"
-                  style={{ width: "72%" }}
-                />
-              </div>
+              <AnimatedBar value={72} />
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

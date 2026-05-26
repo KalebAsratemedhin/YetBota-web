@@ -62,7 +62,7 @@ export default function Footer() {
                   <li key={link}>
                   <Link
                     href="#"
-                    className="text-fg-faint text-sm hover:text-fg transition-colors"
+                    className="relative inline-flex items-center text-fg-faint text-sm transition-colors hover:text-green-700 dark:hover:text-green-500 after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-1.5 after:h-0.5 after:w-0 after:bg-green-700 dark:after:bg-green-500 after:transition-all after:duration-300 hover:after:w-full"
                   >
                     {link}
                   </Link>

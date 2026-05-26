@@ -71,7 +71,8 @@ export interface UserPrivate {
   username: string;
   mobile: string;
   rating: number;
-  badges: string[];
+  // omitempty on the wire — absent when the user has earned no badges.
+  badges?: string[];
   contributions: number;
   followers: number;
   following: number;
@@ -100,6 +101,14 @@ export interface ListUsersQuery {
   status?: string;
   role?: string;
   resolution?: Resolution;
+  // Extended admin filters. `q` is a substring search across username + first/
+  // last name (no email column exists). `min/max_rating` filter on `score`.
+  q?: string;
+  min_rating?: number;
+  max_rating?: number;
+  // `YYYY-MM-DD` or RFC3339.
+  created_from?: string;
+  created_to?: string;
 }
 
 export interface ListUsersData {
@@ -117,7 +126,7 @@ export interface UserPublicData {
   username: string;
   mobile_verified: boolean;
   rating: number;
-  badges: string[];
+  badges?: string[];
   contributions: number;
   followers: number;
   following: number;

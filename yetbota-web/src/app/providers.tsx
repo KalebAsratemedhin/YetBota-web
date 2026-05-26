@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useEffect } from "react";
 import { setCredentials, type AuthUserRef } from "@/store/authSlice";
 import type { RootState } from "@/store";
+import { setSessionCookie, clearSessionCookie } from "@/lib/sessionCookie";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -22,6 +23,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           user,
         })
       );
+      // Refresh the session cookie alongside hydration so middleware sees a
+      // valid cookie even if its Max-Age expired between visits.
+      setSessionCookie();
       console.log("[local/auth] hydrated session from localStorage", {
         hasAccessToken: true,
         username: user?.username ?? null,
@@ -51,9 +55,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       try {
         if (!next.accessToken) {
           window.localStorage.removeItem("yetbota.localAuth");
+          clearSessionCookie();
           return;
         }
         window.localStorage.setItem("yetbota.localAuth", JSON.stringify(next));
+        setSessionCookie();
       } catch (e) {
         console.warn("[local/auth] failed to persist session", e);
       }

@@ -5,12 +5,17 @@ import type {
   CreateCommentResponseData,
   CreatePostRequest,
   CreatePostResponseData,
+  FeedQuery,
+  FeedResponseData,
   ListCommentsQuery,
   ListCommentsResponseData,
   ListPostsQuery,
   ListPostsResponseData,
+  MarkFeedViewedRequest,
   Post,
   Resolution,
+  SaveResult,
+  SavedPostsQuery,
   UpdatePostRequest,
   VoteCommentRequest,
   VoteCommentResponseData,
@@ -50,6 +55,19 @@ export const contentApi = contentBaseApi.injectEndpoints({
         return { url: qs ? `/posts/?${qs}` : "/posts/", method: "GET" };
       },
       providesTags: ["Content"],
+    }),
+    getFeed: builder.query<FeedResponseData, FeedQuery>({
+      query: ({ page_size, cursor }) => {
+        const params = new URLSearchParams();
+        params.set("page_size", String(page_size));
+        // Send the server-issued cursor verbatim; URLSearchParams encodes it.
+        if (cursor) params.set("cursor", cursor);
+        return { url: `/feed/?${params.toString()}`, method: "GET" };
+      },
+      providesTags: ["Content"],
+    }),
+    markFeedViewed: builder.mutation<void, MarkFeedViewedRequest>({
+      query: (body) => ({ url: "/feed/viewed", method: "POST", body }),
     }),
     getPostById: builder.query<CreatePostResponseData, { id: string; resolution?: Resolution }>({
       query: ({ id, resolution }) => ({
@@ -95,6 +113,23 @@ export const contentApi = contentBaseApi.injectEndpoints({
         body,
       }),
     }),
+    savePost: builder.mutation<SaveResult, { id: string }>({
+      query: ({ id }) => ({ url: `/posts/${encodeURIComponent(id)}/save`, method: "POST" }),
+      invalidatesTags: ["Content"],
+    }),
+    unsavePost: builder.mutation<SaveResult, { id: string }>({
+      query: ({ id }) => ({ url: `/posts/${encodeURIComponent(id)}/save`, method: "DELETE" }),
+      invalidatesTags: ["Content"],
+    }),
+    // GET /posts/saved was removed; the saved list is now the post list filtered
+    // to the caller's bookmarks. Requires a token for saved=true to resolve.
+    listSavedPosts: builder.query<ListPostsResponseData, SavedPostsQuery | void>({
+      query: (arg) => {
+        const qs = buildListPostsParams({ ...(arg ?? {}), saved: true });
+        return { url: `/posts/?${qs}`, method: "GET" };
+      },
+      providesTags: ["Content"],
+    }),
 
     createComment: builder.mutation<CreateCommentResponseData, CreateCommentRequest>({
       query: (body) => ({ url: "/comments/", method: "POST", body }),
@@ -123,12 +158,19 @@ export const {
   useCreatePostMutation,
   useListPostsQuery,
   useLazyListPostsQuery,
+  useGetFeedQuery,
+  useLazyGetFeedQuery,
+  useMarkFeedViewedMutation,
   useGetPostByIdQuery,
   useLazyGetPostByIdQuery,
   useGetPostsByIdsQuery,
   useLazyGetPostsByIdsQuery,
   useUpdatePostByIdMutation,
   useVotePostMutation,
+  useSavePostMutation,
+  useUnsavePostMutation,
+  useListSavedPostsQuery,
+  useLazyListSavedPostsQuery,
   useCreateCommentMutation,
   useListCommentsQuery,
   useLazyListCommentsQuery,

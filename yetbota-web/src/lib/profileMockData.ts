@@ -8,17 +8,13 @@ export interface ProfileUser {
   followers: string;
   following: number;
   avatarUrl?: string;
+  // Elo-style reputation score (`rating`) and earned badge slugs from the API.
+  score: number;
+  badges: string[];
   level: number;
   xp: number;
   xpToNext: number;
   progressPercent: number;
-}
-
-export interface Badge {
-  id: string;
-  label: string;
-  icon: string; // lucide icon name
-  color: string; // bg color
 }
 
 export interface ActivityItem {
@@ -48,21 +44,13 @@ export const MOCK_PROFILE_USER: ProfileUser = {
   location: "Addis Ababa, Ethiopia",
   followers: "1.2k",
   following: 450,
+  score: 1847,
+  badges: ["contributor", "trusted_voice"],
   level: 9,
   xp: 4820,
   xpToNext: 5000,
   progressPercent: 85,
 };
-
-// ─── Badges ───────────────────────────────────────────────────────────────────
-
-export const EARNED_BADGES: Badge[] = [
-  { id: "explorer",   label: "Explorer",   icon: "Compass",      color: "bg-emerald-600" },
-  { id: "topguide",   label: "Top Guide",  icon: "ShieldCheck",  color: "bg-yellow-600" },
-  { id: "pathfinder", label: "Pathfinder", icon: "Map",          color: "bg-blue-600" },
-  { id: "shutterbug", label: "Shutterbug", icon: "Camera",       color: "bg-purple-600" },
-  { id: "helper",     label: "Helper",     icon: "Heart",        color: "bg-rose-600" },
-];
 
 // ─── Recent activity ──────────────────────────────────────────────────────────
 

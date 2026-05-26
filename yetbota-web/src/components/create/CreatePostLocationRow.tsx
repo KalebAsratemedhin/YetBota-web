@@ -13,20 +13,20 @@ export default function CreatePostLocationRow({
     <button
       type="button"
       onClick={onClick}
-      className="w-full p-4 rounded-2xl bg-slate-100 dark:bg-surface flex items-center justify-between cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-300 dark:hover:border-slate-700 text-left"
+      className="w-full p-3 rounded-xl bg-slate-100 dark:bg-surface flex items-center justify-between cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-300 dark:hover:border-slate-700 text-left"
     >
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center text-brand">
-          <MapPin className="w-5 h-5" />
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center text-brand">
+          <MapPin className="w-4 h-4" />
         </div>
         <div>
-          <p className="font-bold">Set Location</p>
-          <p className="text-sm text-fg-faint dark:text-slate-400">
+          <p className="text-base font-semibold">Set Location</p>
+          <p className="text-sm text-fg-faint dark:text-slate-400 mt-0.5">
             {subtitle ?? "Pin your post to a specific spot"}
           </p>
         </div>
       </div>
-      <ChevronRight className="w-5 h-5 text-fg-muted" />
+      <ChevronRight className="w-4 h-4 text-fg-muted" />
     </button>
   );
 }

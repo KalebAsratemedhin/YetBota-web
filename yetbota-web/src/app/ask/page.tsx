@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import AskQuestionTopNav from "@/components/ask/AskQuestionTopNav";
 import AskGuidelinesCard from "@/components/ask/AskGuidelinesCard";
@@ -8,11 +8,22 @@ import AskQuestionForm from "@/components/ask/AskQuestionForm";
 import AskTipsRail from "@/components/ask/AskTipsRail";
 import AskMobileBottomNav from "@/components/ask/AskMobileBottomNav";
 import CreatePostLocationModal from "@/components/create/CreatePostLocationModal";
-import { useCreatePostMutation } from "@/store/api/contentApi";
+import { useCreatePostMutation, useGetPostByIdQuery } from "@/store/api/contentApi";
 import { useToast } from "@/hooks/use-toast";
-import { rememberMyPostId } from "@/lib/myPostsStorage";
+import RedirectAdminsToPortal from "@/components/admin/RedirectAdminsToPortal";
 
 const DEFAULT_ASK_TAGS = ["Recommendations", "LocalEvents", "Safety", "General"];
+// Holds the in-progress question while the user steps over to /discovery to pick
+// a post to attach, so nothing typed is lost on the round trip.
+const ASK_DRAFT_KEY = "yetbota.askDraft";
+
+interface AskDraft {
+  question: string;
+  tags: string[];
+  tagOptions: string[];
+  location: { latitude: number; longitude: number } | null;
+  attachedPostId: string | null;
+}
 const ASK_TIPS = [
   "Be specific about the location if you're looking for local recommendations.",
   "Use relevant tags so the right people see your question.",
@@ -38,9 +49,64 @@ export default function AskQuestionPage() {
   const [tags, setTags] = useState<string[]>([]);
   const [locationOpen, setLocationOpen] = useState(false);
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [attachedPostId, setAttachedPostId] = useState<string | null>(null);
+
+  // Resolve the attached post for the minimized preview.
+  const { data: attachedRes, isFetching: attachedFetching } = useGetPostByIdQuery(
+    { id: attachedPostId ?? "", resolution: "WEB" },
+    { skip: !attachedPostId }
+  );
+  const attachedPost = attachedRes?.post ?? null;
+
+  // On mount, restore any draft saved before navigating to /discovery and pick
+  // up a post the user selected there (returned as ?attached_post_id=<id>).
+  // Reads run client-side only; this hydrates local state from sessionStorage
+  // and the URL exactly once.
+  useEffect(() => {
+    let restored: Partial<AskDraft> | null = null;
+    let picked: string | null = null;
+    try {
+      const raw = window.sessionStorage.getItem(ASK_DRAFT_KEY);
+      if (raw) {
+        restored = JSON.parse(raw) as Partial<AskDraft>;
+        window.sessionStorage.removeItem(ASK_DRAFT_KEY);
+      }
+      picked = new URLSearchParams(window.location.search).get("attached_post_id");
+      if (picked) {
+        // Strip the query so a refresh doesn't re-apply it.
+        window.history.replaceState(null, "", "/ask");
+      }
+    } catch {
+      // ignore malformed drafts / unavailable storage
+    }
+
+    // One-time hydration of local state from an external source (sessionStorage
+    // draft + URL param) on mount — the "sync from an external system" case.
+    /* eslint-disable react-hooks/set-state-in-effect */
+    if (restored) {
+      if (typeof restored.question === "string") setQuestion(restored.question);
+      if (Array.isArray(restored.tags)) setTags(restored.tags);
+      if (Array.isArray(restored.tagOptions)) setTagOptions(restored.tagOptions);
+      if (restored.location) setLocation(restored.location);
+    }
+    // A freshly-picked post (from the URL) wins over the saved draft's value.
+    const nextAttached = picked ?? (typeof restored?.attachedPostId === "string" ? restored.attachedPostId : null);
+    if (nextAttached) setAttachedPostId(nextAttached);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
 
   const tips = useMemo(() => ASK_TIPS, []);
   const canPost = question.trim().length > 0 && !isLoading;
+
+  function startSelectPost() {
+    try {
+      const draft: AskDraft = { question, tags, tagOptions, location, attachedPostId };
+      window.sessionStorage.setItem(ASK_DRAFT_KEY, JSON.stringify(draft));
+    } catch {
+      // sessionStorage unavailable — proceed anyway; only the draft is lost.
+    }
+    router.push("/discovery?select=1&returnTo=%2Fask");
+  }
 
   function handleToggleTag(t: string) {
     setTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
@@ -73,9 +139,14 @@ export default function AskQuestionPage() {
         tags,
         is_question: true,
         ...(location ? { location } : {}),
+        ...(attachedPostId ? { attached_post_id: attachedPostId } : {}),
       }).unwrap();
 
-      rememberMyPostId(res.post.id);
+      try {
+        window.sessionStorage.removeItem(ASK_DRAFT_KEY);
+      } catch {
+        // ignore
+      }
       toast({ title: "Posted", description: "Your question was published." });
       router.push(`/qa/${encodeURIComponent(res.post.id)}`);
     } catch {
@@ -92,6 +163,7 @@ export default function AskQuestionPage() {
     : "Help people nearby find your post";
 
   return (
+    <RedirectAdminsToPortal authedSurface>
     <div className="bg-bg text-fg min-h-screen transition-colors duration-200">
       <AskQuestionTopNav title="Ask a Question" onClose={() => router.back()} />
 
@@ -108,6 +180,10 @@ export default function AskQuestionPage() {
               onAddTag={handleAddTag}
               locationSubtitle={locationSubtitle}
               onClickLocation={() => setLocationOpen(true)}
+              onClickSelectPost={startSelectPost}
+              attachedPost={attachedPost}
+              attachedPostLoading={Boolean(attachedPostId) && attachedFetching && !attachedPost}
+              onRemovePost={() => setAttachedPostId(null)}
             />
           </div>
 
@@ -143,5 +219,6 @@ export default function AskQuestionPage() {
         onChange={setLocation}
       />
     </div>
+    </RedirectAdminsToPortal>
   );
 }

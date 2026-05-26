@@ -2,15 +2,17 @@
 import Image from "next/image";
 import { ShieldCheck } from "lucide-react";
 import { useContent } from "@/lib/useContent";
+import Reveal from "@/components/landing/Reveal";
+import CountUp from "@/components/landing/CountUp";
 
 export default function AccuracySection() {
   const t = useContent();
 
   return (
-    <section className="bg-bg py-24 px-6">
+    <section className="bg-bg py-16 px-6">
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Image with overlay badge */}
-        <div className="relative">
+        <Reveal direction="left" className="relative">
           <div className="relative w-full h-80 md:h-96 rounded-3xl overflow-hidden border border-border-subtle">
             <Image
               src="/images/accuracy-feature.jpeg"
@@ -30,10 +32,10 @@ export default function AccuracySection() {
               <p className="text-fg-faint text-xs">{t.accuracy.lastChecked}</p>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Text */}
-        <div>
+        <Reveal direction="right" delay={150}>
           <p className="text-brand text-xs font-bold uppercase tracking-widest mb-4">
             {t.accuracy.badge}
           </p>
@@ -46,24 +48,20 @@ export default function AccuracySection() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-bg border border-border-subtle rounded-2xl p-5">
-              <p className="text-brand text-3xl font-extrabold mb-1">
-                {t.accuracy.stats.verifiedSpots}
-              </p>
+            <div className="bg-bg border border-border-subtle rounded-2xl p-5 hover:border-brand/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand/10 transition-all duration-300">
+              <CountUp value={t.accuracy.stats.verifiedSpots} className="text-brand text-3xl font-extrabold mb-1 block" />
               <p className="text-fg-faint text-xs font-semibold uppercase tracking-wider">
                 {t.accuracy.stats.verifiedSpotsLabel}
               </p>
             </div>
-            <div className="bg-bg border border-border-subtle rounded-2xl p-5">
-              <p className="text-brand text-3xl font-extrabold mb-1">
-                {t.accuracy.stats.communityLed}
-              </p>
+            <div className="bg-bg border border-border-subtle rounded-2xl p-5 hover:border-brand/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand/10 transition-all duration-300">
+              <CountUp value={t.accuracy.stats.communityLed} className="text-brand text-3xl font-extrabold mb-1 block" />
               <p className="text-fg-faint text-xs font-semibold uppercase tracking-wider">
                 {t.accuracy.stats.communityLedLabel}
               </p>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

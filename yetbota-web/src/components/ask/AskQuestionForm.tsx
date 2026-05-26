@@ -1,7 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Plus, Radar, X } from "lucide-react";
+import Image from "next/image";
+import { ChevronRight, Link2, MapPin, Plus, Radar, X } from "lucide-react";
+import type { Post } from "@/types/content";
+
+function areaLabel(post: Post): string {
+  if (post.address && post.address.trim().length > 0) return post.address;
+  if (
+    post.location &&
+    typeof post.location.latitude === "number" &&
+    typeof post.location.longitude === "number"
+  ) {
+    return `${post.location.latitude.toFixed(2)}, ${post.location.longitude.toFixed(2)}`;
+  }
+  return "Ethiopia";
+}
 
 export default function AskQuestionForm({
   question,
@@ -12,6 +26,10 @@ export default function AskQuestionForm({
   onAddTag,
   locationSubtitle,
   onClickLocation,
+  onClickSelectPost,
+  attachedPost,
+  attachedPostLoading,
+  onRemovePost,
 }: {
   question: string;
   onChangeQuestion: (v: string) => void;
@@ -21,6 +39,10 @@ export default function AskQuestionForm({
   onAddTag: (t: string) => void;
   locationSubtitle?: string;
   onClickLocation?: () => void;
+  onClickSelectPost?: () => void;
+  attachedPost?: Post | null;
+  attachedPostLoading?: boolean;
+  onRemovePost?: () => void;
 }) {
   const [addingTag, setAddingTag] = useState(false);
   const [newTag, setNewTag] = useState("");
@@ -69,6 +91,64 @@ export default function AskQuestionForm({
           </div>
           <Radar className="w-5 h-5 text-fg-muted dark:text-zinc-600" />
         </button>
+      </section>
+
+      <section className="space-y-4">
+        <label className="block text-xs font-bold tracking-widest text-fg-faint dark:text-zinc-500 uppercase">
+          Reference a Post
+        </label>
+        {attachedPost ? (
+          <div className="w-full bg-slate-100 dark:bg-bg border border-brand/40 rounded-xl p-3 flex items-center gap-3">
+            <div className="w-16 h-16 rounded-lg overflow-hidden bg-slate-200 dark:bg-zinc-800 shrink-0">
+              <Image
+                src={attachedPost.photos?.[0]?.photo_url ?? "/images/profile/rock-hewn.webp"}
+                alt=""
+                width={64}
+                height={64}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-brand">Based on</p>
+              <h4 className="font-bold text-slate-900 dark:text-fg truncate">{attachedPost.title}</h4>
+              <p className="text-fg-faint dark:text-zinc-500 text-xs truncate flex items-center gap-1">
+                <MapPin className="w-3 h-3 shrink-0" />
+                {areaLabel(attachedPost)}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onRemovePost}
+              aria-label="Remove referenced post"
+              className="p-2 rounded-full text-fg-muted hover:text-fg hover:bg-overlay transition-colors shrink-0"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ) : attachedPostLoading ? (
+          <div className="w-full bg-slate-100 dark:bg-bg border border-slate-200 dark:border-zinc-800 rounded-xl p-4 text-sm text-fg-faint">
+            Loading selected post…
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={onClickSelectPost}
+            className="w-full bg-slate-100 dark:bg-bg border border-slate-200 dark:border-zinc-800 rounded-xl p-4 flex items-center justify-between cursor-pointer hover:border-brand/50 transition-colors group text-left"
+          >
+            <div className="flex items-center gap-4">
+              <div className="bg-slate-200 dark:bg-zinc-800 p-3 rounded-xl group-hover:bg-brand/20 transition-colors text-brand">
+                <Link2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 dark:text-fg">Base on a Post</h3>
+                <p className="text-fg-faint dark:text-zinc-500 text-sm">
+                  Pick a location post your question is about
+                </p>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-fg-muted dark:text-zinc-600" />
+          </button>
+        )}
       </section>
 
       <section className="space-y-4">

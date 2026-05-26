@@ -1,5 +1,6 @@
 import { baseApi } from "@/store/api/baseApi";
 import { setCredentials } from "@/store/authSlice";
+import { setSessionCookie } from "@/lib/sessionCookie";
 import type {
   AuthorizationRequest,
   ChangeMobileRequest,
@@ -48,6 +49,7 @@ async function applyAuthSuccess(
     } catch {
       // ignore
     }
+    setSessionCookie();
   }
 }
 
@@ -135,6 +137,9 @@ export const authApi = baseApi.injectEndpoints({
     }),
 
     listUsers: builder.query<ListUsersData, ListUsersQuery | void>({
+      // Trailing slash is required: the backend registers the collection as
+      // /v1/users/. Requesting /v1/users (no slash) 307-redirects to a Location
+      // that drops the /v1 (and proxy) prefix, which 404s in the browser.
       query: (query) => ({ url: "/users/", method: "GET", params: query ?? undefined }),
       providesTags: ["User"],
     }),

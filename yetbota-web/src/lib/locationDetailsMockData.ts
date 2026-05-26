@@ -1,6 +1,5 @@
 import type { LocationQaItem } from "@/components/locations/LocationCommunityQa";
 import type { LocationPostAuthor } from "@/components/locations/LocationPost";
-import type { SimilarPlace } from "@/components/locations/SimilarPlacesGrid";
 import type { PopularGuide } from "@/components/locations/LocationRightRail";
 
 export interface LocationDetails {
@@ -14,7 +13,6 @@ export interface LocationDetails {
   author: LocationPostAuthor;
   currentUserAvatarUrl: string;
   qa: LocationQaItem[];
-  similarPlaces: SimilarPlace[];
   location: { latitude: number; longitude: number };
   rightRail: {
     mapImageUrl: string;
@@ -89,11 +87,6 @@ const base: Omit<LocationDetails, "id"> = {
         },
       ],
     },
-  ],
-  similarPlaces: [
-    { id: "s1", name: "Entoto Park", area: "Addis Ababa", rating: 4.8, imageUrl: "/images/places/shola.jpg" },
-    { id: "s2", name: "Unity Park", area: "Arat Kilo", rating: 4.5, imageUrl: "/images/places/unity.jpg" },
-    { id: "s3", name: "Sheger Park", area: "Piassa", rating: 4.2, imageUrl: "/images/places/friendship.jpg" },
   ],
   rightRail: {
     mapImageUrl: "/images/places/mercato.jpg",

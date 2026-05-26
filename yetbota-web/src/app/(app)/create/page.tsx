@@ -11,11 +11,20 @@ import CreatePostLocationModal from "@/components/create/CreatePostLocationModal
 import { useCreatePostMutation } from "@/store/api/contentApi";
 import { useToast } from "@/hooks/use-toast";
 import { store } from "@/store";
-import { rememberMyPostId } from "@/lib/myPostsStorage";
+import RequireAuth from "@/components/auth/RequireAuth";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-const DEFAULT_POPULAR_TAGS = ["#History", "#CoffeeCulture", "#Lalibela", "#Nature"];
+const DEFAULT_POPULAR_TAGS = ["History", "CoffeeCulture", "Lalibela", "Nature"];
 
 export default function CreatePostPage() {
+  return (
+    <RequireAuth>
+      <CreatePostPageContent />
+    </RequireAuth>
+  );
+}
+
+function CreatePostPageContent() {
   const router = useRouter();
   const { toast } = useToast();
   const [createPost, { isLoading }] = useCreatePostMutation();
@@ -29,7 +38,7 @@ export default function CreatePostPage() {
   const [description, setDescription] = useState("");
   const [address, setAddress] = useState("");
   const [tagOptions, setTagOptions] = useState<string[]>(DEFAULT_POPULAR_TAGS);
-  const [selectedTags, setSelectedTags] = useState<string[]>(["#History"]);
+  const [selectedTags, setSelectedTags] = useState<string[]>(["History"]);
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
 
   function handleAddTag(raw: string) {
@@ -73,7 +82,6 @@ export default function CreatePostPage() {
         ...(trimmedAddress.length > 0 ? { address: trimmedAddress } : {}),
       }).unwrap();
 
-      rememberMyPostId(res.post.id);
       toast({ title: "Posted", description: "Your post was created successfully." });
       const detailsHref = res.post.is_question
         ? `/qa/${encodeURIComponent(res.post.id)}`
@@ -89,48 +97,48 @@ export default function CreatePostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg text-fg">
+    <div className="h-full flex flex-col bg-bg text-fg overflow-hidden">
       <CreatePostHeader title="Create Post" onClose={() => router.back()} />
 
-      <div className="max-w-4xl mx-auto w-full px-8 py-12 space-y-10">
-        <section>
-          <CreatePostPhotoDropzone onPhotoBase64Change={setPhotoBase64} />
-        </section>
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="max-w-2xl mx-auto w-full px-6 sm:px-8 py-8 space-y-7">
+          <section>
+            <CreatePostPhotoDropzone onPhotoBase64Change={setPhotoBase64} />
+          </section>
 
-        <section className="space-y-6">
-          <CreatePostForm
-            title={title}
-            description={description}
-            address={address}
-            onChangeTitle={setTitle}
-            onChangeDescription={setDescription}
-            onChangeAddress={setAddress}
-          />
-        </section>
+          <section className="space-y-6">
+            <CreatePostForm
+              title={title}
+              description={description}
+              address={address}
+              onChangeTitle={setTitle}
+              onChangeDescription={setDescription}
+              onChangeAddress={setAddress}
+            />
+          </section>
 
-        <section>
-          <CreatePostLocationRow
-            onClick={() => setLocationOpen(true)}
-            subtitle={`${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`}
-          />
-        </section>
+          <section>
+            <CreatePostLocationRow
+              onClick={() => setLocationOpen(true)}
+              subtitle={`${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`}
+            />
+          </section>
 
-        <section>
-          <CreatePostTags
-            tags={tagOptions}
-            selected={selectedTags}
-            onToggle={(t) => {
-              setSelectedTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
-            }}
-            onAddTag={handleAddTag}
-          />
-        </section>
-      </div>
+          <section>
+            <CreatePostTags
+              tags={tagOptions}
+              selected={selectedTags}
+              onToggle={(t) => {
+                setSelectedTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+              }}
+              onAddTag={handleAddTag}
+            />
+          </section>
+        </div>
+      </ScrollArea>
 
-      <div className="h-28" />
-
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 dark:bg-bg/80 backdrop-blur-md border-t border-slate-200 dark:border-border-subtle">
-        <div className="max-w-4xl mx-auto w-full px-6 sm:px-8 py-4 flex justify-end">
+      <div className="shrink-0 bg-white/80 dark:bg-bg/80 backdrop-blur-md border-t border-slate-200 dark:border-border-subtle">
+        <div className="max-w-2xl mx-auto w-full px-6 sm:px-8 py-4 flex justify-end">
           <button
             type="button"
             onClick={handlePost}

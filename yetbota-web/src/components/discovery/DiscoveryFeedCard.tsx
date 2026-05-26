@@ -12,7 +12,7 @@ export default function DiscoveryFeedCard({ item }: { item: DiscoveryFeedItem })
         {item.author.href ? (
           <Link
             href={item.author.href}
-            className="flex items-center gap-4 min-w-0 rounded-full -m-1 p-1 hover:bg-slate-100 dark:hover:bg-overlay transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
+            className="flex items-center gap-2 min-w-0 rounded-full p-2 pr-4 hover:bg-slate-100 dark:hover:bg-overlay transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
             aria-label={`View ${item.author.name}'s profile`}
           >
             <div className="relative w-12 h-12 rounded-full overflow-hidden bg-slate-200 shrink-0">
@@ -21,7 +21,7 @@ export default function DiscoveryFeedCard({ item }: { item: DiscoveryFeedItem })
             <div className="min-w-0">
               <h4 className="font-bold truncate">{item.author.name}</h4>
               <p className="text-sm text-brand flex items-center gap-1 truncate">
-                <span className="text-[10px]">●</span>
+               
                 {item.author.locationLabel}
               </p>
             </div>
@@ -52,14 +52,14 @@ export default function DiscoveryFeedCard({ item }: { item: DiscoveryFeedItem })
       <div className="relative px-4">
         <Link
           href={`/locations/${item.id}`}
-          className="block relative rounded-[2rem] overflow-hidden group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
+          className="block relative rounded-[2rem] overflow-hidden group cursor-pointer bg-slate-100 dark:bg-overlay focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
         >
           <Image
             src={item.imageUrl}
             alt=""
             width={1200}
             height={900}
-            className="w-full h-[500px] object-cover"
+            className="w-full h-[500px] object-contain"
             priority={false}
           />
           {item.badgeLabel && (

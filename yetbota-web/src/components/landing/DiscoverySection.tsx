@@ -1,10 +1,11 @@
 "use client";
 import Image from "next/image";
-import { Star, ChevronLeft, ChevronRight, Coffee, ShoppingBag, Trees, ArrowRight } from "lucide-react";
+import { Star, Coffee, ShoppingBag, Trees } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useContent } from "@/lib/useContent";
 import { COFFEE_HOUSES, HIDDEN_MARKETS, LOCAL_PARKS, type Place } from "@/lib/dummydata";
 import Link from "next/link";
+import Reveal from "@/components/landing/Reveal";
 
 interface PlaceCardItemProps {
   place: Place;
@@ -16,13 +17,13 @@ interface PlaceCardItemProps {
 
 function PlaceCardItem({ place, displayName, displayDescription, badgeLabel, isCommunity }: PlaceCardItemProps) {
   return (
-    <div className="rounded-2xl overflow-hidden bg-bg border border-border-subtle group cursor-pointer hover:border-overlay-strong transition-colors">
+    <div className="h-full rounded-2xl overflow-hidden bg-bg border border-border-subtle group cursor-pointer hover:border-brand/40 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand/10 transition-all duration-300">
       <div className="relative h-36 sm:h-40 md:h-44 w-full overflow-hidden">
         <Image
           src={place.imageUrl}
           alt={displayName}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
+          className="object-cover group-hover:scale-110 transition-transform duration-500"
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 50vw, 33vw"
         />
         {/* Distance — top left */}
@@ -75,32 +76,25 @@ function CategoryRow({ title, places, icon, getPlaceName, getPlaceDesc, badgeLab
       <div className="flex items-center mb-4">
         <span className="text-base mr-2">{icon}</span>
         <h3 className="text-fg font-semibold text-sm md:text-base">{title}</h3>
-        <div className="flex gap-1 ml-auto">
-          <button className="w-7 h-7 rounded-full border border-border-subtle flex items-center justify-center hover:border-border-subtle hover:bg-overlay transition-colors">
-            <ChevronLeft className="w-3.5 h-3.5 text-fg-muted" />
-          </button>
-          <button className="w-7 h-7 rounded-full border border-border-subtle flex items-center justify-center hover:border-border-subtle hover:bg-overlay transition-colors">
-            <ChevronRight className="w-3.5 h-3.5 text-fg-muted" />
-          </button>
-        </div>
       </div>
 
       {/* 2 cols on mobile, 3 cols on desktop */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-        {places.map((place) => {
+        {places.map((place, i) => {
           const isCommunity = place.badge === "community";
           const badgeLabel = isCommunity
             ? badgeLabels.communityContributed
             : place.badge === "curated" ? badgeLabels.curated : undefined;
           return (
-            <PlaceCardItem
-              key={place.id}
-              place={place}
-              displayName={getPlaceName(place.nameKey)}
-              displayDescription={getPlaceDesc(place.descriptionKey)}
-              badgeLabel={badgeLabel}
-              isCommunity={isCommunity}
-            />
+            <Reveal key={place.id} direction="scale" delay={i * 90} className="h-full">
+              <PlaceCardItem
+                place={place}
+                displayName={getPlaceName(place.nameKey)}
+                displayDescription={getPlaceDesc(place.descriptionKey)}
+                badgeLabel={badgeLabel}
+                isCommunity={isCommunity}
+              />
+            </Reveal>
           );
         })}
       </div>
@@ -121,12 +115,12 @@ export default function DiscoverySection() {
   };
 
   return (
-    <section className="bg-bg py-16">
+    <section className="bg-brand/5 dark:bg-surface py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
-        <div className="mb-10 text-center">
+        <Reveal className="mb-10 text-center">
           <h2 className="text-fg text-xl md:text-2xl font-bold mb-1">{t.discovery.title}</h2>
           <p className="text-fg-faint text-sm">{t.discovery.subtitle}</p>
-        </div>
+        </Reveal>
         <CategoryRow
           icon={<Coffee className="w-4 h-4" />}
           title={t.discovery.categories.coffeeHouses}
@@ -151,14 +145,14 @@ export default function DiscoverySection() {
           getPlaceDesc={getPlaceDesc}
           badgeLabels={t.discovery.badges}
         />
-        <div className="flex justify-center mt-8">
+        <Reveal direction="scale" className="flex justify-center mt-8">
           <Button
             asChild
-            className="bg-brand hover:bg-brand-dark text-black font-semibold rounded-full px-8 py-2.5 text-sm"
+            className="bg-brand hover:bg-brand-dark text-black font-semibold rounded-full px-8 py-2.5 text-sm hover:scale-105 transition-transform"
           >
             <Link href="/discovery">{t.discovery.viewFeed} →</Link>
           </Button>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

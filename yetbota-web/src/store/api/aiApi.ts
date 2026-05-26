@@ -10,18 +10,6 @@ export interface Citation {
   score: number;
 }
 
-export interface ChatRequest {
-  text: string;
-  user_id?: string | null;
-  chat_id?: string | null;
-}
-
-export interface ChatResponse {
-  answer: string;
-  citations: Citation[];
-  chat_id: string | null;
-}
-
 export interface Chat {
   id: string;
   user_id: string;
@@ -39,27 +27,43 @@ export interface AssistantMessage {
   created_at: string;
 }
 
-export interface Page<T> {
-  items: T[];
-  total: number;
-  limit: number;
-  offset: number;
+// The AI service returns resources directly (no { success, data } envelope) and
+// wraps collections in a named key rather than a paginated page object.
+export interface ChatListResponse {
+  chats: Chat[];
 }
 
-export type ChatPage = Page<Chat>;
-export type MessagePage = Page<AssistantMessage>;
+export interface MessageListResponse {
+  messages: AssistantMessage[];
+}
+
+export interface CreateChatArgs {
+  user_id: string;
+  title?: string;
+}
 
 export interface ListChatsArgs {
   user_id: string;
   limit?: number;
-  offset?: number;
 }
 
 export interface ListMessagesArgs {
   chat_id: string;
-  user_id: string;
   limit?: number;
-  offset?: number;
+}
+
+export interface SendMessageArgs {
+  chat_id: string;
+  text: string;
+  // Not sent in the body — used only to invalidate this user's chat list (the
+  // send can update the chat title and bump updated_at ordering).
+  user_id?: string;
+}
+
+export interface DeleteChatArgs {
+  chat_id: string;
+  // Used only to invalidate this user's chat list.
+  user_id?: string;
 }
 
 function buildParams(query: Record<string, string | number | undefined>): Record<string, string> {
@@ -73,37 +77,72 @@ function buildParams(query: Record<string, string | number | undefined>): Record
 
 export const aiApi = aiBaseApi.injectEndpoints({
   endpoints: (builder) => ({
-    chat: builder.mutation<ChatResponse, ChatRequest>({
-      query: (body) => ({ url: "/assistant/chat", method: "POST", body }),
-      invalidatesTags: (result, _error, arg) => {
-        const tags: Array<{ type: "AIChats" | "AIMessages"; id: string }> = [];
-        if (arg.user_id) tags.push({ type: "AIChats", id: arg.user_id });
-        if (result?.chat_id) tags.push({ type: "AIMessages", id: result.chat_id });
-        return tags;
-      },
+    // POST /v1/assistant/chats -> 201 Chat
+    createChat: builder.mutation<Chat, CreateChatArgs>({
+      query: ({ user_id, title }) => ({
+        url: "/assistant/chats",
+        method: "POST",
+        body: { user_id, title: title ?? "" },
+      }),
+      invalidatesTags: (_result, _error, arg) => [{ type: "AIChats", id: arg.user_id }],
     }),
-    listChats: builder.query<ChatPage, ListChatsArgs>({
-      query: ({ user_id, limit, offset }) => ({
+
+    // GET /v1/assistant/chats?user_id=&limit= -> { chats: [...] }
+    listChats: builder.query<ChatListResponse, ListChatsArgs>({
+      query: ({ user_id, limit }) => ({
         url: "/assistant/chats",
         method: "GET",
-        params: buildParams({ user_id, limit, offset }),
+        params: buildParams({ user_id, limit }),
       }),
       providesTags: (_result, _error, arg) => [{ type: "AIChats", id: arg.user_id }],
     }),
-    listMessages: builder.query<MessagePage, ListMessagesArgs>({
-      query: ({ chat_id, user_id, limit, offset }) => ({
+
+    // GET /v1/assistant/chats/{chat_id}/messages?limit= -> { messages: [...] }
+    listMessages: builder.query<MessageListResponse, ListMessagesArgs>({
+      query: ({ chat_id, limit }) => ({
         url: `/assistant/chats/${encodeURIComponent(chat_id)}/messages`,
         method: "GET",
-        params: buildParams({ user_id, limit, offset }),
+        params: buildParams({ limit }),
       }),
       providesTags: (_result, _error, arg) => [{ type: "AIMessages", id: arg.chat_id }],
+    }),
+
+    // POST /v1/assistant/chats/{chat_id}/messages -> 201 assistant Message (runs RAG)
+    sendMessage: builder.mutation<AssistantMessage, SendMessageArgs>({
+      query: ({ chat_id, text }) => ({
+        url: `/assistant/chats/${encodeURIComponent(chat_id)}/messages`,
+        method: "POST",
+        body: { text },
+      }),
+      invalidatesTags: (_result, _error, arg) => {
+        const tags: Array<{ type: "AIChats" | "AIMessages"; id: string }> = [];
+        if (arg.user_id) tags.push({ type: "AIChats", id: arg.user_id });
+        return tags;
+      },
+    }),
+
+    // DELETE /v1/assistant/chats/{chat_id} -> 204
+    deleteChat: builder.mutation<void, DeleteChatArgs>({
+      query: ({ chat_id }) => ({
+        url: `/assistant/chats/${encodeURIComponent(chat_id)}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (_result, _error, arg) => {
+        const tags: Array<{ type: "AIChats" | "AIMessages"; id: string }> = [
+          { type: "AIMessages", id: arg.chat_id },
+        ];
+        if (arg.user_id) tags.push({ type: "AIChats", id: arg.user_id });
+        return tags;
+      },
     }),
   }),
 });
 
 export const {
-  useChatMutation,
+  useCreateChatMutation,
   useListChatsQuery,
   useListMessagesQuery,
   useLazyListMessagesQuery,
+  useSendMessageMutation,
+  useDeleteChatMutation,
 } = aiApi;

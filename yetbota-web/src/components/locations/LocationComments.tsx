@@ -35,32 +35,6 @@ function timeLabel(iso?: string): string {
   }).format(d);
 }
 
-function voteStorageKey(commentId: string) {
-  return `yetbota.commentVote.${commentId}`;
-}
-
-function readStoredVote(commentId: string): "upvote" | "downvote" | null {
-  if (!commentId) return null;
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.localStorage.getItem(voteStorageKey(commentId));
-    if (raw === "upvote" || raw === "downvote") return raw;
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function writeStoredVote(commentId: string, vote: "upvote" | "downvote") {
-  if (!commentId) return;
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(voteStorageKey(commentId), vote);
-  } catch {
-    // ignore
-  }
-}
-
 function truncateText(s: string, max: number) {
   const t = s.trim();
   if (t.length <= max) return t;
@@ -94,7 +68,11 @@ function CommentNode({
   const [createComment, { isLoading: replying }] = useCreateCommentMutation();
   const [replyOpen, setReplyOpen] = useState(false);
   const [replyText, setReplyText] = useState("");
-  const [myVote, setMyVote] = useState<"upvote" | "downvote" | null>(() => readStoredVote(c.id));
+  // `undefined` = user hasn't voted this session; defer to the server value
+  // (the comment's own user_vote, from the comments list API).
+  const [myVoteOverride, setMyVoteOverride] = useState<"upvote" | "downvote" | null | undefined>(undefined);
+  const myVote: "upvote" | "downvote" | null =
+    myVoteOverride !== undefined ? myVoteOverride : c.user_vote ?? null;
   const [voteOverride, setVoteOverride] = useState<{ upvote: number; downvote: number } | null>(null);
   const upCount = voteOverride?.upvote ?? (typeof c.upvote === "number" ? c.upvote : 0);
   const downCount = voteOverride?.downvote ?? (typeof c.downvote === "number" ? c.downvote : 0);
@@ -124,8 +102,7 @@ function CommentNode({
   async function handleVote(next: "upvote" | "downvote") {
     if (!c.id) return;
     try {
-      setMyVote(next);
-      writeStoredVote(c.id, next);
+      setMyVoteOverride(next);
       const res = await voteComment({ id: c.id, body: { vote_type: next } }).unwrap();
       if (typeof res.upvote === "number" && typeof res.downvote === "number") {
         setVoteOverride({ upvote: res.upvote, downvote: res.downvote });
@@ -133,7 +110,8 @@ function CommentNode({
       onRefetch();
     } catch (err) {
       toast({ variant: "destructive", title: "Failed to vote", description: getAuthErrorMessage(err) });
-      setMyVote(readStoredVote(c.id));
+      // Roll back to the server's value.
+      setMyVoteOverride(undefined);
     }
   }
 
@@ -381,11 +359,18 @@ export default function LocationComments({
         </div>
         <div className="relative flex-1">
           <input
-            className="w-full bg-white dark:bg-surface border border-slate-200 dark:border-border-subtle rounded-2xl py-3 px-5 pr-12 focus:ring-brand focus:border-brand"
+            className="w-full bg-white dark:bg-surface border border-brand/30 hover:border-brand/50 focus:border-brand focus:ring-2 focus:ring-brand/20 focus:outline-none rounded-2xl py-3 px-5 pr-12 transition-colors placeholder:text-fg-faint"
             placeholder="Write a comment..."
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                e.preventDefault();
+                if (posting || !accessToken || !text.trim()) return;
+                void handleSend();
+              }
+            }}
             disabled={posting || !accessToken}
           />
           <button

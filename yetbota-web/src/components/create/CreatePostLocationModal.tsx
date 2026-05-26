@@ -3,7 +3,16 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import OpenStreetMap from "@/components/maps/OpenStreetMap";
+import dynamic from "next/dynamic";
+
+const OpenStreetMap = dynamic(() => import("@/components/maps/OpenStreetMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-120 sm:h-152 rounded-2xl border border-border-subtle bg-surface flex items-center justify-center text-fg-muted text-sm">
+      Loading map…
+    </div>
+  ),
+});
 
 export default function CreatePostLocationModal({
   open,
@@ -38,8 +47,14 @@ export default function CreatePostLocationModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6 overscroll-contain">
-      <div className="bg-white dark:bg-surface w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl">
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6 overscroll-contain"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white dark:bg-surface w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-border-subtle flex items-center justify-between">
           <h3 className="text-lg sm:text-xl font-bold">Select Location</h3>
           <button

@@ -17,6 +17,7 @@ import { useVoteCommentMutation } from "@/store/api/contentApi";
 import { resolveApiUrl } from "@/lib/resolveApiUrl";
 import { getAuthErrorMessage } from "@/lib/authErrors";
 import { useToast } from "@/hooks/use-toast";
+import ReportDialog from "@/components/common/ReportDialog";
 
 function approxTimeLabel(iso: string): string {
   if (!iso) return "";
@@ -110,16 +111,21 @@ export interface QaAnswerCardProps {
   answer: Comment;
   replies: Comment[];
   canVote: boolean;
+  // The current user's existing vote on this answer, from the post-interactions
+  // endpoint (`comment_votes`). null/absent = not voted.
+  initialVote?: "upvote" | "downvote" | null;
   onReply?: (text: string) => Promise<void> | void;
 }
 
-export default function QaAnswerCard({ answer, replies, canVote, onReply }: QaAnswerCardProps) {
+export default function QaAnswerCard({ answer, replies, canVote, initialVote, onReply }: QaAnswerCardProps) {
   const { name, avatarUrl, initials, profileHref } = useAuthor(answer.user_id);
   const { toast } = useToast();
 
   const [optimisticUpvote, setOptimisticUpvote] = useState<number | null>(null);
   const [optimisticDownvote, setOptimisticDownvote] = useState<number | null>(null);
-  const [myVote, setMyVote] = useState<"upvote" | "downvote" | null>(null);
+  // `undefined` = user hasn't voted this session, so defer to the server value.
+  const [voteOverride, setVoteOverride] = useState<"upvote" | "downvote" | null | undefined>(undefined);
+  const myVote = voteOverride !== undefined ? voteOverride : initialVote ?? null;
   const [voteComment, { isLoading: voting }] = useVoteCommentMutation();
 
   const upvotes = optimisticUpvote ?? answer.upvote;
@@ -129,6 +135,10 @@ export default function QaAnswerCard({ answer, replies, canVote, onReply }: QaAn
   const [showReplies, setShowReplies] = useState(true);
   const [replying, setReplying] = useState(false);
   const [draft, setDraft] = useState("");
+  const [reportOpen, setReportOpen] = useState(false);
+  // Same gate as voting: must be signed in and not the author (self-reports are
+  // rejected server-side anyway).
+  const canReport = canVote;
 
   const visibleReplies = useMemo(() => replies, [replies]);
 
@@ -136,7 +146,7 @@ export default function QaAnswerCard({ answer, replies, canVote, onReply }: QaAn
     if (!canVote || voting) return;
     const previousMy = myVote;
     const nextMy = previousMy === kind ? null : kind;
-    setMyVote(nextMy);
+    setVoteOverride(nextMy);
     setOptimisticUpvote(
       kind === "upvote"
         ? answer.upvote + (nextMy === "upvote" ? 1 : 0) - (previousMy === "upvote" ? 1 : 0)
@@ -150,7 +160,7 @@ export default function QaAnswerCard({ answer, replies, canVote, onReply }: QaAn
     try {
       await voteComment({ id: answer.id, body: { vote_type: kind } }).unwrap();
     } catch (err) {
-      setMyVote(previousMy);
+      setVoteOverride(undefined);
       setOptimisticUpvote(null);
       setOptimisticDownvote(null);
       toast({
@@ -256,14 +266,25 @@ export default function QaAnswerCard({ answer, replies, canVote, onReply }: QaAn
               <span className="text-xs text-fg-faint">{approxTimeLabel(answer.created_at)}</span>
             </div>
           </div>
-          <button
-            type="button"
-            className="text-fg-faint hover:text-fg-muted transition-colors p-1 rounded-md hover:bg-overlay"
-            aria-label="Flag"
-          >
-            <Flag className="w-4 h-4" />
-          </button>
+          {canReport ? (
+            <button
+              type="button"
+              onClick={() => setReportOpen(true)}
+              className="text-fg-faint hover:text-fg-muted transition-colors p-1 rounded-md hover:bg-overlay"
+              aria-label="Report answer"
+            >
+              <Flag className="w-4 h-4" />
+            </button>
+          ) : null}
         </div>
+
+        <ReportDialog
+          open={reportOpen}
+          onClose={() => setReportOpen(false)}
+          contentType="COMMENT"
+          contentId={answer.id}
+          contentLabel="answer"
+        />
 
         <p className="text-fg-muted mb-4 leading-relaxed whitespace-pre-wrap">{answer.comment}</p>
 
