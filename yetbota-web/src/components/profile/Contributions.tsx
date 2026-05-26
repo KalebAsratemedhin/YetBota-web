@@ -9,7 +9,7 @@ import { useGetMeQuery } from "@/store/api/authApi";
 import { useAppSelector } from "@/store/hooks";
 import type { Post } from "@/types/content";
 
-type ContributionTab = "locations" | "questions" | "saved";
+type ContributionTab = "locations" | "questions" | "saved" | "hidden";
 
 const PAGE_SIZE = 8;
 // Signed-out visitors get a teaser of someone else's profile before a sign-in prompt.
@@ -20,6 +20,20 @@ function fmtDate(iso?: string | null): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+const STATUS_CHIP: Record<string, string> = {
+  HIDDEN: "bg-amber-500/90 text-black",
+  REMOVED: "bg-red-500/90 text-white",
+  DUPLICATE: "bg-slate-500/90 text-white",
+};
+
+// Chip for a post's moderation status. Returns null for visible/absent (the
+// normal state needs no badge); unknown statuses get a neutral fallback.
+function statusChip(status?: string): { label: string; className: string } | null {
+  if (!status || status === "VISIBLE") return null;
+  const label = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+  return { label, className: STATUS_CHIP[status] ?? "bg-slate-500/90 text-white" };
 }
 
 function PostCard({ post }: { post: Post }) {
@@ -37,12 +51,13 @@ function PostCard({ post }: { post: Post }) {
       : "Unknown location";
   const likes = typeof post.likes === "number" && Number.isFinite(post.likes) ? post.likes : 0;
   const href = post.is_question ? `/qa/${encodeURIComponent(post.id)}` : `/locations/${encodeURIComponent(post.id)}`;
+  const chip = statusChip(post.moderation_status);
   return (
     <button
       type="button"
       onClick={() => router.push(href)}
       className="text-left bg-surface border border-border-subtle rounded-xl overflow-hidden group cursor-pointer hover:border-overlay-strong transition-colors flex flex-col"
-      aria-label={`Open ${post.is_question ? "question" : "post"}: ${title}`}
+      aria-label={`Open ${post.is_question ? "question" : "post"}: ${title}${chip ? ` (${chip.label})` : ""}`}
     >
       {/* Image */}
       <div className="relative aspect-[3/2] overflow-hidden">
@@ -55,6 +70,13 @@ function PostCard({ post }: { post: Post }) {
           />
         ) : (
           <div className="absolute inset-0 bg-linear-to-br from-[#1b1b1b] to-[#0f0f0f]" />
+        )}
+        {chip && (
+          <span
+            className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${chip.className}`}
+          >
+            {chip.label}
+          </span>
         )}
       </div>
 
@@ -90,28 +112,34 @@ export default function ContributionsGrid({ userId: userIdProp }: { userId?: str
     () => [
       { key: "locations", label: "Locations" },
       { key: "questions", label: "Q&A" },
-      // Saved posts are the caller's own bookmarks — only meaningful on your profile.
-      ...(isSelf ? [{ key: "saved" as const, label: "Saved" }] : []),
+      // Saved bookmarks and hidden/non-visible posts are personal — only your own profile.
+      ...(isSelf
+        ? [
+            { key: "saved" as const, label: "Saved" },
+            { key: "hidden" as const, label: "Hidden" },
+          ]
+        : []),
     ],
     [isSelf]
   );
 
-  // Locations/Q&A both come from the post list, filtered by is_question.
-  const postsArg = useMemo(
-    () =>
-      targetUserId && tab !== "saved"
-        ? {
-            user_id: targetUserId,
-            is_question: tab === "questions",
-            page: 1,
-            page_size: PAGE_SIZE,
-            sort_by: "created_at" as const,
-            sort_dir: "desc" as const,
-            resolution: "MOBILE" as const,
-          }
-        : undefined,
-    [targetUserId, tab]
-  );
+  // Locations/Q&A/Hidden all come from the post list. Locations & Q&A filter by
+  // is_question; Hidden sets non_visible=true to surface posts excluded from the
+  // default visible listing (hidden/removed/duplicate, any type).
+  const postsArg = useMemo(() => {
+    if (!targetUserId || tab === "saved") return undefined;
+    const base = {
+      user_id: targetUserId,
+      page: 1,
+      page_size: PAGE_SIZE,
+      sort_by: "created_at" as const,
+      sort_dir: "desc" as const,
+      resolution: "MOBILE" as const,
+    };
+    return tab === "hidden"
+      ? { ...base, non_visible: true }
+      : { ...base, is_question: tab === "questions" };
+  }, [targetUserId, tab]);
   const { data: postsData, isFetching: postsFetching } = useListPostsQuery(postsArg ?? {}, {
     skip: !postsArg,
   });
@@ -133,13 +161,15 @@ export default function ContributionsGrid({ userId: userIdProp }: { userId?: str
 
   const emptyText = isSavedTab
     ? "You haven't saved any posts yet."
-    : tab === "questions"
-      ? isSelf
-        ? "You haven't asked any questions yet."
-        : "This user hasn't asked any questions."
-      : isSelf
-        ? "You haven't shared any location posts yet."
-        : "This user hasn't shared any location posts.";
+    : tab === "hidden"
+      ? "You don't have any hidden or removed posts."
+      : tab === "questions"
+        ? isSelf
+          ? "You haven't asked any questions yet."
+          : "This user hasn't asked any questions."
+        : isSelf
+          ? "You haven't shared any location posts yet."
+          : "This user hasn't shared any location posts.";
 
   return (
     <div className="bg-bg border border-border-subtle rounded-2xl p-4 overflow-hidden flex flex-col min-h-0">
@@ -203,7 +233,7 @@ export default function ContributionsGrid({ userId: userIdProp }: { userId?: str
               <div className="text-fg font-semibold">Nothing here yet</div>
               <div className="mt-1">{emptyText}</div>
             </div>
-            {isSelf && !isSavedTab && (
+            {isSelf && !isSavedTab && tab !== "hidden" && (
               <Link
                 href="/create"
                 className="shrink-0 inline-flex items-center justify-center h-10 px-4 rounded-xl bg-brand text-black font-bold hover:opacity-90"

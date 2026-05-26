@@ -1,3 +1,5 @@
+import type { ModerationStatus } from "@/types/moderation";
+
 export type Resolution = "ORIGINAL" | "MOBILE" | "WEB";
 
 export type VoteTypePost = "like" | "dislike";
@@ -44,6 +46,11 @@ export interface Post {
   interaction?: VoteTypePost;
   saved?: boolean;
   following_author?: boolean;
+
+  // Moderation visibility status. Surfaced when listing with non_visible=true
+  // (otherwise the post is implicitly VISIBLE). May include statuses beyond the
+  // VISIBLE/HIDDEN/REMOVED trio (e.g. duplicates), so treat unknowns gracefully.
+  moderation_status?: ModerationStatus | (string & {});
 }
 
 export interface ListPostsQuery {
@@ -54,6 +61,9 @@ export interface ListPostsQuery {
   search?: string;
   // Caller's saved posts only (requires a token). Replaces GET /posts/saved.
   saved?: boolean;
+  // When true the list drops the "only visible" restriction and includes
+  // non-visible posts (hidden/removed/duplicate, all statuses). No auth gate.
+  non_visible?: boolean;
   // Questions attached to this post. Combine with is_question=true to replace
   // the removed GET /posts/{id}/questions.
   attached_post_id?: string;
