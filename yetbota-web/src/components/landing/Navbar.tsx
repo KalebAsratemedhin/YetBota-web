@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Bell, LogOut, Menu, Settings, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useContent } from "@/lib/useContent";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -14,6 +14,7 @@ import type { Locale } from "@/types/landing";
 import { useGetMeQuery } from "@/store/api/authApi";
 import { resolveApiUrl } from "@/lib/resolveApiUrl";
 import HeaderNavLink from "@/components/shared/HeaderNavLink";
+import UserMenu from "@/components/shared/UserMenu";
 
 function LocalePill({
   locale,
@@ -122,7 +123,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
             {navLinks.map((link) => (
               <HeaderNavLink key={link.id} href={link.href}>
                 {link.label}
@@ -131,7 +132,7 @@ export default function Navbar() {
           </nav>
 
           {/* Desktop actions */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             <LocalePill locale={locale} onLocaleChange={(l) => dispatch(setLocale(l))} />
             {isSignedIn ? (
               <div className="relative" ref={profileRef}>
@@ -156,33 +157,10 @@ export default function Navbar() {
                 </button>
 
                 {profileOpen && (
-                  <div className="absolute right-0 mt-2 w-52 rounded-2xl border border-border-subtle bg-surface shadow-[0px_20px_60px_-20px_rgba(0,0,0,0.3)] p-2">
-                    <Link
-                      href="/profile"
-                      onClick={() => setProfileOpen(false)}
-                      className="block px-3 py-2 rounded-xl text-sm text-fg hover:bg-overlay transition-colors"
-                    >
-                      Profile
-                    </Link>
-                    <Link
-                      href="/settings"
-                      onClick={() => setProfileOpen(false)}
-                      className="block px-3 py-2 rounded-xl text-sm text-fg hover:bg-overlay transition-colors"
-                    >
-                      Settings
-                    </Link>
-                    <div className="h-px bg-border-subtle my-1" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProfileOpen(false);
-                        handleSignOut();
-                      }}
-                      className="w-full text-left px-3 py-2 rounded-xl text-sm text-fg hover:bg-overlay transition-colors"
-                    >
-                      {t.nav.signOut}
-                    </button>
-                  </div>
+                  <UserMenu
+                    className="absolute right-0 mt-2 w-52"
+                    onClose={() => setProfileOpen(false)}
+                  />
                 )}
               </div>
             ) : (
@@ -201,8 +179,8 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile: locale + auth + hamburger */}
-          <div className="flex md:hidden items-center gap-2">
+          {/* Mobile / tablet: locale + auth + hamburger */}
+          <div className="flex lg:hidden items-center gap-2">
             <LocalePill locale={locale} size="sm" onLocaleChange={(l) => dispatch(setLocale(l))} />
             {isSignedIn ? (
               <button
@@ -243,7 +221,7 @@ export default function Navbar() {
 
       {/* Mobile profile dropdown */}
       {isSignedIn && profileOpen && (
-        <div className="md:hidden fixed top-20 left-0 right-0 z-50 bg-surface border-b border-border-subtle px-4 py-3">
+        <div className="lg:hidden fixed top-20 left-0 right-0 z-50 bg-surface border-b border-border-subtle px-4 py-3">
           <div className="flex flex-col gap-1">
             <Link
               href="/profile"
@@ -251,9 +229,21 @@ export default function Navbar() {
                 setProfileOpen(false);
                 setMobileOpen(false);
               }}
-              className="text-sm text-fg-muted hover:text-fg hover:bg-overlay px-3 py-2.5 rounded-lg transition-colors"
+              className="flex items-center gap-2 text-sm text-fg-muted hover:text-fg hover:bg-overlay px-3 py-2.5 rounded-lg transition-colors"
             >
+              <User className="w-4 h-4" />
               Profile
+            </Link>
+            <Link
+              href="/notifications"
+              onClick={() => {
+                setProfileOpen(false);
+                setMobileOpen(false);
+              }}
+              className="flex items-center gap-2 text-sm text-fg-muted hover:text-fg hover:bg-overlay px-3 py-2.5 rounded-lg transition-colors"
+            >
+              <Bell className="w-4 h-4" />
+              Notifications
             </Link>
             <Link
               href="/settings"
@@ -261,8 +251,9 @@ export default function Navbar() {
                 setProfileOpen(false);
                 setMobileOpen(false);
               }}
-              className="text-sm text-fg-muted hover:text-fg hover:bg-overlay px-3 py-2.5 rounded-lg transition-colors"
+              className="flex items-center gap-2 text-sm text-fg-muted hover:text-fg hover:bg-overlay px-3 py-2.5 rounded-lg transition-colors"
             >
+              <Settings className="w-4 h-4" />
               Settings
             </Link>
             <button
@@ -271,8 +262,9 @@ export default function Navbar() {
                 setProfileOpen(false);
                 handleSignOut();
               }}
-              className="text-sm text-fg-muted hover:text-fg hover:bg-overlay px-3 py-2.5 rounded-lg transition-colors text-left"
+              className="flex items-center gap-2 text-sm text-fg-muted hover:text-fg hover:bg-overlay px-3 py-2.5 rounded-lg transition-colors text-left"
             >
+              <LogOut className="w-4 h-4" />
               {t.nav.signOut}
             </button>
           </div>
@@ -281,7 +273,7 @@ export default function Navbar() {
 
       {/* Mobile dropdown */}
       {mobileOpen && (
-        <div className="md:hidden bg-surface border-t border-border-subtle px-4 pb-5 pt-3">
+        <div className="lg:hidden bg-surface border-t border-border-subtle px-4 pb-5 pt-3">
           <nav className="flex flex-col gap-1 mb-4">
             {navLinks.map((link) => (
               <Link

@@ -107,7 +107,7 @@ const baseQueryUnwrappingEnvelope: BaseQueryFn<string | FetchArgs, unknown, Fetc
 export const contentBaseApi = createApi({
   reducerPath: "contentApi",
   baseQuery: baseQueryUnwrappingEnvelope,
-  tagTypes: ["Content", "ModerationCase", "AdminStats", "AdminAudit"],
+  tagTypes: ["Content", "ModerationCase", "AdminStats", "AdminAudit", "Notification"],
   endpoints: () => ({}),
 });
 

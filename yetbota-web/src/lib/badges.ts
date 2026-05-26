@@ -4,6 +4,9 @@
 // field (Elo-style, starts at 1500). We reuse the existing badge icon images
 // (lucide icons + tints) and label each tier with the backend's name.
 
+import { createElement, type ComponentType, type ReactElement } from "react";
+import { Award, Camera, Compass, Heart, Map as MapIcon, ShieldCheck } from "lucide-react";
+
 export interface BadgeMeta {
   slug: string;
   label: string;
@@ -33,6 +36,26 @@ export const SCORE_BADGES: BadgeMeta[] = [
 export const BADGE_META: Record<string, BadgeMeta> = Object.fromEntries(
   SCORE_BADGES.map((b) => [b.slug, b]),
 );
+
+// Resolve a badge's lucide icon name (BadgeMeta.icon) to its component. Falls
+// back to a generic Award when the badge is null/unknown.
+const BADGE_ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
+  Compass,
+  ShieldCheck,
+  Map: MapIcon,
+  Camera,
+  Heart,
+};
+
+// Render a badge's icon as an element. Returning a ReactElement (rather than a
+// component) keeps callers from binding a component to a capitalized variable
+// during render, which the React Compiler lint forbids.
+export function renderBadgeIcon(meta: BadgeMeta | null | undefined, className?: string): ReactElement {
+  const Icon: ComponentType<{ className?: string }> = meta
+    ? BADGE_ICON_MAP[meta.icon] ?? Compass
+    : Award;
+  return createElement(Icon, { className });
+}
 
 // Earned, recognized badges in ascending tier order. Unknown/reserved slugs
 // are dropped so the UI never crashes on them.

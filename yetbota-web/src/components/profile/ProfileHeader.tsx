@@ -2,7 +2,7 @@
 import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Camera, MapPin, Settings } from "lucide-react";
+import { Bell, Camera, MapPin, Settings } from "lucide-react";
 import type { ProfileUser } from "@/lib/profileMockData";
 import { useUploadMyProfileImageMutation } from "@/store/api/authApi";
 import { useToast } from "@/hooks/use-toast";
@@ -147,13 +147,22 @@ export default function ProfileHeader({ user, onProfileImageUploaded, readOnly =
               onChange={handleFileSelected}
             />
 
-            <Link
-              href="/settings"
-              className="lg:shrink-0 lg:mb-2 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border-subtle bg-surface text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors self-end lg:self-auto"
-              aria-label="Settings"
-            >
-              <Settings className="w-5 h-5" />
-            </Link>
+            <div className="flex items-center gap-2 self-end lg:self-auto lg:shrink-0 lg:mb-2">
+              <Link
+                href="/notifications"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border-subtle bg-surface text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors"
+                aria-label="Notifications"
+              >
+                <Bell className="w-5 h-5" />
+              </Link>
+              <Link
+                href="/settings"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border-subtle bg-surface text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors"
+                aria-label="Settings"
+              >
+                <Settings className="w-5 h-5" />
+              </Link>
+            </div>
           </>
         )}
       </div>

@@ -47,8 +47,13 @@ function DiscoveryContent() {
   const [coords, setCoords] = useState<GeoLocation | null>(null);
   const [geoError, setGeoError] = useState<string | null>(null);
 
-  // Debounce the search box so we don't fire a request per keystroke.
+  // Debounce the search box so we don't fire a request per keystroke. Typing a
+  // space submits the current query immediately (commit at word boundaries).
   useEffect(() => {
+    if (search.endsWith(" ")) {
+      setDebouncedSearch(search.trim());
+      return;
+    }
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 350);
     return () => clearTimeout(t);
   }, [search]);
@@ -56,6 +61,9 @@ function DiscoveryContent() {
   const proximityActive = sort === "proximity" && coords !== null;
   // Any active filter switches us from the personalized feed to /v1/posts.
   const isFiltering = Boolean(debouncedSearch || tags.length > 0 || sort === "trending" || proximityActive);
+  // The personalized feed (/v1/feed) is auth-only. Use the public /v1/posts list
+  // when filtering OR when signed out, so anonymous visitors still see content.
+  const useList = isFiltering || !accessToken;
 
   // ---- Personalized feed (/v1/feed, auth-only, cursor-paginated) -----------
   const [triggerFeed, { isFetching: feedFetching, isError: feedError }] = useLazyGetFeedQuery();
@@ -147,13 +155,14 @@ function DiscoveryContent() {
     [triggerList, debouncedSearch, tags, sort, coords]
   );
 
-  // Re-run from page 1 whenever the active filter set changes.
+  // Re-run from page 1 whenever the list becomes active or the filter set
+  // changes (loadSearchPage's identity changes with its filter deps).
   useEffect(() => {
-    if (!isFiltering) return;
+    if (!useList) return;
     setSearchPosts([]);
     setSearchLoadedOnce(false);
     void loadSearchPage(1);
-  }, [isFiltering, loadSearchPage]);
+  }, [useList, loadSearchPage]);
 
   const searchReachedEnd = searchPosts.length >= searchTotal;
 
@@ -196,7 +205,7 @@ function DiscoveryContent() {
 
   // ---- Unified "load more" -------------------------------------------------
   function handleLoadMore() {
-    if (isFiltering) {
+    if (useList) {
       if (searchReachedEnd || listFetching) return;
       void loadSearchPage(searchPage + 1);
     } else {
@@ -251,12 +260,13 @@ function DiscoveryContent() {
   }
 
   function renderFeedColumn() {
-    if (isFiltering) {
+    // Public list: active when filtering or when signed out.
+    if (useList) {
       if (!searchLoadedOnce) return skeletons;
       if (listError && searchPosts.length === 0) {
         return (
           <div className="bg-overlay border border-border-subtle rounded-3xl p-6 text-sm text-fg-muted">
-            Failed to load results.{" "}
+            Failed to load {isFiltering ? "results" : "locations"}.{" "}
             <button type="button" className="text-brand font-semibold" onClick={() => void loadSearchPage(1)}>
               Retry
             </button>
@@ -264,35 +274,23 @@ function DiscoveryContent() {
         );
       }
       if (searchPosts.length === 0) {
-        return (
+        return isFiltering ? (
           <div className="bg-overlay border border-border-subtle rounded-3xl p-6 text-sm text-fg-muted">
             No locations match your filters.{" "}
             <button type="button" className="text-brand font-semibold" onClick={clearFilters}>
               Clear filters
             </button>
           </div>
+        ) : (
+          <div className="bg-overlay border border-border-subtle rounded-3xl p-6 text-sm text-fg-muted">
+            No locations to show yet. Check back soon.
+          </div>
         );
       }
       return renderPostList(searchPosts, !searchReachedEnd, listFetching);
     }
 
-    // Personalized feed (default)
-    if (!accessToken) {
-      return (
-        <div className="bg-overlay border border-border-subtle rounded-3xl p-8 text-center">
-          <p className="text-fg font-semibold mb-1">Your feed is waiting</p>
-          <p className="text-sm text-fg-muted mb-4">
-            Sign in to see a personalized feed — or search and filter locations below without an account.
-          </p>
-          <Link
-            href="/signin"
-            className="inline-flex items-center justify-center h-10 px-6 rounded-full bg-brand text-white font-semibold text-sm hover:bg-brand-dark transition-colors"
-          >
-            Sign in
-          </Link>
-        </div>
-      );
-    }
+    // Personalized feed (signed in, no filters)
     if (!feedLoadedOnce) return skeletons;
     if (feedError && feedPosts.length === 0) {
       return (

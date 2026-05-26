@@ -1,7 +1,6 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import Link from "next/link";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ReputationCard from "@/components/profile/ReputationCard";
 import BadgesCard from "@/components/profile/BadgesCard";
@@ -17,25 +16,16 @@ export default function PublicUserProfilePage() {
 
   const accessToken = useAppSelector((s) => s.auth.accessToken);
   const { data: me } = useGetMeQuery(undefined, { skip: !accessToken });
+  // GET /v1/users/{id} is a public profile read, so anonymous visitors can view
+  // it too — no auth gate.
   const { data, isLoading, isFetching, isError, refetch } = useGetUserByIdQuery(
     { id, resolution: "WEB" },
-    { skip: !accessToken || !id }
+    { skip: !id }
   );
 
   const meId = me?.user?.id;
   const isSelf = Boolean(meId && id && meId === id);
   const user = data?.user ? mapUserPrivateToProfileUser(data.user) : null;
-
-  if (!accessToken) {
-    return (
-      <div className="bg-bg min-h-[50vh] flex flex-col items-center justify-center gap-3 px-4 sm:px-6 text-sm">
-        <p className="text-fg-muted">Sign in to view this profile.</p>
-        <Link href="/signin" className="text-brand font-semibold hover:underline">
-          Sign in
-        </Link>
-      </div>
-    );
-  }
 
   if (isLoading || (isFetching && !user)) {
     return (

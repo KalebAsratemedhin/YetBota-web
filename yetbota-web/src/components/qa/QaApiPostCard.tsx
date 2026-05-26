@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowDown, ArrowUp, MessageCircle, MoreHorizontal, Share2 } from "lucide-react";
 import type { Post } from "@/types/content";
-import { useAppSelector } from "@/store/hooks";
 import { useGetUserByIdQuery } from "@/store/api/authApi";
 import { resolveApiUrl } from "@/lib/resolveApiUrl";
 
@@ -24,10 +23,11 @@ function approxTimeLabel(iso: string): string {
 }
 
 export default function QaApiPostCard({ post }: { post: Post }) {
-  const accessToken = useAppSelector((s) => s.auth.accessToken);
+  // GET /v1/users/{id} is a public profile read, so the author loads for
+  // anonymous viewers too — no auth gate.
   const { data: authorRes } = useGetUserByIdQuery(
     { id: post.user_id, resolution: "WEB" },
-    { skip: !accessToken || !post.user_id }
+    { skip: !post.user_id }
   );
 
   const authorName = authorRes?.user

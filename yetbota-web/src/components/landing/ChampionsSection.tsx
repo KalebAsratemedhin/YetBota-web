@@ -1,9 +1,12 @@
 "use client";
 import { useRef } from "react";
-import { Trophy, ShieldCheck, Camera, MessageSquare, Star } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { Star } from "lucide-react";
 import AutoScroll from "embla-carousel-auto-scroll";
 import { useContent } from "@/lib/useContent";
-import { CHAMPIONS, type Champion } from "@/lib/dummydata";
+import { useTopContributors, type TopContributor } from "@/lib/useTopContributors";
+import { renderBadgeIcon } from "@/lib/badges";
 import Reveal from "@/components/landing/Reveal";
 import {
   Carousel,
@@ -13,15 +16,7 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel";
 
-// TODO: Replace with RTK Query when backend is ready:
-// const { data: champions } = useGetChampionsQuery();
-
-const BADGE_ICONS = {
-  mapper: Trophy,
-  guide:  ShieldCheck,
-  lens:   Camera,
-  qa:     MessageSquare,
-};
+const CHAMPIONS_LIMIT = 8;
 
 const AVATAR_COLORS = [
   "bg-purple-700",
@@ -37,37 +32,51 @@ const ROLE_COLORS = [
   "text-orange-400",
 ];
 
-function ChampionItem({ champion, index }: { champion: Champion; index: number }) {
-  const initials = champion.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
-  const BadgeIcon = BADGE_ICONS[champion.badgeIcon];
+function ChampionItem({ champion, index }: { champion: TopContributor; index: number }) {
   const colorIdx = index % AVATAR_COLORS.length;
+  const roleLabel = champion.topBadge?.label ?? "Contributor";
 
   return (
-    <div className="flex flex-col items-center text-center px-2 group">
+    <Link href={champion.profileHref} className="flex flex-col items-center text-center px-2 group">
       {/* Avatar with badge icon */}
       <div className="relative mb-4">
-        <div className={`w-20 h-20 ${AVATAR_COLORS[colorIdx]} rounded-full flex items-center justify-center text-xl font-bold text-white border-2 border-brand/40 group-hover:scale-110 group-hover:border-brand transition-all duration-300`}>
-          {initials}
+        <div
+          className={`w-20 h-20 ${AVATAR_COLORS[colorIdx]} rounded-full overflow-hidden flex items-center justify-center text-xl font-bold text-white border-2 border-brand/40 group-hover:scale-110 group-hover:border-brand transition-all duration-300`}
+        >
+          {champion.avatarUrl ? (
+            <Image
+              src={champion.avatarUrl}
+              alt={champion.name}
+              width={80}
+              height={80}
+              className="w-full h-full object-cover"
+              unoptimized
+            />
+          ) : (
+            champion.initials
+          )}
         </div>
         <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-bg border border-border-subtle rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-          <BadgeIcon className="w-4 h-4 text-brand" />
+          {renderBadgeIcon(champion.topBadge, "w-4 h-4 text-brand")}
         </div>
       </div>
 
       {/* Name */}
-      <p className="text-fg font-bold text-base mb-0.5">{champion.name}</p>
+      <p className="text-fg font-bold text-base mb-0.5 group-hover:text-brand transition-colors">
+        {champion.name}
+      </p>
 
-      {/* Role */}
+      {/* Top badge / role */}
       <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${ROLE_COLORS[colorIdx]}`}>
-        {champion.roleKey}
+        {roleLabel}
       </p>
 
       {/* Points */}
       <div className="inline-flex items-center gap-1.5">
         <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400 shrink-0" />
-        <span className="text-fg-muted text-sm font-semibold">{champion.points.toLocaleString()} pts</span>
+        <span className="text-fg-muted text-sm font-semibold">{champion.rating.toLocaleString()} pts</span>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -76,9 +85,10 @@ export default function ChampionsSection() {
   const autoScroll = useRef(
     AutoScroll({ speed: 1, startDelay: 0, stopOnInteraction: false, playOnInit: true })
   );
+  const { contributors, isLoading } = useTopContributors(CHAMPIONS_LIMIT);
 
   // Duplicate so there's always overflow for a continuous loop.
-  const slides = [...CHAMPIONS, ...CHAMPIONS];
+  const slides = [...contributors, ...contributors];
 
   return (
     <section className="bg-stone-100 dark:bg-bg py-16">
@@ -88,23 +98,37 @@ export default function ChampionsSection() {
           <p className="text-fg-faint text-base">{t.champions.subtitle}</p>
         </Reveal>
 
-        <Carousel
-          opts={{ align: "start", loop: true }}
-          plugins={[autoScroll.current]}
-          className="w-full max-w-4xl mx-auto"
-          onMouseEnter={() => autoScroll.current.stop()}
-          onMouseLeave={() => autoScroll.current.play()}
-        >
-          <CarouselContent className="py-6">
-            {slides.map((champion, i) => (
-              <CarouselItem key={`${champion.id}-${i}`} className="basis-1/2 md:basis-1/4">
-                <ChampionItem champion={champion} index={i} />
-              </CarouselItem>
+        {isLoading ? (
+          <div className="flex justify-center gap-8 py-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex flex-col items-center gap-3">
+                <div className="w-20 h-20 rounded-full bg-overlay animate-pulse" />
+                <div className="h-3 w-20 rounded bg-overlay animate-pulse" />
+                <div className="h-2.5 w-12 rounded bg-overlay animate-pulse" />
+              </div>
             ))}
-          </CarouselContent>
-          <CarouselPrevious className="hidden sm:inline-flex bg-bg" />
-          <CarouselNext className="hidden sm:inline-flex bg-bg" />
-        </Carousel>
+          </div>
+        ) : contributors.length === 0 ? (
+          <p className="text-center text-fg-muted text-sm py-6">No champions to show yet.</p>
+        ) : (
+          <Carousel
+            opts={{ align: "start", loop: true }}
+            plugins={[autoScroll.current]}
+            className="w-full max-w-4xl mx-auto"
+            onMouseEnter={() => autoScroll.current.stop()}
+            onMouseLeave={() => autoScroll.current.play()}
+          >
+            <CarouselContent className="py-6">
+              {slides.map((champion, i) => (
+                <CarouselItem key={`${champion.id}-${i}`} className="basis-1/2 md:basis-1/4">
+                  <ChampionItem champion={champion} index={i} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden sm:inline-flex bg-bg" />
+            <CarouselNext className="hidden sm:inline-flex bg-bg" />
+          </Carousel>
+        )}
       </div>
     </section>
   );

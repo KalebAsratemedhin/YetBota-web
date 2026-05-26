@@ -1,70 +1,136 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import NotificationsHeader from "@/components/notifications/NotificationsHeader";
 import NotificationItem from "@/components/notifications/NotificationItem";
+import PushOptInBanner from "@/components/notifications/PushOptInBanner";
 import {
-  MOCK_NOTIFICATIONS,
-  filterNotifications,
-  type AppNotification,
-  type NotificationFilter,
-} from "@/lib/notificationsMockData";
+  useDeleteNotificationMutation,
+  useListNotificationsQuery,
+  useMarkNotificationsReadMutation,
+} from "@/store/api/notificationApi";
+import { useAppSelector } from "@/store/hooks";
+import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
 
-const GROUP_ORDER = ["TODAY", "YESTERDAY"] as const;
-
-function groupByDate(items: AppNotification[]) {
-  return GROUP_ORDER.map((group) => ({
-    group,
-    items: items.filter((n) => n.group === group),
-  })).filter((g) => g.items.length > 0);
-}
+const PAGE_LIMIT = 50;
 
 export default function NotificationsPage() {
-  const [activeFilter, setActiveFilter] = useState<NotificationFilter>("All");
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+  const accessToken = useAppSelector((s) => s.auth.accessToken);
+  const { toast } = useToast();
 
-  const filtered = useMemo(
-    () => filterNotifications(notifications, activeFilter),
-    [notifications, activeFilter]
+  const { data, isLoading, isFetching, isError, refetch } = useListNotificationsQuery(
+    { page: 1, limit: PAGE_LIMIT },
+    { skip: !accessToken }
   );
 
-  const groups = useMemo(() => groupByDate(filtered), [filtered]);
-  const hasUnread = notifications.some((n) => !n.read);
+  const [markRead, { isLoading: markingAll }] = useMarkNotificationsReadMutation();
+  const [deleteNotification] = useDeleteNotificationMutation();
+  const [busyId, setBusyId] = useState<string | null>(null);
 
-  const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
+  const notifications = data?.notifications ?? [];
+  const unreadIds = notifications.filter((n) => !n.read_at).map((n) => n.id);
+  const hasUnread = unreadIds.length > 0;
+
+  async function handleMarkAllRead() {
+    if (unreadIds.length === 0) return;
+    try {
+      await markRead({ ids: unreadIds }).unwrap();
+    } catch {
+      toast({ variant: "destructive", title: "Couldn't mark all as read" });
+    }
+  }
+
+  async function handleMarkRead(id: string) {
+    setBusyId(id);
+    try {
+      await markRead({ ids: [id] }).unwrap();
+    } catch {
+      toast({ variant: "destructive", title: "Couldn't mark as read" });
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    setBusyId(id);
+    try {
+      await deleteNotification(id).unwrap();
+    } catch {
+      toast({ variant: "destructive", title: "Couldn't delete notification" });
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  function renderBody() {
+    if (!accessToken) {
+      return (
+        <div className="rounded-2xl border border-border-subtle bg-overlay px-6 py-10 text-center text-sm text-fg-muted">
+          <p className="text-fg font-semibold mb-1">Sign in to see your notifications</p>
+          <Link href="/signin" className="text-brand font-semibold hover:underline">
+            Sign in
+          </Link>
+        </div>
+      );
+    }
+    if (isLoading) {
+      return (
+        <div className="space-y-3">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-20 rounded-2xl border border-border-subtle bg-surface animate-pulse" />
+          ))}
+        </div>
+      );
+    }
+    if (isError) {
+      return (
+        <div className="rounded-2xl border border-border-subtle bg-overlay px-6 py-10 text-center text-sm text-fg-muted">
+          Couldn&apos;t load your notifications.{" "}
+          <button type="button" className="text-brand font-semibold" onClick={() => void refetch()}>
+            Retry
+          </button>
+        </div>
+      );
+    }
+    if (notifications.length === 0) {
+      return (
+        <div className="rounded-2xl border border-border-subtle bg-overlay px-6 py-10 text-center text-sm text-fg-muted">
+          <p className="text-fg font-semibold mb-1">You&apos;re all caught up</p>
+          <p>We&apos;ll let you know when something happens.</p>
+        </div>
+      );
+    }
+    return (
+      <div className="space-y-3">
+        {notifications.map((notification) => (
+          <NotificationItem
+            key={notification.id}
+            notification={notification}
+            busy={busyId === notification.id}
+            onMarkRead={(id) => void handleMarkRead(id)}
+            onDelete={(id) => void handleDelete(id)}
+          />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center min-h-full">
       <main className="w-full max-w-3xl px-4 sm:px-6 py-8 lg:py-10">
         <NotificationsHeader
-          active={activeFilter}
-          onChange={setActiveFilter}
-          onMarkAllRead={markAllRead}
-          hasUnread={hasUnread}
+          onMarkAllRead={() => void handleMarkAllRead()}
+          hasUnread={hasUnread && !markingAll}
         />
 
-        <div className="mt-8 space-y-8">
-          {groups.length === 0 ? (
-            <div className="rounded-2xl border border-border-subtle bg-overlay px-6 py-10 text-center text-sm text-fg-muted">
-              No notifications in this category yet.
-            </div>
-          ) : (
-            groups.map(({ group, items }) => (
-              <section key={group}>
-                <h2 className="text-[11px] font-semibold tracking-widest text-fg-muted uppercase mb-3 px-1">
-                  {group}
-                </h2>
-                <div className="space-y-1">
-                  {items.map((notification) => (
-                    <NotificationItem key={notification.id} notification={notification} />
-                  ))}
-                </div>
-              </section>
-            ))
-          )}
+        <div className="mt-8">
+          <PushOptInBanner />
+          {renderBody()}
         </div>
+        {isFetching && !isLoading ? (
+          <p className="mt-4 text-center text-xs text-fg-faint">Updating…</p>
+        ) : null}
       </main>
     </div>
   );
