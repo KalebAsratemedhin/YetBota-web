@@ -3,8 +3,12 @@ import type { AuthState } from "@/store/authSlice";
 
 type AuthAwareRoot = { auth: AuthState };
 
-const aiHost = (process.env.NEXT_PUBLIC_AI_API_BASE_URL ?? process.env.NEXT_PUBLIC_AI_API_BASE ?? "").replace(/\/$/, "");
-const baseUrl = aiHost ? `${aiHost}/v1` : "/v1";
+// Same-origin reverse-proxy prefix; next.config.ts rewrites /proxy/ai/* to the
+// real ai-service (server-to-server). Hardcoded — not read from env — so a
+// misconfigured build can't point the browser straight at a raw backend IP
+// (mixed-content / TLS / ERR_NETWORK_CHANGED failures). To retarget the backend,
+// change BACKEND_AI_ORIGIN in next.config.ts, not this value.
+const baseUrl = "/proxy/ai/v1";
 
 export const aiBaseApi = createApi({
   reducerPath: "aiApi",

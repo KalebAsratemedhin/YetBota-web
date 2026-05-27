@@ -13,8 +13,12 @@ import { clearSessionCookie } from "@/lib/sessionCookie";
 
 type AuthAwareRoot = { auth: AuthState };
 
-const apiHost = (process.env.NEXT_PUBLIC_API_BASE_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
-const baseUrl = `${apiHost}/v1`;
+// Same-origin reverse-proxy prefix; next.config.ts rewrites /proxy/main/* to the
+// real main backend (server-to-server). Hardcoded — not read from env — so a
+// misconfigured build can't point the browser straight at a raw backend IP
+// (mixed-content / TLS / ERR_NETWORK_CHANGED failures). To retarget the backend,
+// change BACKEND_MAIN_ORIGIN in next.config.ts, not this value.
+const baseUrl = "/proxy/main/v1";
 
 function isAuthPath(url: string | undefined): boolean {
   if (!url) return false;

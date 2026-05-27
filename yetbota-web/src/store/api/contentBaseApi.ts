@@ -11,8 +11,12 @@ import { unwrapEnvelope } from "@/store/api/apiEnvelope";
 
 type AuthAwareRoot = { auth: AuthState };
 
-const contentHost = (process.env.NEXT_PUBLIC_CONTENT_API_BASE_URL ?? "").replace(/\/$/, "");
-const baseUrl = contentHost ? `${contentHost}/v1` : "/v1";
+// Same-origin reverse-proxy prefix; next.config.ts rewrites /proxy/content/* to
+// the real content backend (server-to-server). Hardcoded — not read from env —
+// so a misconfigured build can't point the browser straight at a raw backend IP
+// (mixed-content / TLS / ERR_NETWORK_CHANGED failures). To retarget the backend,
+// change BACKEND_CONTENT_ORIGIN in next.config.ts, not this value.
+const baseUrl = "/proxy/content/v1";
 
 function isInvalidTokenPayload(data: unknown): boolean {
   if (!data || typeof data !== "object") return false;
