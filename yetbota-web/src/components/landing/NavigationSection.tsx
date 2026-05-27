@@ -35,7 +35,7 @@ export default function NavigationSection() {
         <Reveal direction="right" delay={150} className="relative">
           <div className="relative w-full h-80 md:h-96 rounded-3xl overflow-hidden border border-border-subtle group">
             <Image
-              src="/images/navigation-feature.jpg"
+              src="/images/yetbota-bg-1.jpeg"
               alt="Local navigation"
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-500"

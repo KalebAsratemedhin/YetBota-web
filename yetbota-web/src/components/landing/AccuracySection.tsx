@@ -15,7 +15,7 @@ export default function AccuracySection() {
         <Reveal direction="left" className="relative">
           <div className="relative w-full h-80 md:h-96 rounded-3xl overflow-hidden border border-border-subtle">
             <Image
-              src="/images/accuracy-feature.jpeg"
+              src="/images/yetbota-bg-2.jpeg"
               alt="Crowdsourced accuracy"
               fill
               className="object-cover"

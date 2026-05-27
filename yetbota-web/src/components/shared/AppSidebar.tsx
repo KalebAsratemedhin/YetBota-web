@@ -65,15 +65,15 @@ export default function AppSidebar({ user, children, title = "Yet Bota", classNa
       )}
     >
 
-      {/* Logo */}
-      <div className="px-6 py-5 border-b border-border-subtle flex items-center gap-2.5 shrink-0">
+      {/* Logo — fixed h-20 to match the page content headers' height */}
+      <div className="px-6 h-20 border-b border-border-subtle flex items-center gap-2.5 shrink-0">
         <Image
-                      src="/images/logo.png"
-                      alt="Yet Bota"
-                      width={80}
-                      height={80}
-                      className="rounded-lg"
-                    />
+          src="/images/logo.png"
+          alt="Yet Bota"
+          width={80}
+          height={80}
+          className="w-10 h-10 rounded-lg"
+        />
         <span className="text-fg font-bold text-sm">{title}</span>
       </div>
 

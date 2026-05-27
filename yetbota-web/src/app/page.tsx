@@ -15,7 +15,10 @@ import RedirectAdminsToPortal from "@/components/admin/RedirectAdminsToPortal";
 export default function HomePage() {
   return (
     <RedirectAdminsToPortal>
-      <main className="min-h-screen bg-bg">
+      {/* overflow-x-clip contains the horizontal slide-in transforms from
+          <Reveal direction="left|right">, which otherwise bleed past the
+          viewport edge and cause sideways scroll on small screens. */}
+      <main className="min-h-screen bg-bg overflow-x-clip">
         <Navbar />
         <HeroSection />
         <PrinciplesSection />

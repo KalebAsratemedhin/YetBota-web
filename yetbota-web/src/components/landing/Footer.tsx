@@ -15,14 +15,13 @@ export default function Footer() {
   const navGroups = [
     t.footer.nav.discovery,
     t.footer.nav.community,
-    t.footer.nav.strategy,
   ];
 
   return (
     <footer className="bg-bg border-t border-border-subtle pt-16 pb-8 px-6">
       <div className="max-w-7xl mx-auto">
         {/* Top row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-14">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-10 mb-14">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">

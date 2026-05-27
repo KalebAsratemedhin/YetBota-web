@@ -54,12 +54,16 @@ function parseEthiopiaSubscriber9(raw: string): string | null {
   return null;
 }
 
-function formatEthiopiaE164(subscriber9: string): string {
-  // +251 9xx xxx xxx
-  const a = subscriber9.slice(0, 3);
-  const b = subscriber9.slice(3, 6);
-  const c = subscriber9.slice(6, 9);
-  return `+251 ${a} ${b} ${c}`;
+/**
+ * Reduces raw input to the 9-digit subscriber number, tolerating pasted
+ * 251/0 prefixes. Unlike parseEthiopiaSubscriber9 it doesn't validate the
+ * 7/9 leading digit, so partial input (and deletion) is preserved as typed.
+ */
+function normalizeEthiopiaInput(raw: string): string {
+  let d = digitsOnly(raw);
+  if (d.startsWith("251")) d = d.slice(3);
+  if (d.startsWith("0")) d = d.slice(1);
+  return d.slice(0, 9);
 }
 
 function createRandom(): string {
@@ -287,29 +291,25 @@ export default function SignUpPage() {
             disabled={isLoading}
           />
 
-          <AuthInput
-            label="Mobile"
-            type="tel"
-            placeholder='e.g. "+251 9xx xxx xxx"'
-            autoComplete="tel"
-            inputMode="tel"
-            value={mobileSubscriber9 ? formatEthiopiaE164(mobileSubscriber9) : "+251 "}
-            onChange={(ev) => {
-              const subscriber9 = parseEthiopiaSubscriber9(ev.target.value);
-              if (subscriber9) {
-                setMobileSubscriber9(subscriber9.slice(0, 9));
-                return;
-              }
-
-              const d = digitsOnly(ev.target.value);
-              let rest = d;
-              if (rest.startsWith("251")) rest = rest.slice(3);
-              if (rest.startsWith("0")) rest = rest.slice(1);
-              rest = rest.slice(0, 9);
-              setMobileSubscriber9(rest);
-            }}
-            disabled={isLoading}
-          />
+          <div>
+            <label className="text-sm text-fg-muted font-medium mb-1.5 block">Mobile</label>
+            <div className="flex gap-2">
+              <div className="flex items-center gap-1.5 bg-surface-2 border border-border-subtle rounded-xl px-3 h-12 text-fg text-sm font-semibold select-none shrink-0">
+                <span>Et</span>
+                <span>+251</span>
+              </div>
+              <input
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="912 345 678"
+                value={mobileSubscriber9}
+                onChange={(ev) => setMobileSubscriber9(normalizeEthiopiaInput(ev.target.value))}
+                className="flex-1 bg-surface-2 border border-border-subtle rounded-xl px-4 h-12 text-fg placeholder-gray-600 text-sm outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 transition-all disabled:opacity-60"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
 
           <AuthInput
             label="Password"

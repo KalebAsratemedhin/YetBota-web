@@ -7,7 +7,8 @@
     "signIn": "Sign In",
     "joinCommunity": "Join Community",
     "profile": "Profile",
-    "signOut": "Log out"
+    "signOut": "Log out",
+    "language": "Language"
   },
   "hero": {
     "badge": "Community-Powered Discovery",
@@ -189,14 +190,6 @@
           "Guidelines",
           "Champions",
           "Local Q&A"
-        ]
-      },
-      "strategy": {
-        "title": "Strategy",
-        "links": [
-          "Digital 2030",
-          "Data Policy",
-          "Transparency"
         ]
       }
     }

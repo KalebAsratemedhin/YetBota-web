@@ -13,7 +13,7 @@ export default function HeroSection() {
       {/* Background image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/images/hero-bg.jpeg')" }}
+        style={{ backgroundImage: "url('/images/yetbota-bg-3.jpeg')" }}
       />
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/60" />

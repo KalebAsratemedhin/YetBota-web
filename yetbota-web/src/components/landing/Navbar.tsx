@@ -179,9 +179,8 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile / tablet: locale + auth + hamburger */}
+          {/* Mobile / tablet: auth + hamburger (locale lives in the menu below) */}
           <div className="flex lg:hidden items-center gap-2">
-            <LocalePill locale={locale} size="sm" onLocaleChange={(l) => dispatch(setLocale(l))} />
             {isSignedIn ? (
               <button
                 type="button"
@@ -274,7 +273,7 @@ export default function Navbar() {
       {/* Mobile dropdown */}
       {mobileOpen && (
         <div className="lg:hidden bg-surface border-t border-border-subtle px-4 pb-5 pt-3">
-          <nav className="flex flex-col gap-1 mb-4">
+          <nav className="flex flex-col gap-1 mb-3">
             {navLinks.map((link) => (
               <Link
                 key={link.id}
@@ -286,6 +285,11 @@ export default function Navbar() {
               </Link>
             ))}
           </nav>
+          {/* Language switch — lives in the menu on small screens. */}
+          <div className="flex items-center justify-between px-3 py-2 mb-4 border-t border-border-subtle pt-4">
+            <span className="text-sm text-fg-muted">{t.nav.language}</span>
+            <LocalePill locale={locale} size="sm" onLocaleChange={(l) => dispatch(setLocale(l))} />
+          </div>
           {/* Account actions (profile/settings/sign out) live in the avatar menu,
               so the hamburger only carries nav links. Signed-out visitors still
               get the join CTA here. */}

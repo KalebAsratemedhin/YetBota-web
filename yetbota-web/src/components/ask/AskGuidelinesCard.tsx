@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ChevronRight, ShieldCheck } from "lucide-react";
 
 export default function AskGuidelinesCard() {
@@ -14,9 +15,12 @@ export default function AskGuidelinesCard() {
           Stay respectful and avoid spam to keep our community helpful. We want to ensure &apos;Yet Bota&apos;
           remains a safe place for everyone to explore Ethiopia.
         </p>
-        <a className="inline-flex items-center text-brand text-sm font-semibold mt-3 hover:underline" href="#">
+        <Link
+          className="inline-flex items-center text-brand text-sm font-semibold mt-3 hover:underline"
+          href="/guidelines"
+        >
           Read Rules <ChevronRight className="w-4 h-4 ml-1" />
-        </a>
+        </Link>
       </div>
     </section>
   );
