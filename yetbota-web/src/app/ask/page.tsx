@@ -6,7 +6,6 @@ import AskQuestionTopNav from "@/components/ask/AskQuestionTopNav";
 import AskGuidelinesCard from "@/components/ask/AskGuidelinesCard";
 import AskQuestionForm from "@/components/ask/AskQuestionForm";
 import AskTipsRail from "@/components/ask/AskTipsRail";
-import AskMobileBottomNav from "@/components/ask/AskMobileBottomNav";
 import CreatePostLocationModal from "@/components/create/CreatePostLocationModal";
 import { useCreatePostMutation, useGetPostByIdQuery } from "@/store/api/contentApi";
 import { useToast } from "@/hooks/use-toast";
@@ -208,8 +207,6 @@ export default function AskQuestionPage() {
           </button>
         </div>
       </div>
-
-      <AskMobileBottomNav />
 
       <CreatePostLocationModal
         open={locationOpen}

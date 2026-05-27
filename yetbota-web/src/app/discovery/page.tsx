@@ -6,8 +6,7 @@ import DiscoveryFilters from "@/components/discovery/DiscoveryFilters";
 import type { DiscoverySort } from "@/components/discovery/DiscoveryFilters";
 import DiscoveryRightColumn from "@/components/discovery/DiscoveryRightColumn";
 import { Coffee, LocateFixed, TrendingUp, X } from "lucide-react";
-import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   useLazyGetFeedQuery,
   useLazyListPostsQuery,
@@ -22,7 +21,6 @@ const PAGE_SIZE = 15;
 const PROXIMITY_RADIUS_KM = 25;
 
 function DiscoveryContent() {
-  const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const accessToken = useAppSelector((s) => s.auth.accessToken);
@@ -426,25 +424,6 @@ function DiscoveryContent() {
           <DiscoveryRightColumn />
         </aside>
       </main>
-
-      {/* Mobile bottom nav */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-surface border-t border-slate-200 dark:border-white/5 px-6 py-3 flex justify-between items-center z-40">
-        <Link href="/discovery" className={pathname === "/discovery" ? "text-brand font-semibold" : "text-fg-muted"}>
-          Home
-        </Link>
-        <Link href="/discovery" className={pathname === "/discovery" ? "text-brand font-semibold" : "text-fg-muted"}>
-          Explore
-        </Link>
-        <Link href="/qa" className={pathname === "/qa" ? "text-brand font-semibold" : "text-fg-muted"}>
-          Q&amp;A
-        </Link>
-        <Link
-          href="/profile"
-          className={pathname === "/profile" ? "text-brand font-semibold" : "text-fg-muted"}
-        >
-          Profile
-        </Link>
-      </div>
     </div>
   );
 }

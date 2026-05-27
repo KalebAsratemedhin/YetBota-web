@@ -7,7 +7,9 @@ import { ThumbsDown, ThumbsUp, MessageCircle, MessageSquareText, Bookmark } from
 export interface LocationPostAuthor {
   id?: string;
   name: string;
-  avatarUrl: string;
+  // null when the author has no profile photo — falls back to initials.
+  avatarUrl: string | null;
+  initials?: string;
   badge: string;
   meta: string;
 }
@@ -60,6 +62,19 @@ export default function LocationPost({
   const safeDislikes = typeof dislikes === "number" && Number.isFinite(dislikes) ? dislikes : 0;
   const safeQaCount = typeof qaCount === "number" && Number.isFinite(qaCount) ? qaCount : 0;
   const profileHref = author.id ? `/users/${author.id}` : null;
+  const avatar = author.avatarUrl ? (
+    <Image
+      alt={author.name}
+      src={author.avatarUrl}
+      width={48}
+      height={48}
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <span className="w-full h-full flex items-center justify-center bg-brand/20 text-brand text-sm font-bold">
+      {author.initials || author.name.charAt(0).toUpperCase() || "?"}
+    </span>
+  );
 
   return (
     <article className="px-6 pb-6">
@@ -71,23 +86,11 @@ export default function LocationPost({
               className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand block focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
               aria-label={`View ${author.name}'s profile`}
             >
-              <Image
-                alt={author.name}
-                src={author.avatarUrl}
-                width={48}
-                height={48}
-                className="w-full h-full object-cover"
-              />
+              {avatar}
             </Link>
           ) : (
             <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand">
-              <Image
-                alt={author.name}
-                src={author.avatarUrl}
-                width={48}
-                height={48}
-                className="w-full h-full object-cover"
-              />
+              {avatar}
             </div>
           )}
           <div>

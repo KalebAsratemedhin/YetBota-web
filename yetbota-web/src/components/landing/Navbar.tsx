@@ -286,36 +286,10 @@ export default function Navbar() {
               </Link>
             ))}
           </nav>
-          {isSignedIn ? (
-            <div className="flex flex-col gap-2">
-              <Button
-                asChild
-                variant="outline"
-                className="w-full h-10 text-sm border-border-subtle text-fg hover:bg-overlay hover:text-fg"
-              >
-                <Link href="/profile" onClick={() => setMobileOpen(false)}>
-                  {t.nav.profile}
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="w-full h-10 text-sm border-border-subtle text-fg hover:bg-overlay hover:text-fg"
-              >
-                <Link href="/settings" onClick={() => setMobileOpen(false)}>
-                  Settings
-                </Link>
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full h-10 text-sm border-border-subtle text-fg hover:bg-overlay hover:text-fg"
-                onClick={handleSignOut}
-              >
-                {t.nav.signOut}
-              </Button>
-            </div>
-          ) : (
+          {/* Account actions (profile/settings/sign out) live in the avatar menu,
+              so the hamburger only carries nav links. Signed-out visitors still
+              get the join CTA here. */}
+          {!isSignedIn && (
             <Button
               asChild
               className="bg-brand hover:bg-brand-dark text-black font-semibold rounded-xl w-full h-10 text-sm"

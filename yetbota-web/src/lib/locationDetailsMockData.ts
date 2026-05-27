@@ -1,6 +1,5 @@
 import type { LocationQaItem } from "@/components/locations/LocationCommunityQa";
 import type { LocationPostAuthor } from "@/components/locations/LocationPost";
-import type { PopularGuide } from "@/components/locations/LocationRightRail";
 
 export interface LocationDetails {
   id: string;
@@ -17,7 +16,6 @@ export interface LocationDetails {
   rightRail: {
     mapImageUrl: string;
     addressLine: string;
-    guides: PopularGuide[];
   };
 }
 
@@ -91,10 +89,6 @@ const base: Omit<LocationDetails, "id"> = {
   rightRail: {
     mapImageUrl: "/images/places/mercato.jpg",
     addressLine: "Behind Central Library, Addis Ababa",
-    guides: [
-      { id: "g1", name: "Jordan Smith", answersLabel: "1.2k Answers", avatarUrl: "/images/profile/rock-hewn.webp" },
-      { id: "g2", name: "Amara K.", answersLabel: "842 Answers", avatarUrl: "/images/profile/blue-nile-falls.webp" },
-    ],
   },
 };
 

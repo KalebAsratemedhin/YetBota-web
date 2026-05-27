@@ -14,6 +14,7 @@ import { getLocationDetails } from "@/lib/locationDetailsMockData";
 import { useAppSelector } from "@/store/hooks";
 import { useFollowUserMutation, useGetMeQuery, useGetUserByIdQuery, useUnfollowUserMutation } from "@/store/api/authApi";
 import { resolveApiUrl } from "@/lib/resolveApiUrl";
+import { topBadge } from "@/lib/badges";
 import {
   useGetFeedQuery,
   useGetPostByIdQuery,
@@ -58,9 +59,11 @@ export default function LocationDetailsPage() {
   );
   const post = postRes?.post;
 
+  // GET /v1/users/{id} is a public profile read, so the author loads for
+  // anonymous viewers too — no auth gate.
   const { data: authorRes } = useGetUserByIdQuery(
     { id: post?.user_id ?? "", resolution: "WEB" },
-    { skip: !accessToken || !post?.user_id }
+    { skip: !post?.user_id }
   );
 
   const { data: me } = useGetMeQuery(undefined, { skip: !accessToken });
@@ -124,12 +127,21 @@ export default function LocationDetailsPage() {
   const heroTitle = post?.title ?? data.title;
   const heroImageUrl = post?.photos?.[0]?.photo_url ?? data.heroImageUrl;
 
+  // Author identity comes from the public user API (no mock fallback). Avatar is
+  // null when the user has no photo — LocationPost renders initials instead.
+  const authorUser = authorRes?.user;
   const authorName =
-    authorRes?.user ? `${authorRes.user.first_name} ${authorRes.user.last_name}`.trim() : data.author.name;
-  const authorAvatarUrl = authorRes?.user?.profile_url ? resolveApiUrl(authorRes.user.profile_url) : data.author.avatarUrl;
-  const authorMeta = post?.created_at
-    ? `${approxTimeLabel(post.created_at)} • ${data.author.meta.split("•")[1]?.trim() ?? ""}`
-    : data.author.meta;
+    (authorUser ? `${authorUser.first_name} ${authorUser.last_name}`.trim() || authorUser.username : "") || "Unknown";
+  const authorAvatarUrl = authorUser?.profile_url ? resolveApiUrl(authorUser.profile_url) : null;
+  const authorInitials =
+    authorName.split(" ").filter(Boolean).map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "?";
+  const authorBadge = topBadge(authorUser?.badges)?.label ?? "Member";
+  const authorMeta = [
+    approxTimeLabel(post?.created_at),
+    authorUser ? `${authorUser.contributions} contributions` : "",
+  ]
+    .filter(Boolean)
+    .join(" • ");
 
   const postBody = post?.description ?? data.body;
   const postTags = post?.tags?.length ? post.tags : data.tags;
@@ -232,7 +244,8 @@ export default function LocationDetailsPage() {
                   id: post?.user_id,
                   name: authorName,
                   avatarUrl: authorAvatarUrl,
-                  badge: data.author.badge,
+                  initials: authorInitials,
+                  badge: authorBadge,
                   meta: authorMeta,
                 }}
                 title={heroTitle}
@@ -280,7 +293,6 @@ export default function LocationDetailsPage() {
 
         <LocationRightRail
           addressLine={addressLine}
-          guides={data.rightRail.guides}
           location={loc}
         />
       </div>
