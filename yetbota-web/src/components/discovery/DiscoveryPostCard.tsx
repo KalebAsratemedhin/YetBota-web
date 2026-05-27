@@ -1,7 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import DiscoveryFeedCard from "@/components/discovery/DiscoveryFeedCard";
-import { useGetUserByIdQuery } from "@/store/api/authApi";
+import { useGetUserByIdQuery, useGetMeQuery } from "@/store/api/authApi";
+import { useSavePostMutation, useUnsavePostMutation } from "@/store/api/contentApi";
+import { useAppSelector } from "@/store/hooks";
+import { useToast } from "@/hooks/use-toast";
 import { resolveApiUrl } from "@/lib/resolveApiUrl";
 import type { Post } from "@/types/content";
 
@@ -17,6 +21,36 @@ export default function DiscoveryPostCard({ post }: { post: Post }) {
     { id: post.user_id, resolution: "WEB" },
     { skip: !post.user_id }
   );
+
+  const accessToken = useAppSelector((s) => s.auth.accessToken);
+  const { data: me } = useGetMeQuery(undefined, { skip: !accessToken });
+  const meId = me?.user?.id;
+  // Reporting requires a signed-in user who doesn't own the post (self-reports
+  // are rejected server-side anyway).
+  const canReport = Boolean(accessToken) && Boolean(post.user_id) && post.user_id !== meId;
+
+  const { toast } = useToast();
+  const [savePost, { isLoading: saving }] = useSavePostMutation();
+  const [unsavePost, { isLoading: unsaving }] = useUnsavePostMutation();
+  const [saved, setSaved] = useState(post.saved ?? false);
+
+  async function toggleSave() {
+    if (!accessToken) {
+      toast({ title: "Sign in to save", description: "Create a free account to bookmark places." });
+      return;
+    }
+    const next = !saved;
+    setSaved(next); // optimistic
+    try {
+      const res = next
+        ? await savePost({ id: post.id }).unwrap()
+        : await unsavePost({ id: post.id }).unwrap();
+      setSaved(res.saved);
+    } catch {
+      setSaved(!next); // revert
+      toast({ variant: "destructive", title: "Couldn't update bookmark" });
+    }
+  }
 
   const authorName = authorRes?.user
     ? `${authorRes.user.first_name} ${authorRes.user.last_name}`.trim() || authorRes.user.username
@@ -52,7 +86,11 @@ export default function DiscoveryPostCard({ post }: { post: Post }) {
         liked: post.interaction === "like",
         bookmarked: post.saved ?? false,
       }}
+      saved={saved}
+      onToggleSave={toggleSave}
+      saveLoading={saving || unsaving}
+      sharePath={`/locations/${post.id}`}
+      reportContentId={canReport ? post.id : undefined}
     />
   );
 }
-

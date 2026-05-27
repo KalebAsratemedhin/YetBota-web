@@ -52,7 +52,7 @@ function MapView() {
           zoom={zoom}
           mode="view"
           className="h-[70dvh] sm:h-[78dvh]"
-          fullPageHref="/map"
+          hideFullMapLink
         />
       </div>
     </div>

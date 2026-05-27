@@ -4,21 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { Bookmark, Flag, Link2, MoreHorizontal, Send, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ReportDialog from "@/components/common/ReportDialog";
+import { buildShareTargets } from "@/lib/share";
 import type { ModContentType } from "@/types/moderation";
-
-type ShareTarget = { id: string; label: string; href: string };
-
-function buildShareTargets(url: string, title: string): ShareTarget[] {
-  const u = encodeURIComponent(url);
-  const t = encodeURIComponent(title);
-  return [
-    { id: "x", label: "X (Twitter)", href: `https://twitter.com/intent/tweet?url=${u}&text=${t}` },
-    { id: "facebook", label: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${u}` },
-    { id: "whatsapp", label: "WhatsApp", href: `https://wa.me/?text=${t}%20${u}` },
-    { id: "telegram", label: "Telegram", href: `https://t.me/share/url?url=${u}&text=${t}` },
-    { id: "email", label: "Email", href: `mailto:?subject=${t}&body=${u}` },
-  ];
-}
 
 // Header action cluster shared by the post- and question-detail pages: a Share
 // menu (copy link / native share / platform links) and a More menu (bookmark +

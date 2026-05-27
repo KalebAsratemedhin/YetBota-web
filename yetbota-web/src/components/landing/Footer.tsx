@@ -28,7 +28,7 @@ export default function Footer() {
             <div className="flex items-center gap-2 mb-4">
   <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
     <Image
-      src="/images/logo.jpg"
+      src="/images/logo.png"
       alt="Yet Bota"
       width={22}
       height={22}

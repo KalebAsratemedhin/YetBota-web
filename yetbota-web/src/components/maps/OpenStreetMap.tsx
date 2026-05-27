@@ -37,6 +37,8 @@ export type OpenStreetMapProps = {
   onPick?: (value: LatLng) => void;
   fullPageHref?: string;
   onOpenFullMap?: (href: string) => void;
+  // Hide the "Open full map" shortcut — e.g. on the full-map page itself.
+  hideFullMapLink?: boolean;
 };
 
 export default function OpenStreetMap({
@@ -48,6 +50,7 @@ export default function OpenStreetMap({
   onPick,
   fullPageHref = "/map",
   onOpenFullMap,
+  hideFullMapLink = false,
 }: OpenStreetMapProps) {
   const z = clamp(Math.round(zoom), 1, 19);
   const raw = marker ?? center;
@@ -212,17 +215,19 @@ export default function OpenStreetMap({
             Map unavailable
           </div>
         )}
-        <Link
-          href={fullMapHref}
-          onClick={(e) => {
-            if (!onOpenFullMap) return;
-            e.preventDefault();
-            onOpenFullMap(fullMapHref);
-          }}
-          className="absolute top-3 right-3 z-20 pointer-events-auto text-[11px] font-semibold px-3 py-1.5 rounded-full bg-black/60 text-white hover:bg-black/75 transition-colors"
-        >
-          Open full map
-        </Link>
+        {!hideFullMapLink && (
+          <Link
+            href={fullMapHref}
+            onClick={(e) => {
+              if (!onOpenFullMap) return;
+              e.preventDefault();
+              onOpenFullMap(fullMapHref);
+            }}
+            className="absolute top-3 right-3 z-20 pointer-events-auto text-[11px] font-semibold px-3 py-1.5 rounded-full bg-black/60 text-white hover:bg-black/75 transition-colors"
+          >
+            Open full map
+          </Link>
+        )}
       </div>
 
       {mode === "pick" ? (

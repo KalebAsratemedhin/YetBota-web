@@ -15,7 +15,8 @@ export interface SidebarUser {
 }
 
 interface AppSidebarProps {
-  user: SidebarUser;
+  /** The signed-in user, or undefined when signed out (footer shows a Sign in CTA). */
+  user?: SidebarUser;
   /** Optional page-specific content below nav */
   children?: React.ReactNode;
   title?: string;
@@ -34,7 +35,7 @@ export const NAV_ITEMS = [
 
 export default function AppSidebar({ user, children, title = "Yet Bota", className, onNavigate }: AppSidebarProps) {
   const pathname = usePathname();
-  const initials = user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+  const initials = user ? user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() : "";
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -67,10 +68,10 @@ export default function AppSidebar({ user, children, title = "Yet Bota", classNa
       {/* Logo */}
       <div className="px-6 py-5 border-b border-border-subtle flex items-center gap-2.5 shrink-0">
         <Image
-                      src="/images/logo.jpg"
+                      src="/images/logo.png"
                       alt="Yet Bota"
-                      width={36}
-                      height={36}
+                      width={80}
+                      height={80}
                       className="rounded-lg"
                     />
         <span className="text-fg font-bold text-sm">{title}</span>
@@ -114,42 +115,54 @@ export default function AppSidebar({ user, children, title = "Yet Bota", classNa
 
       {/* User footer */}
       <div className="relative px-3 py-4 border-t border-border-subtle shrink-0" ref={menuRef}>
-        {menuOpen && (
-          <UserMenu
-            className="absolute bottom-full left-3 right-3 mb-2"
-            onClose={() => {
-              setMenuOpen(false);
-              onNavigate?.();
-            }}
-          />
+        {user ? (
+          <>
+            {menuOpen && (
+              <UserMenu
+                className="absolute bottom-full left-3 right-3 mb-2"
+                onClose={() => {
+                  setMenuOpen(false);
+                  onNavigate?.();
+                }}
+              />
+            )}
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              className="w-full flex items-center gap-2 min-w-0 px-2 py-1.5 rounded-xl hover:bg-overlay transition-colors"
+            >
+              <div className="w-7 h-7 rounded-full bg-brand overflow-hidden flex items-center justify-center shrink-0">
+                {user.avatarUrl ? (
+                  <Image alt="" src={user.avatarUrl} width={28} height={28} className="w-full h-full object-cover" unoptimized />
+                ) : (
+                  <span className="text-black text-[10px] font-bold">{initials}</span>
+                )}
+              </div>
+              <div className="min-w-0 text-left">
+                <p className="text-fg text-xs font-semibold truncate">{user.name}</p>
+                <p className="text-[10px] text-fg-muted truncate">
+                  {user.level ? `Level ${user.level}` : user.role}
+                </p>
+              </div>
+              <ChevronUp
+                className={cn(
+                  "w-4 h-4 text-fg-muted shrink-0 ml-auto transition-transform",
+                  menuOpen ? "" : "rotate-180"
+                )}
+              />
+            </button>
+          </>
+        ) : (
+          <Link
+            href="/signin"
+            onClick={onNavigate}
+            className="w-full flex items-center justify-center h-10 rounded-xl bg-brand text-black font-semibold text-sm hover:bg-brand-dark transition-colors"
+          >
+            Sign in
+          </Link>
         )}
-        <button
-          type="button"
-          onClick={() => setMenuOpen((v) => !v)}
-          aria-haspopup="menu"
-          aria-expanded={menuOpen}
-          className="w-full flex items-center gap-2 min-w-0 px-2 py-1.5 rounded-xl hover:bg-overlay transition-colors"
-        >
-          <div className="w-7 h-7 rounded-full bg-brand overflow-hidden flex items-center justify-center shrink-0">
-            {user.avatarUrl ? (
-              <Image alt="" src={user.avatarUrl} width={28} height={28} className="w-full h-full object-cover" unoptimized />
-            ) : (
-              <span className="text-black text-[10px] font-bold">{initials}</span>
-            )}
-          </div>
-          <div className="min-w-0 text-left">
-            <p className="text-fg text-xs font-semibold truncate">{user.name}</p>
-            <p className="text-[10px] text-fg-muted truncate">
-              {user.level ? `Level ${user.level}` : user.role}
-            </p>
-          </div>
-          <ChevronUp
-            className={cn(
-              "w-4 h-4 text-fg-muted shrink-0 ml-auto transition-transform",
-              menuOpen ? "" : "rotate-180"
-            )}
-          />
-        </button>
       </div>
     </aside>
   );

@@ -28,10 +28,10 @@ export default function AuthCard({ title, children, backHref = "/" }: AuthCardPr
       <div className="flex flex-col items-center mb-8">
   <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-1 shadow-[0_0_40px_#22C55E33] overflow-hidden">
     <Image
-      src="/images/logo.jpg"
+      src="/images/logo.png"
       alt="Yet Bota"
-      width={36}
-      height={36}
+      width={80}
+      height={80}
       className="rounded-sm"
     />
   </div>

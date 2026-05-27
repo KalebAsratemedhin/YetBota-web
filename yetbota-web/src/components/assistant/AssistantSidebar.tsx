@@ -26,10 +26,10 @@ export default function AssistantSidebar({ activeChat, onSelectChat, user }: Sid
       {/* Logo */}
       <div className="px-5 py-4 border-b border-border-subtle flex items-center gap-2.5">
         <Image
-                      src="/images/logo.jpg"
+                      src="/images/logo.png"
                       alt="Yet Bota"
-                      width={36}
-                      height={36}
+                      width={80}
+                      height={80}
                       className="rounded-lg"
                     />
         <span className="text-fg font-bold text-sm leading-tight">Yet Bota AI</span>

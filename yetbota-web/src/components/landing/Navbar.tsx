@@ -100,7 +100,7 @@ export default function Navbar() {
 
   const navLinks = [
     { id: "explore", label: t.nav.explore, href: "/discovery" },
-    { id: "map", label: t.nav.map, href: "/discovery" },
+    { id: "map", label: t.nav.map, href: "/map" },
     { id: "assistant", label: t.nav.aiAssistant, href: "/assistant" },
     { id: "community", label: t.nav.community, href: "/qa" },
   ];
@@ -117,7 +117,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <Image src="/images/logo.jpg" alt="Yet Bota" width={40} height={40} className="rounded-lg" />
+            <Image src="/images/logo.png" alt="Yet Bota" width={80} height={80} className="rounded-lg" />
 
             <span className="text-fg font-bold text-lg tracking-tight">Yet Bota</span>
           </Link>

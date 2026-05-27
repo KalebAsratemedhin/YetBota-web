@@ -68,7 +68,7 @@ export default function AdminSidebar({
     >
       {/* Logo */}
       <div className="flex shrink-0 items-center gap-3 border-b border-border-subtle px-6 py-5">
-        <Image src="/images/logo.jpg" alt="Yet Bota" width={36} height={36} className="rounded-lg" />
+        <Image src="/images/logo.png" alt="Yet Bota" width={80} height={80} className="rounded-lg" />
         <div className="flex flex-col leading-none">
           <span className="text-fg text-sm font-bold">Yet Bota</span>
           <span className="text-fg-muted text-xs font-medium">Admin Panel</span>

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import AppSidebar from "@/components/shared/AppSidebar";
-import { MOCK_PROFILE_USER } from "@/lib/profileMockData";
 import { Menu, X } from "lucide-react";
 import { useAppSelector } from "@/store/hooks";
 import { useGetMeQuery } from "@/store/api/authApi";
@@ -13,7 +12,9 @@ import PushRegistration from "@/components/notifications/PushRegistration";
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const accessToken = useAppSelector((s) => s.auth.accessToken);
   const { data } = useGetMeQuery(undefined, { skip: !accessToken });
-  const user = data?.user ? mapUserPrivateToSidebarUser(data.user) : { name: MOCK_PROFILE_USER.name, role: MOCK_PROFILE_USER.role, level: MOCK_PROFILE_USER.level };
+  // Undefined when signed out — the sidebar then shows a Sign in CTA instead of
+  // a placeholder user.
+  const user = data?.user ? mapUserPrivateToSidebarUser(data.user) : undefined;
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -21,7 +22,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <PushRegistration />
     <div className="flex h-dvh bg-bg overflow-hidden">
       <AppSidebar
-        user={{ name: user.name, role: user.role, level: user.level, avatarUrl: user.avatarUrl }}
+        user={user}
         className="hidden lg:flex"
       />
 
@@ -52,7 +53,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           />
           <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw]">
             <AppSidebar
-              user={{ name: user.name, role: user.role, level: user.level, avatarUrl: user.avatarUrl }}
+              user={user}
               className="w-full"
               onNavigate={() => setMobileOpen(false)}
             />

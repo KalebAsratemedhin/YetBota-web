@@ -31,7 +31,7 @@ if (firebaseConfig.projectId) {
     const title = data.title || "Yet Bota";
     self.registration.showNotification(title, {
       body: data.body || "",
-      icon: "/images/logo.jpg",
+      icon: "/images/logo.png",
       data,
     });
   });
