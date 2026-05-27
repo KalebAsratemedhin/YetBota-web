@@ -77,44 +77,42 @@ function buildParams(query: Record<string, string | number | undefined>): Record
 
 export const aiApi = aiBaseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // POST /v1/assistant/chats/ -> 201 Chat
-    // Trailing slash required: the backend registers the collection as
-    // /v1/assistant/chats/ and 307-redirects the slash-less form to an absolute
-    // Location on its own host, which escapes the /proxy/ai rewrite (see authApi
-    // listUsers for the same gotcha).
+    // POST /v1/assistant/chats -> 201 Chat. No trailing slash: the ai-service
+    // routes are registered slash-less, and adding one makes it 307-redirect to
+    // an absolute backend URL that escapes the /proxy/ai rewrite.
     createChat: builder.mutation<Chat, CreateChatArgs>({
       query: ({ user_id, title }) => ({
-        url: "/assistant/chats/",
+        url: "/assistant/chats",
         method: "POST",
         body: { user_id, title: title ?? "" },
       }),
       invalidatesTags: (_result, _error, arg) => [{ type: "AIChats", id: arg.user_id }],
     }),
 
-    // GET /v1/assistant/chats/?user_id=&limit= -> { chats: [...] }
+    // GET /v1/assistant/chats?user_id=&limit= -> { chats: [...] }
     listChats: builder.query<ChatListResponse, ListChatsArgs>({
       query: ({ user_id, limit }) => ({
-        url: "/assistant/chats/",
+        url: "/assistant/chats",
         method: "GET",
         params: buildParams({ user_id, limit }),
       }),
       providesTags: (_result, _error, arg) => [{ type: "AIChats", id: arg.user_id }],
     }),
 
-    // GET /v1/assistant/chats/{chat_id}/messages/?limit= -> { messages: [...] }
+    // GET /v1/assistant/chats/{chat_id}/messages?limit= -> { messages: [...] }
     listMessages: builder.query<MessageListResponse, ListMessagesArgs>({
       query: ({ chat_id, limit }) => ({
-        url: `/assistant/chats/${encodeURIComponent(chat_id)}/messages/`,
+        url: `/assistant/chats/${encodeURIComponent(chat_id)}/messages`,
         method: "GET",
         params: buildParams({ limit }),
       }),
       providesTags: (_result, _error, arg) => [{ type: "AIMessages", id: arg.chat_id }],
     }),
 
-    // POST /v1/assistant/chats/{chat_id}/messages/ -> 201 assistant Message (runs RAG)
+    // POST /v1/assistant/chats/{chat_id}/messages -> 201 assistant Message (runs RAG)
     sendMessage: builder.mutation<AssistantMessage, SendMessageArgs>({
       query: ({ chat_id, text }) => ({
-        url: `/assistant/chats/${encodeURIComponent(chat_id)}/messages/`,
+        url: `/assistant/chats/${encodeURIComponent(chat_id)}/messages`,
         method: "POST",
         body: { text },
       }),

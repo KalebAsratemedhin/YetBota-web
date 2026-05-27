@@ -42,10 +42,10 @@ export default function DiscoveryPostCard({ post }: { post: Post }) {
     const next = !saved;
     setSaved(next); // optimistic
     try {
-      const res = next
-        ? await savePost({ id: post.id }).unwrap()
-        : await unsavePost({ id: post.id }).unwrap();
-      setSaved(res.saved);
+      // The endpoint replies { success: true } with no body, so there's no
+      // `saved` field to read back — the optimistic value is authoritative.
+      if (next) await savePost({ id: post.id }).unwrap();
+      else await unsavePost({ id: post.id }).unwrap();
     } catch {
       setSaved(!next); // revert
       toast({ variant: "destructive", title: "Couldn't update bookmark" });

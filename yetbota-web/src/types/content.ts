@@ -111,8 +111,8 @@ export interface MarkFeedViewedRequest {
   post_ids: string[];
 }
 
-// POST/DELETE /v1/posts/{id}/save — toggle a bookmark. Returns the new state.
-export type SaveResult = { saved: boolean };
+// POST/DELETE /v1/posts/{id}/save — toggle a bookmark. Replies with an empty
+// { success: true } envelope (no body), so there's no result type to model.
 
 // The caller's saved posts. Fetched via GET /posts/?saved=true (the dedicated
 // GET /posts/saved endpoint was removed); response shape is ListPostsResponseData.

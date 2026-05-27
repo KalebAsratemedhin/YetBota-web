@@ -14,7 +14,6 @@ import type {
   MarkFeedViewedRequest,
   Post,
   Resolution,
-  SaveResult,
   SavedPostsQuery,
   UpdatePostRequest,
   VoteCommentRequest,
@@ -113,11 +112,13 @@ export const contentApi = contentBaseApi.injectEndpoints({
         body,
       }),
     }),
-    savePost: builder.mutation<SaveResult, { id: string }>({
+    // Both reply with an empty { success: true } envelope (no `data`), so there's
+    // nothing to read back — callers keep their own optimistic saved state.
+    savePost: builder.mutation<void, { id: string }>({
       query: ({ id }) => ({ url: `/posts/${encodeURIComponent(id)}/save`, method: "POST" }),
       invalidatesTags: ["Content"],
     }),
-    unsavePost: builder.mutation<SaveResult, { id: string }>({
+    unsavePost: builder.mutation<void, { id: string }>({
       query: ({ id }) => ({ url: `/posts/${encodeURIComponent(id)}/save`, method: "DELETE" }),
       invalidatesTags: ["Content"],
     }),
