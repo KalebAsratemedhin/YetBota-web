@@ -11,7 +11,8 @@ vi.mock("next/navigation", () => ({
 }));
 vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: vi.fn() }) }));
 
-const ME_URL = "http://localhost/v1/users/me";
+// authApi extends baseApi (main), whose base URL is hardcoded to /proxy/main/v1.
+const ME_URL = "http://localhost/proxy/main/v1/users/me";
 
 const me: UserPrivate = {
   id: "u1",

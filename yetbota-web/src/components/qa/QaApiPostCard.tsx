@@ -56,10 +56,10 @@ export default function QaApiPostCard({ post }: { post: Post }) {
       href={`/qa/${post.id}`}
       className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 rounded-2xl"
     >
-      <article className="bg-white dark:bg-surface border border-slate-200 dark:border-border-subtle rounded-2xl p-6 transition-transform hover:border-brand/30 hover:-translate-y-px cursor-pointer">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex gap-4 min-w-0">
-            <div className="relative w-12 h-12 rounded-full overflow-hidden bg-surface-2 ring-2 ring-brand/20 shrink-0 flex items-center justify-center">
+      <article className="bg-white dark:bg-surface border border-slate-200 dark:border-border-subtle rounded-2xl p-4 sm:p-6 transition-transform hover:border-brand/30 hover:-translate-y-px cursor-pointer">
+        <div className="flex justify-between items-start mb-3 sm:mb-4">
+          <div className="flex gap-3 sm:gap-4 min-w-0">
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-surface-2 ring-2 ring-brand/20 shrink-0 flex items-center justify-center">
               {authorAvatarUrl ? (
                 <Image
                   src={authorAvatarUrl}
@@ -74,14 +74,14 @@ export default function QaApiPostCard({ post }: { post: Post }) {
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-bold text-lg text-fg">{authorName}</h3>
+                <h3 className="font-bold text-sm sm:text-lg text-fg truncate">{authorName}</h3>
               </div>
-              <p className="text-sm text-fg-faint dark:text-slate-400">{locationAndTime}</p>
+              <p className="text-xs sm:text-sm text-fg-faint dark:text-slate-400 truncate">{locationAndTime}</p>
             </div>
           </div>
           <button
             type="button"
-            className="text-fg-muted hover:text-brand transition-colors"
+            className="text-fg-muted hover:text-brand transition-colors shrink-0 -mr-1 p-1"
             aria-label="More"
             onClick={(e) => e.preventDefault()}
           >
@@ -89,16 +89,16 @@ export default function QaApiPostCard({ post }: { post: Post }) {
           </button>
         </div>
 
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold leading-tight text-fg">{post.title}</h2>
+        <div className="space-y-3 sm:space-y-4">
+          <h2 className="text-base sm:text-xl font-bold leading-tight text-fg">{post.title}</h2>
           {post.description ? (
-            <p className="text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-3">
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-3">
               {post.description}
             </p>
           ) : null}
 
           {photoUrl ? (
-            <div className="relative w-full h-64 rounded-2xl overflow-hidden border border-border-subtle">
+            <div className="relative w-full h-48 sm:h-64 rounded-2xl overflow-hidden border border-border-subtle">
               <Image
                 src={photoUrl}
                 alt=""
@@ -123,30 +123,30 @@ export default function QaApiPostCard({ post }: { post: Post }) {
           )}
         </div>
 
-        <div className="mt-6 pt-4 border-t border-border-subtle flex items-center justify-between">
+        <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-border-subtle flex items-center justify-between">
           <div className="flex items-center bg-overlay rounded-full px-1 py-1">
             <button
               type="button"
-              className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-overlay-strong transition-colors"
+              className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full hover:bg-overlay-strong transition-colors"
               onClick={(e) => e.preventDefault()}
             >
-              <ArrowUp className="w-5 h-5" />
-              <span className="font-bold text-brand">{upvotes}</span>
+              <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="font-bold text-brand text-sm sm:text-base">{upvotes}</span>
             </button>
-            <div className="w-px h-6 bg-border-subtle mx-1" />
+            <div className="w-px h-5 sm:h-6 bg-border-subtle mx-1" />
             <button
               type="button"
-              className="flex items-center px-4 py-2 rounded-full hover:bg-overlay-strong transition-colors"
+              className="flex items-center px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full hover:bg-overlay-strong transition-colors"
               onClick={(e) => e.preventDefault()}
             >
-              <ArrowDown className="w-5 h-5" />
+              <ArrowDown className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
 
-          <div className="flex items-center gap-6">
-            <span className="flex items-center gap-2 text-fg-faint">
-              <MessageCircle className="w-5 h-5" />
-              <span className="font-semibold">{commentCount}</span>
+          <div className="flex items-center gap-4 sm:gap-6">
+            <span className="flex items-center gap-1.5 sm:gap-2 text-fg-faint">
+              <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="font-semibold text-sm sm:text-base">{commentCount}</span>
             </span>
             <button
               type="button"
@@ -154,7 +154,7 @@ export default function QaApiPostCard({ post }: { post: Post }) {
               aria-label="Share"
               onClick={(e) => e.preventDefault()}
             >
-              <Share2 className="w-5 h-5" />
+              <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>

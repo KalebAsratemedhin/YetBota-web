@@ -16,11 +16,8 @@ export default defineConfig({
     css: false,
     clearMocks: true,
     restoreMocks: true,
-    // The base APIs read these at module load to build absolute base URLs.
-    // Setting them here lets MSW intercept requests at http://localhost/v1.
-    env: {
-      NEXT_PUBLIC_API_BASE_URL: "http://localhost",
-      NEXT_PUBLIC_CONTENT_API_BASE_URL: "http://localhost",
-    },
+    // Base URLs are hardcoded to same-origin /proxy/* prefixes (not read from
+    // env). tests/setup.ts resolves those relative paths against http://localhost
+    // so MSW can intercept them (handlers use http://localhost/proxy/...).
   },
 });

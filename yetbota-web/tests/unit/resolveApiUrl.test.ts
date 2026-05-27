@@ -1,9 +1,5 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { resolveApiUrl } from "@/lib/resolveApiUrl";
-
-afterEach(() => {
-  vi.unstubAllEnvs();
-});
 
 describe("resolveApiUrl", () => {
   it("returns absolute URLs unchanged", () => {
@@ -16,15 +12,10 @@ describe("resolveApiUrl", () => {
     expect(resolveApiUrl("   ")).toBe("");
   });
 
-  it("prefixes relative paths with the configured base URL", () => {
-    vi.stubEnv("NEXT_PUBLIC_API_BASE_URL", "http://api.test/");
-    expect(resolveApiUrl("/images/a.png")).toBe("http://api.test/images/a.png");
-    expect(resolveApiUrl("images/a.png")).toBe("http://api.test/images/a.png");
-  });
-
-  it("returns the path unchanged when no base URL is configured", () => {
-    vi.stubEnv("NEXT_PUBLIC_API_BASE_URL", "");
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "");
-    expect(resolveApiUrl("/images/a.png")).toBe("/images/a.png");
+  it("prefixes relative paths with the same-origin main proxy base", () => {
+    // The base is hardcoded to /proxy/main (not read from env) so relative
+    // media URLs always resolve through the reverse proxy.
+    expect(resolveApiUrl("/images/a.png")).toBe("/proxy/main/images/a.png");
+    expect(resolveApiUrl("images/a.png")).toBe("/proxy/main/images/a.png");
   });
 });

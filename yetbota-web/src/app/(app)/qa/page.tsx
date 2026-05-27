@@ -31,8 +31,8 @@ export default function QaFeedPage() {
 
   return (
     <div className="flex justify-center">
-      <main className="flex-1 xl:mr-80 flex justify-center">
-        <div className="w-full max-w-3xl px-4 py-8">
+      <main className="flex-1 min-w-0 xl:mr-80 flex justify-center">
+        <div className="w-full min-w-0 max-w-3xl px-4 py-8">
           <QaFeedHeader active={active} onChange={setActive} />
 
           <div className="mt-6 space-y-6">
@@ -70,7 +70,7 @@ export default function QaFeedPage() {
       <button
         type="button"
         onClick={() => router.push("/ask")}
-        className="fixed bottom-8 right-8 xl:right-[340px] w-14 h-14 bg-brand text-white rounded-full shadow-lg shadow-brand/20 items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 hidden lg:flex"
+        className="fixed bottom-6 right-6 xl:right-[340px] w-14 h-14 bg-brand text-white rounded-full shadow-lg shadow-brand/20 flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40"
         aria-label="Ask a question"
       >
         <Plus className="w-7 h-7" />

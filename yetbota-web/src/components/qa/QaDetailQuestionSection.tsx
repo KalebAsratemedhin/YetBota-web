@@ -26,9 +26,9 @@ export default function QaDetailQuestionSection({
   const score = (likes || 0) - (dislikes || 0);
 
   return (
-    <section className="mb-12 flex gap-4">
+    <section className="mb-12 flex gap-2 sm:gap-4">
       {/* Vote column — like/dislike on the question post */}
-      <div className="flex flex-col items-center gap-1 shrink-0 w-10 pt-2">
+      <div className="flex flex-col items-center gap-1 shrink-0 w-8 sm:w-10 pt-2">
         <button
           type="button"
           onClick={() => onVote?.("like")}
@@ -44,7 +44,7 @@ export default function QaDetailQuestionSection({
         >
           <ChevronUp className="w-6 h-6" />
         </button>
-        <span className="text-xl font-bold text-brand tabular-nums">{score}</span>
+        <span className="text-base sm:text-xl font-bold text-brand tabular-nums">{score}</span>
         <button
           type="button"
           onClick={() => onVote?.("dislike")}
@@ -63,20 +63,20 @@ export default function QaDetailQuestionSection({
       </div>
 
       <div className="flex-1 min-w-0">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight text-fg">{title}</h2>
+        <h2 className="text-xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 leading-tight text-fg">{title}</h2>
         {body ? (
-          <p className="text-fg-muted text-lg leading-relaxed mb-6 whitespace-pre-wrap">{body}</p>
+          <p className="text-fg-muted text-sm sm:text-lg leading-relaxed mb-4 sm:mb-6 whitespace-pre-wrap">{body}</p>
         ) : null}
 
         {tags.length > 0 && (
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             {tags.map((t) => (
               <span
                 key={t}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-overlay hover:bg-overlay-strong rounded-full transition-colors border border-border-subtle text-fg"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-overlay hover:bg-overlay-strong rounded-full transition-colors border border-border-subtle text-fg"
               >
-                <Tag className="w-3.5 h-3.5 text-brand" />
-                <span className="text-sm font-medium">{t}</span>
+                <Tag className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-brand" />
+                <span className="text-xs sm:text-sm font-medium">{t}</span>
               </span>
             ))}
           </div>

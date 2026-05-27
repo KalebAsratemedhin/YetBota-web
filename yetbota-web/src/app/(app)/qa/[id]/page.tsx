@@ -205,8 +205,8 @@ export default function QaDetailPage() {
         canReport={Boolean(meId && post?.user_id && meId !== post.user_id)}
       />
 
-      <ScrollArea className="h-[calc(100vh-80px)]">
-        <main className="max-w-4xl mx-auto px-6 py-8 pb-32">
+      <ScrollArea className="h-[calc(100vh-64px)] sm:h-[calc(100vh-80px)]">
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-32">
           <QaDetailHero
             imageUrl={post?.photos?.[0]?.photo_url ? resolveApiUrl(post.photos[0].photo_url) : null}
             badgeLabel={badgeLabel}
@@ -243,7 +243,7 @@ export default function QaDetailPage() {
               {attachedPost ? <QaAttachedPostCard post={attachedPost} /> : null}
 
               <section className="mb-10">
-                <div className="flex items-center justify-between mb-8 border-b border-border-subtle pb-4">
+                <div className="flex items-center justify-between mb-6 sm:mb-8 border-b border-border-subtle pb-4">
                   <h3 className="text-sm font-bold uppercase tracking-widest text-fg-muted">
                     {answerCount} Community {answerCount === 1 ? "Answer" : "Answers"}
                   </h3>
@@ -286,7 +286,7 @@ export default function QaDetailPage() {
                     No answers yet. Be the first.
                   </div>
                 ) : (
-                  <div className="space-y-8">
+                  <div className="space-y-6 sm:space-y-8">
                     {answers.map((a) => (
                       <QaAnswerCard
                         key={a.id}
@@ -305,11 +305,11 @@ export default function QaDetailPage() {
         </main>
       </ScrollArea>
 
-      <div className="fixed bottom-0 left-0 lg:left-64 right-0 px-6 py-5 bg-bg/85 backdrop-blur-xl border-t border-border-subtle">
-        <div className="max-w-4xl mx-auto flex items-center gap-4">
+      <div className="fixed bottom-0 left-0 lg:left-64 right-0 px-4 sm:px-6 py-4 sm:py-5 bg-bg/85 backdrop-blur-xl border-t border-border-subtle">
+        <div className="max-w-4xl mx-auto flex items-center gap-3 sm:gap-4">
           <div className="relative flex-1 group">
             <input
-              className="w-full bg-overlay border border-border-subtle rounded-2xl py-4 pl-6 pr-14 focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-fg placeholder:text-fg-faint outline-none"
+              className="w-full bg-overlay border border-border-subtle rounded-2xl py-3.5 sm:py-4 pl-4 sm:pl-6 pr-12 sm:pr-14 focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-fg placeholder:text-fg-faint outline-none"
               placeholder="Type your answer..."
               type="text"
               value={newAnswer}
@@ -335,10 +335,10 @@ export default function QaDetailPage() {
             type="button"
             onClick={() => void handlePostAnswer()}
             disabled={posting || !newAnswer.trim() || !accessToken}
-            className="w-14 h-14 bg-brand text-white rounded-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-brand/30 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 bg-brand text-white rounded-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-brand/30 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
             aria-label="Send answer"
           >
-            <Send className="w-6 h-6" />
+            <Send className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
       </div>

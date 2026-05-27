@@ -23,8 +23,9 @@ vi.mock("@/lib/firebase/messaging", () => ({
   onForegroundMessage: vi.fn(),
 }));
 
-const NOTIF_URL = "http://localhost/v1/notifications/";
-const MARK_READ_URL = "http://localhost/v1/notifications/mark-read";
+// notificationApi extends contentBaseApi, whose base URL is hardcoded to /proxy/content/v1.
+const NOTIF_URL = "http://localhost/proxy/content/v1/notifications/";
+const MARK_READ_URL = "http://localhost/proxy/content/v1/notifications/mark-read";
 
 function notif(overrides: Partial<AppNotification> = {}): AppNotification {
   return {
@@ -110,7 +111,7 @@ describe("notifications flow", () => {
           ? listResponse([notif({ id: "n2", title: "Keep me" })])
           : listResponse([notif({ id: "n1", title: "Delete me" }), notif({ id: "n2", title: "Keep me" })]),
       ),
-      http.delete("http://localhost/v1/notifications/n1", () => {
+      http.delete("http://localhost/proxy/content/v1/notifications/n1", () => {
         deleted = true;
         return HttpResponse.json({ success: true });
       }),

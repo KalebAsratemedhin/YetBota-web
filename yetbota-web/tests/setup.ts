@@ -63,6 +63,28 @@ vi.mock("next/image", async () => {
   };
 });
 
+// --- Relative-URL shim -------------------------------------------------------
+// Production API base URLs are hardcoded to same-origin /proxy/* prefixes. In a
+// browser those resolve against the page origin, but Node's undici `Request`
+// (used by RTK Query's fetchBaseQuery) rejects relative URLs with "Invalid URL".
+// Resolve a leading-slash input against the jsdom origin so requests become
+// absolute and MSW can intercept them (handlers use http://localhost/proxy/...).
+const TEST_ORIGIN = "http://localhost";
+const toAbsolute = (input: string) =>
+  input.startsWith("/") ? `${TEST_ORIGIN}${input}` : input;
+
+const OriginalRequest = globalThis.Request;
+class RelativeAwareRequest extends OriginalRequest {
+  constructor(input: RequestInfo | URL, init?: RequestInit) {
+    super(typeof input === "string" ? toAbsolute(input) : input, init);
+  }
+}
+globalThis.Request = RelativeAwareRequest as unknown as typeof Request;
+
+const originalFetch = globalThis.fetch;
+globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) =>
+  originalFetch(typeof input === "string" ? toAbsolute(input) : input, init)) as typeof fetch;
+
 // --- jsdom polyfills ---------------------------------------------------------
 if (!window.matchMedia) {
   window.matchMedia = (query: string) =>

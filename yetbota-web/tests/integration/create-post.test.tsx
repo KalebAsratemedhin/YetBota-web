@@ -22,7 +22,8 @@ vi.mock("@/hooks/use-toast", () => ({ useToast: () => ({ toast: toastMock }) }))
 // The location modal lazy-loads a Leaflet map; it's irrelevant to the post flow.
 vi.mock("@/components/create/CreatePostLocationModal", () => ({ default: () => null }));
 
-const CREATE_URL = "http://localhost/v1/posts/";
+// contentApi extends contentBaseApi, whose base URL is hardcoded to /proxy/content/v1.
+const CREATE_URL = "http://localhost/proxy/content/v1/posts/";
 
 function renderPage() {
   return renderWithProviders(<CreatePostPage />, { preloadedState: { auth: authedState() } });

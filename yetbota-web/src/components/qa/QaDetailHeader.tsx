@@ -26,17 +26,17 @@ export default function QaDetailHeader({
 }) {
   return (
     <nav className="sticky top-0 z-40 border-b border-border-subtle bg-surface/95 backdrop-blur-md shadow-[0_4px_24px_-12px_rgba(15,23,42,0.12)] dark:shadow-[0_4px_24px_-12px_rgba(0,0,0,0.6)]">
-      <div className="w-full px-6 sm:px-8 lg:px-32 h-20 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="w-full px-4 sm:px-8 lg:px-32 h-16 sm:h-20 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
           <button
             type="button"
             onClick={onBack}
-            className="p-2 hover:bg-overlay rounded-full transition-colors text-fg-muted hover:text-fg"
+            className="p-2 hover:bg-overlay rounded-full transition-colors text-fg-muted hover:text-fg shrink-0"
             aria-label="Back"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
-          <h1 className="text-xl font-bold tracking-tight text-fg">{title}</h1>
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-fg truncate">{title}</h1>
         </div>
 
         <PostActionMenus

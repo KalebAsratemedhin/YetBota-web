@@ -31,7 +31,7 @@ export default function QaAttachedPostCard({ post }: { post: Post }) {
     : "/images/profile/rock-hewn.webp";
 
   return (
-    <section className="mb-12 pl-14">
+    <section className="mb-12 pl-10 sm:pl-14">
       <p className="text-xs font-bold uppercase tracking-widest text-fg-muted mb-3">In reference to</p>
       <Link
         href={`/locations/${post.id}`}

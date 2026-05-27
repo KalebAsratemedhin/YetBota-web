@@ -24,7 +24,8 @@ vi.mock("@/hooks/use-toast", () => ({
   useToast: () => ({ toast: toastMock }),
 }));
 
-const LOGIN_URL = "http://localhost/v1/auth/login";
+// authApi extends baseApi (main), whose base URL is hardcoded to /proxy/main/v1.
+const LOGIN_URL = "http://localhost/proxy/main/v1/auth/login";
 
 describe("sign-in flow", () => {
   beforeEach(() => {

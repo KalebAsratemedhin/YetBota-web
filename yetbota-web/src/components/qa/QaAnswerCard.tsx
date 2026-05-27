@@ -183,9 +183,9 @@ export default function QaAnswerCard({ answer, replies, canVote, initialVote, on
   }
 
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-2 sm:gap-4">
       {/* Vote column */}
-      <div className="flex flex-col items-center gap-1 shrink-0 w-10 pt-2">
+      <div className="flex flex-col items-center gap-1 shrink-0 w-8 sm:w-10 pt-2">
         <button
           type="button"
           onClick={() => void handleVote("upvote")}
@@ -199,9 +199,9 @@ export default function QaAnswerCard({ answer, replies, canVote, initialVote, on
               : "text-fg-faint hover:text-brand hover:bg-overlay")
           }
         >
-          <ChevronUp className="w-6 h-6" />
+          <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
-        <span className="text-xl font-bold text-brand tabular-nums">{score}</span>
+        <span className="text-base sm:text-xl font-bold text-brand tabular-nums">{score}</span>
         <button
           type="button"
           onClick={() => void handleVote("downvote")}
@@ -215,18 +215,18 @@ export default function QaAnswerCard({ answer, replies, canVote, initialVote, on
               : "text-fg-faint hover:text-fg-muted hover:bg-overlay")
           }
         >
-          <ChevronDown className="w-6 h-6" />
+          <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
       </div>
 
       {/* Content card */}
-      <div className="flex-1 min-w-0 bg-surface p-6 rounded-2xl border border-border-subtle shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3 min-w-0">
+      <div className="flex-1 min-w-0 bg-surface p-4 sm:p-6 rounded-2xl border border-border-subtle shadow-sm">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             {profileHref ? (
               <Link
                 href={profileHref}
-                className="w-10 h-10 rounded-full overflow-hidden border-2 border-brand/20 bg-overlay shrink-0 flex items-center justify-center"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-brand/20 bg-overlay shrink-0 flex items-center justify-center"
               >
                 {avatarUrl ? (
                   <Image
@@ -242,7 +242,7 @@ export default function QaAnswerCard({ answer, replies, canVote, initialVote, on
                 )}
               </Link>
             ) : (
-              <div className="w-10 h-10 rounded-full border-2 border-brand/20 bg-overlay shrink-0 flex items-center justify-center">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-brand/20 bg-overlay shrink-0 flex items-center justify-center">
                 <span className="text-xs font-bold text-fg-muted">{initials || "?"}</span>
               </div>
             )}
@@ -251,12 +251,12 @@ export default function QaAnswerCard({ answer, replies, canVote, initialVote, on
                 {profileHref ? (
                   <Link
                     href={profileHref}
-                    className="font-bold text-fg hover:text-brand transition-colors"
+                    className="font-bold text-sm sm:text-base text-fg hover:text-brand transition-colors"
                   >
                     {name}
                   </Link>
                 ) : (
-                  <span className="font-bold text-fg">{name}</span>
+                  <span className="font-bold text-sm sm:text-base text-fg">{name}</span>
                 )}
                 <span className="px-2 py-0.5 bg-brand/10 text-brand text-[10px] font-bold uppercase rounded">
                   Community
@@ -285,9 +285,9 @@ export default function QaAnswerCard({ answer, replies, canVote, initialVote, on
           contentLabel="answer"
         />
 
-        <p className="text-fg-muted mb-4 leading-relaxed whitespace-pre-wrap">{answer.comment}</p>
+        <p className="text-sm sm:text-base text-fg-muted mb-4 leading-relaxed whitespace-pre-wrap">{answer.comment}</p>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 sm:gap-6">
           {onReply ? (
             <button
               type="button"
@@ -331,7 +331,7 @@ export default function QaAnswerCard({ answer, replies, canVote, initialVote, on
         )}
 
         {showReplies && visibleReplies.length > 0 && (
-          <div className="mt-6 pl-6 border-l-2 border-border-subtle space-y-6">
+          <div className="mt-6 pl-3 sm:pl-6 border-l-2 border-border-subtle space-y-6">
             {visibleReplies.map((r) => (
               <ReplyRow key={r.id} reply={r} />
             ))}

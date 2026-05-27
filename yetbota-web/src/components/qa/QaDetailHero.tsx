@@ -25,7 +25,7 @@ export default function QaDetailHero({
       />
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="relative">
-          <MapPin className="w-16 h-16 text-brand drop-shadow-[0_0_15px_rgba(34,197,94,0.6)]" />
+          <MapPin className="w-12 h-12 sm:w-16 sm:h-16 text-brand drop-shadow-[0_0_15px_rgba(34,197,94,0.6)]" />
           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-1 bg-black/20 blur-sm rounded-full" />
         </div>
       </div>
