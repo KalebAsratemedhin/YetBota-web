@@ -26,6 +26,29 @@ export const CASE_STATUS_META: Record<CaseStatus, { label: string; tone: Tone }>
   REJECTED: { label: "Dismissed", tone: "slate" },
 };
 
+// Safe fallback for any enum value the backend hands back that's outside our
+// typed union (e.g. a value added server-side before the frontend is updated,
+// or a missing/null field on a partial preview). Without these, a raw lookup
+// like `REASON_META[reason].tone` would crash on unknown values.
+const UNKNOWN_META: { label: string; tone: Tone } = { label: "Unknown", tone: "slate" };
+
+export function getReasonMeta(reason: string | null | undefined): { label: string; tone: Tone } {
+  if (!reason) return UNKNOWN_META;
+  return REASON_META[reason as ReportReason] ?? UNKNOWN_META;
+}
+
+export function getModerationStatusMeta(
+  status: string | null | undefined
+): { label: string; tone: Tone } {
+  if (!status) return UNKNOWN_META;
+  return MODERATION_STATUS_META[status as ModerationStatus] ?? UNKNOWN_META;
+}
+
+export function getCaseStatusMeta(status: string | null | undefined): { label: string; tone: Tone } {
+  if (!status) return UNKNOWN_META;
+  return CASE_STATUS_META[status as CaseStatus] ?? UNKNOWN_META;
+}
+
 // `severity` currently equals the report count. Bucket it into a priority.
 export function severityPriority(severity: number): { label: string; tone: Tone } {
   if (severity >= 6) return { label: "Critical", tone: "red" };

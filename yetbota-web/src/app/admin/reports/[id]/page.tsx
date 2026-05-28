@@ -22,9 +22,9 @@ import {
   useActOnModerationCaseMutation,
 } from "@/store/api/moderationApi";
 import {
-  REASON_META,
-  MODERATION_STATUS_META,
-  CASE_STATUS_META,
+  getReasonMeta,
+  getModerationStatusMeta,
+  getCaseStatusMeta,
   severityPriority,
   shortCaseId,
   formatModerationDate,
@@ -143,10 +143,10 @@ export default function ModerationDetailPage() {
 
   const { case: c, reports, content } = data;
   const priority = severityPriority(c.severity);
-  const caseStatusMeta = CASE_STATUS_META[c.status];
+  const caseStatusMeta = getCaseStatusMeta(c.status);
   const isPending = c.status === "PENDING";
   const ContentIcon = c.content_type === "POST" ? FileText : MessageSquare;
-  const modStatusMeta = content ? MODERATION_STATUS_META[content.moderation_status] : null;
+  const modStatusMeta = content ? getModerationStatusMeta(content.moderation_status) : null;
 
   // Unique reasons across the reports, for the summary chips.
   const reasons = Array.from(new Set(reports.map((r) => r.reason)));
@@ -304,18 +304,23 @@ export default function ModerationDetailPage() {
                 {reasons.length === 0 ? (
                   <span className="text-sm text-fg-faint">No reports recorded.</span>
                 ) : (
-                  reasons.map((r) => (
-                    <TonePill key={r} tone={REASON_META[r].tone} className="rounded-full px-3 py-1">
-                      {REASON_META[r].label}
-                    </TonePill>
-                  ))
+                  reasons.map((r) => {
+                    const meta = getReasonMeta(r);
+                    return (
+                      <TonePill key={r} tone={meta.tone} className="rounded-full px-3 py-1">
+                        {meta.label}
+                      </TonePill>
+                    );
+                  })
                 )}
               </div>
             </div>
 
             {reports.length > 0 && (
               <div className="space-y-3">
-                {reports.map((r) => (
+                {reports.map((r) => {
+                  const meta = getReasonMeta(r.reason);
+                  return (
                   <div
                     key={r.id}
                     className="rounded-lg border border-border-subtle bg-surface-2 p-3"
@@ -324,8 +329,8 @@ export default function ModerationDetailPage() {
                       <span className="text-xs font-bold text-fg">
                         Reporter {shortCaseId(r.reporter_id)}
                       </span>
-                      <TonePill tone={REASON_META[r.reason].tone}>
-                        {REASON_META[r.reason].label}
+                      <TonePill tone={meta.tone}>
+                        {meta.label}
                       </TonePill>
                     </div>
                     {r.details && (
@@ -337,7 +342,8 @@ export default function ModerationDetailPage() {
                       {formatModerationDate(r.created_at)}
                     </p>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </SectionCard>

@@ -21,7 +21,7 @@ import {
 } from "@/components/admin/AdminUI";
 import { useListModerationCasesQuery } from "@/store/api/moderationApi";
 import {
-  MODERATION_STATUS_META,
+  getModerationStatusMeta,
   severityPriority,
   shortCaseId,
 } from "@/lib/moderation";
@@ -188,7 +188,7 @@ export default function AdminReportsPage() {
               ) : (
                 cases.map(({ case: c, preview }) => {
                   const priority = severityPriority(c.severity);
-                  const statusMeta = MODERATION_STATUS_META[preview.moderation_status];
+                  const statusMeta = getModerationStatusMeta(preview.moderation_status);
                   const ContentIcon = c.content_type === "POST" ? FileText : MessageSquare;
                   return (
                     <tr key={c.id} className="transition-colors hover:bg-overlay">
