@@ -59,6 +59,19 @@ export default function DiscoveryPostCard({ post }: { post: Post }) {
     ? resolveApiUrl(authorRes.user.profile_url)
     : "/images/profile/tomoca-coffee-on-cameroon.webp";
 
+  // Only surface "Show on Map" when the post has real coordinates — (0, 0) is
+  // the backend's sentinel for "no location set" and would otherwise drop the
+  // user in the Atlantic.
+  const lat = post.location?.latitude;
+  const lon = post.location?.longitude;
+  const hasLocation =
+    typeof lat === "number" &&
+    typeof lon === "number" &&
+    Number.isFinite(lat) &&
+    Number.isFinite(lon) &&
+    (lat !== 0 || lon !== 0);
+  const mapHref = hasLocation ? `/map?lat=${lat}&lon=${lon}` : undefined;
+
   return (
     <DiscoveryFeedCard
       item={{
@@ -77,6 +90,7 @@ export default function DiscoveryPostCard({ post }: { post: Post }) {
         imageUrl: post.photos?.[0]?.photo_url ?? "/images/profile/rock-hewn.webp",
         badgeLabel: post.is_question ? "Question" : undefined,
         showOnMapLabel: "Show on Map",
+        mapHref,
         body: post.description ?? "",
         tags: post.tags ?? [],
         likes: compactNum(post.likes ?? 0),

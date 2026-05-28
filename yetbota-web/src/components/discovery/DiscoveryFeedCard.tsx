@@ -172,31 +172,35 @@ export default function DiscoveryFeedCard({
       </div>
 
       <div className="relative px-4">
-        <Link
-          href={`/locations/${item.id}`}
-          className="block relative rounded-[2rem] overflow-hidden group cursor-pointer bg-slate-100 dark:bg-overlay focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
-        >
-          <Image
-            src={item.imageUrl}
-            alt=""
-            width={1200}
-            height={900}
-            className="w-full h-[500px] object-contain"
-            priority={false}
-          />
+        <div className="relative rounded-[2rem] overflow-hidden bg-slate-100 dark:bg-overlay">
+          <Link
+            href={`/locations/${item.id}`}
+            className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
+          >
+            <Image
+              src={item.imageUrl}
+              alt=""
+              width={1200}
+              height={900}
+              className="w-full h-[500px] object-contain"
+              priority={false}
+            />
+          </Link>
           {item.badgeLabel && (
-            <span className="absolute top-6 left-6 px-3 py-1 bg-brand text-white text-[10px] font-bold tracking-widest rounded-lg uppercase shadow-lg">
+            <span className="pointer-events-none absolute top-6 left-6 px-3 py-1 bg-brand text-white text-[10px] font-bold tracking-widest rounded-lg uppercase shadow-lg">
               {item.badgeLabel}
             </span>
           )}
-          <button
-            type="button"
-            className="absolute bottom-6 right-6 flex items-center gap-2 px-5 py-2.5 bg-black/60 hover:bg-black/80 backdrop-blur-md text-white rounded-full text-sm font-semibold transition-all hover:scale-105 active:scale-95"
-          >
-            <Map className="w-4 h-4 text-brand" />
-            {item.showOnMapLabel}
-          </button>
-        </Link>
+          {item.mapHref ? (
+            <Link
+              href={item.mapHref}
+              className="absolute bottom-6 right-6 flex items-center gap-2 px-5 py-2.5 bg-black/60 hover:bg-black/80 backdrop-blur-md text-white rounded-full text-sm font-semibold transition-all hover:scale-105 active:scale-95"
+            >
+              <Map className="w-4 h-4 text-brand" />
+              {item.showOnMapLabel}
+            </Link>
+          ) : null}
+        </div>
       </div>
 
       <div className="p-6 space-y-4">

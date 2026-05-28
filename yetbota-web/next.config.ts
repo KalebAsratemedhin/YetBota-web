@@ -25,6 +25,9 @@ const nextConfig: NextConfig = {
   // rewrite runs, which breaks the forwarded path. Disabling it lets /proxy/*
   // preserve the slash on the way to the backend.
   skipTrailingSlashRedirect: true,
+  // Emit JS source maps for the production bundle so prod-only crashes (e.g.
+  // React #310) decode to real component/file names instead of minified ids.
+  productionBrowserSourceMaps: true,
   images: {
     remotePatterns: [
       {

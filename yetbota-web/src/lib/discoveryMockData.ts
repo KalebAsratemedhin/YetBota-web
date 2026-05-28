@@ -13,6 +13,9 @@ export interface DiscoveryFeedItem {
   imageUrl: string;
   badgeLabel?: string;
   showOnMapLabel: string;
+  // Target for the "Show on Map" button (e.g. `/map?lat=..&lon=..`). Omit to
+  // hide the button when the post has no usable coordinates.
+  mapHref?: string;
   body: string;
   tags: string[];
   likes: string;
