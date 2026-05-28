@@ -7,11 +7,16 @@ import { readFileAsBase64 } from "@/lib/readFileAsBase64";
 
 export default function CreatePostPhotoDropzone({
   onPhotoBase64Change,
+  initialPreviewUrl,
 }: {
   onPhotoBase64Change?: (base64: string | null) => void;
+  // When set (e.g. on the edit page), the existing photo shows in the dropzone
+  // until the user picks a replacement file. Initial-only — later prop changes
+  // are ignored, which is fine because the edit form is keyed by post id.
+  initialPreviewUrl?: string | null;
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(initialPreviewUrl ?? null);
 
   return (
     <div

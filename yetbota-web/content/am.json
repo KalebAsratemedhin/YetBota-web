@@ -204,7 +204,6 @@
       "forgotPassword": "የይለፍ ቃል ረሱ?",
       "submit": "ግባ",
       "orContinueWith": "ወይም ይቀጥሉ",
-      "phone": "በስልክ ቁጥር ቀጥሉ",
       "noAccount": "መለያ የለዎትም?",
       "signUp": "ይመዝገቡ"
     },
@@ -218,22 +217,11 @@
       "password": "የይለፍ ቃል",
       "submit": "ይመዝገቡ",
       "orRegisterWith": "ወይም ይመዝገቡ",
-      "phone": "በስልክ ቁጥር ቀጥሉ",
       "terms": "በመመዝገብ ይስማማሉ",
       "termsLink": "የአገልግሎት ውሎች",
       "privacyLink": "የግላዊነት ፖሊሲ",
       "hasAccount": "አስቀድሞ መለያ አለዎት?",
       "signIn": "ግባ"
-    },
-    "phone": {
-      "title": "ግባ",
-      "heading": "ዬት ቦታ",
-      "subtitle": "ከሰፈርዎ ጋር ይገናኙ።",
-      "phoneNumber": "ስልክ ቁጥር",
-      "placeholder": "912 345 678",
-      "submit": "OTP ላክ",
-      "newUser": "አዲስ ተጠቃሚ ነዎት?",
-      "signUp": "ይመዝገቡ"
     }
   }
 }

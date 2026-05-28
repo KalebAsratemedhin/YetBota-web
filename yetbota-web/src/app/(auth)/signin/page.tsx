@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AuthCard from "@/components/auth/AuthCard";
 import AuthInput from "@/components/auth/AuthInput";
@@ -87,22 +86,6 @@ export default function SignInPage() {
           {isLoading ? "Signing in…" : "Sign In"}
         </Button>
       </form>
-
-      <div className="flex items-center gap-3 my-6">
-        <div className="flex-1 h-px bg-overlay" />
-        <span className="text-fg-faint text-xs uppercase tracking-widest">or continue with</span>
-        <div className="flex-1 h-px bg-overlay" />
-      </div>
-
-      <Link href="/phone">
-        <button
-          type="button"
-          className="w-full flex items-center justify-center gap-3 bg-surface hover:bg-surface-2 border border-border-subtle rounded-xl h-12 text-fg text-sm font-semibold transition-colors"
-        >
-          <Phone className="w-4 h-4 text-brand" />
-          Continue with Phone Number
-        </button>
-      </Link>
 
       <p className="text-center text-fg-faint text-xs mt-8">
         Don&apos;t have an account?{" "}

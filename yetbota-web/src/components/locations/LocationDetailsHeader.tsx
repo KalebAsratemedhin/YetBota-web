@@ -11,6 +11,7 @@ export default function LocationDetailsHeader({
   saveLoading,
   reportContentId,
   canReport,
+  editHref,
 }: {
   title?: string;
   saved?: boolean;
@@ -18,6 +19,7 @@ export default function LocationDetailsHeader({
   saveLoading?: boolean;
   reportContentId?: string;
   canReport?: boolean;
+  editHref?: string;
 }) {
   const router = useRouter();
 
@@ -45,6 +47,7 @@ export default function LocationDetailsHeader({
           reportContentType="POST"
           reportLabel="post"
           canReport={canReport}
+          editHref={editHref}
         />
       </div>
     </header>

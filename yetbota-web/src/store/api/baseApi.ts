@@ -5,42 +5,18 @@ import {
   type FetchArgs,
   type FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
-import { logout, setCredentials } from "@/store/authSlice";
 import type { AuthState } from "@/store/authSlice";
-import type { RefreshResponseData } from "@/types/auth";
 import { unwrapEnvelope } from "@/store/api/apiEnvelope";
-import { clearSessionCookie } from "@/lib/sessionCookie";
+import { registerApiReset, withReauth } from "@/store/api/reauth";
 
 type AuthAwareRoot = { auth: AuthState };
 
-// Same-origin reverse-proxy prefix; next.config.ts rewrites /proxy/main/* to the
-// real main backend (server-to-server). Hardcoded — not read from env — so a
-// misconfigured build can't point the browser straight at a raw backend IP
-// (mixed-content / TLS / ERR_NETWORK_CHANGED failures). To retarget the backend,
-// change BACKEND_MAIN_ORIGIN in next.config.ts, not this value.
+// Same-origin reverse-proxy prefix; next.config.ts rewrites /proxy/main/* to
+// the real main backend (server-to-server). Hardcoded — not read from env —
+// so a misconfigured build can't point the browser straight at a raw backend
+// IP (mixed-content / TLS / ERR_NETWORK_CHANGED failures). To retarget the
+// backend, change BACKEND_MAIN_ORIGIN in next.config.ts, not this value.
 const baseUrl = "/proxy/main/v1";
-
-function isAuthPath(url: string | undefined): boolean {
-  if (!url) return false;
-  return ["/auth/login", "/auth/refresh"].some((p) => url.includes(p));
-}
-
-function isInvalidTokenPayload(data: unknown): boolean {
-  if (!data || typeof data !== "object") return false;
-  const maybeMsg = (data as Record<string, unknown>).message;
-  return typeof maybeMsg === "string" && maybeMsg.trim().toLowerCase() === "invalid token";
-}
-
-function clearAuthEverywhere(api: { dispatch: (a: unknown) => void }) {
-  api.dispatch(logout());
-  api.dispatch(baseApi.util.resetApiState());
-  if (typeof window !== "undefined") {
-    try {
-      window.localStorage.removeItem("yetbota.localAuth");
-    } catch {}
-    clearSessionCookie();
-  }
-}
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl,
@@ -52,109 +28,32 @@ const rawBaseQuery = fetchBaseQuery({
   },
 });
 
+// Unwraps the success/data envelope into either `{ data }` or
+// `{ error: { status, data } }`. Auth-bad detection and refresh both live in
+// `withReauth` one layer up — this stays a pure envelope-parsing concern.
 const baseQueryUnwrappingEnvelope: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
   args,
   api,
   extraOptions
 ) => {
   const result = await rawBaseQuery(args, api, extraOptions);
-  if (result.error) {
-    const errData = (result.error as FetchBaseQueryError).data as unknown;
-    if (isInvalidTokenPayload(errData)) {
-      clearAuthEverywhere(api);
-    }
-    return result;
-  }
+  if (result.error) return result;
 
   const unwrapped = unwrapEnvelope<unknown>(result.data);
   if (unwrapped.error) {
-    if (isInvalidTokenPayload(unwrapped.error.data as unknown)) {
-      clearAuthEverywhere(api);
-    }
     return { error: unwrapped.error as FetchBaseQueryError };
   }
 
   return { data: unwrapped.data };
 };
 
-let refreshLock: Promise<void> | null = null;
-
-export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
-  args,
-  api,
-  extraOptions
-) => {
-  const url = typeof args === "string" ? args : args.url;
-
-  let result = await baseQueryUnwrappingEnvelope(args, api, extraOptions);
-
-  if (result.error?.status !== 401 || isAuthPath(url)) {
-    return result;
-  }
-
-  const refreshToken = (api.getState() as AuthAwareRoot).auth.refreshToken;
-  if (!refreshToken) {
-    clearAuthEverywhere(api);
-    return result;
-  }
-
-  if (!refreshLock) {
-    refreshLock = (async () => {
-      const username = (api.getState() as AuthAwareRoot).auth.user?.username;
-      if (!username) {
-        clearAuthEverywhere(api);
-        return;
-      }
-
-      const refreshResult = await baseQueryUnwrappingEnvelope(
-        {
-          url: "/auth/refresh",
-          method: "POST",
-          body: { refresh_token: refreshToken, username },
-        },
-        api,
-        extraOptions
-      );
-
-      if (refreshResult.data) {
-        const data = refreshResult.data as RefreshResponseData;
-        const creds = {
-          accessToken: data.access_token,
-          refreshToken: data.refresh_token ?? refreshToken,
-        };
-        api.dispatch(setCredentials(creds));
-        if (typeof window !== "undefined") {
-          try {
-            const raw = window.localStorage.getItem("yetbota.localAuth");
-            const prev = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
-            window.localStorage.setItem(
-              "yetbota.localAuth",
-              JSON.stringify({ ...prev, ...creds })
-            );
-          } catch {
-            // ignore
-          }
-        }
-      } else {
-        clearAuthEverywhere(api);
-      }
-    })().finally(() => {
-      refreshLock = null;
-    });
-  }
-
-  await refreshLock;
-
-  if ((api.getState() as AuthAwareRoot).auth.accessToken) {
-    result = await baseQueryUnwrappingEnvelope(args, api, extraOptions);
-  }
-
-  return result;
-};
-
 export const baseApi = createApi({
   reducerPath: "api",
-  baseQuery: baseQueryWithReauth,
+  baseQuery: withReauth(baseQueryUnwrappingEnvelope),
   tagTypes: ["User", "Auth", "Me"],
   endpoints: () => ({}),
 });
+
+// Register so that `clearAuthEverywhere` resets this API's RTK Query cache on
+// logout, alongside the other base APIs.
+registerApiReset(baseApi.util.resetApiState);

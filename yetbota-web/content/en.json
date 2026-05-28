@@ -204,7 +204,6 @@
       "forgotPassword": "Forgot Password?",
       "submit": "Sign In",
       "orContinueWith": "or continue with",
-      "phone": "Continue with Phone Number",
       "noAccount": "Don't have an account?",
       "signUp": "Sign Up"
     },
@@ -218,22 +217,11 @@
       "password": "Password",
       "submit": "Sign Up",
       "orRegisterWith": "or register with",
-      "phone": "Continue with Phone Number",
       "terms": "By signing up, you agree to our",
       "termsLink": "Terms of Service",
       "privacyLink": "Privacy Policy",
       "hasAccount": "Already have an account?",
       "signIn": "Sign In"
-    },
-    "phone": {
-      "title": "Sign In",
-      "heading": "Yet Bota",
-      "subtitle": "Connect with your neighborhood and find local answers.",
-      "phoneNumber": "Phone Number",
-      "placeholder": "912 345 678",
-      "submit": "Send OTP",
-      "newUser": "New to the community?",
-      "signUp": "Sign Up"
     }
   }
 }

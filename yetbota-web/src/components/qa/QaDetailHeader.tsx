@@ -13,6 +13,7 @@ export default function QaDetailHeader({
   reportContentId,
   reportLabel,
   canReport,
+  editHref,
 }: {
   title: string;
   onBack: () => void;
@@ -23,6 +24,7 @@ export default function QaDetailHeader({
   reportContentId?: string;
   reportLabel?: string;
   canReport?: boolean;
+  editHref?: string;
 }) {
   return (
     <nav className="sticky top-0 z-40 border-b border-border-subtle bg-surface/95 backdrop-blur-md shadow-[0_4px_24px_-12px_rgba(15,23,42,0.12)] dark:shadow-[0_4px_24px_-12px_rgba(0,0,0,0.6)]">
@@ -48,6 +50,7 @@ export default function QaDetailHeader({
           reportContentType="POST"
           reportLabel={reportLabel}
           canReport={canReport}
+          editHref={editHref}
         />
       </div>
     </nav>

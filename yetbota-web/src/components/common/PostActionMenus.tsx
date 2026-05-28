@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Bookmark, Flag, Link2, MoreHorizontal, Send, Share2 } from "lucide-react";
+import Link from "next/link";
+import { Bookmark, Flag, Link2, MoreHorizontal, Pencil, Send, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ReportDialog from "@/components/common/ReportDialog";
 import { buildShareTargets } from "@/lib/share";
@@ -19,6 +20,7 @@ export default function PostActionMenus({
   reportContentType = "POST",
   reportLabel = "post",
   canReport = true,
+  editHref,
 }: {
   shareTitle?: string;
   saved?: boolean;
@@ -31,6 +33,9 @@ export default function PostActionMenus({
   reportContentType?: ModContentType;
   reportLabel?: string;
   canReport?: boolean;
+  // When set, the More menu surfaces an Edit item linking here. Pass only when
+  // the viewer is the post's author.
+  editHref?: string;
 }) {
   const { toast } = useToast();
   const [openMenu, setOpenMenu] = useState<"share" | "more" | null>(null);
@@ -133,7 +138,7 @@ export default function PostActionMenus({
       </div>
 
       {/* More */}
-      {onToggleSave || showReport ? (
+      {onToggleSave || showReport || editHref ? (
       <div className="relative">
         <button
           type="button"
@@ -150,6 +155,17 @@ export default function PostActionMenus({
             role="menu"
             className="absolute right-0 mt-2 w-52 py-2 rounded-2xl bg-surface border border-border-subtle shadow-xl z-50 overflow-hidden"
           >
+            {editHref ? (
+              <Link
+                role="menuitem"
+                href={editHref}
+                onClick={() => setOpenMenu(null)}
+                className={itemClass}
+              >
+                <Pencil className="w-4 h-4 text-fg-muted" />
+                Edit
+              </Link>
+            ) : null}
             {onToggleSave ? (
               <button
                 type="button"

@@ -137,12 +137,15 @@ export interface CreatePostRequest {
 export type CreatePostResponseData = { post: Post };
 
 export interface UpdatePostRequest {
+  // PATCH /v1/posts/{id} overwrites every field — there are no partial
+  // semantics. See docs/post-update.md. Callers should pre-fetch the post and
+  // resend every field, otherwise omitted values get clobbered (notably
+  // `location`, which the server resets to (0, 0) when missing).
   title: string;
   description: string;
   tags?: string[];
   address?: string;
-  // Presence-aware: omit to leave unchanged, "" to clear, a uuid to set.
-  attached_post_id?: string;
+  attached_post_id?: string | null;
   upsert_photos?: Array<{ photo_base64: string; position: number }>;
   location?: GeoLocation;
 }

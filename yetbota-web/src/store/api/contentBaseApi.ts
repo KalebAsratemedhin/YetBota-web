@@ -5,9 +5,9 @@ import {
   type FetchArgs,
   type FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
-import { logout } from "@/store/authSlice";
 import type { AuthState } from "@/store/authSlice";
 import { unwrapEnvelope } from "@/store/api/apiEnvelope";
+import { registerApiReset, withReauth } from "@/store/api/reauth";
 
 type AuthAwareRoot = { auth: AuthState };
 
@@ -17,25 +17,6 @@ type AuthAwareRoot = { auth: AuthState };
 // (mixed-content / TLS / ERR_NETWORK_CHANGED failures). To retarget the backend,
 // change BACKEND_CONTENT_ORIGIN in next.config.ts, not this value.
 const baseUrl = "/proxy/content/v1";
-
-function isInvalidTokenPayload(data: unknown): boolean {
-  if (!data || typeof data !== "object") return false;
-  const maybeMsg = (data as Record<string, unknown>).message;
-  return typeof maybeMsg === "string" && maybeMsg.trim().toLowerCase() === "invalid token";
-}
-
-function clearAuthEverywhere(api: { dispatch: (a: unknown) => void }) {
-  if (process.env.NODE_ENV !== "production") {
-    console.warn("[contentApi] clearing auth due to invalid token");
-  }
-  api.dispatch(logout());
-  api.dispatch(contentBaseApi.util.resetApiState());
-  if (typeof window !== "undefined") {
-    try {
-      window.localStorage.removeItem("yetbota.localAuth");
-    } catch {}
-  }
-}
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl,
@@ -75,6 +56,11 @@ const rawBaseQuery = fetchBaseQuery({
   },
 });
 
+// Unwraps the success/data envelope into either `{ data }` or
+// `{ error: { status, data } }`. Auth-bad detection and refresh both live in
+// `withReauth` one layer up; this stays a pure envelope-parsing concern so
+// that an "invalid token" envelope no longer triggers an eager logout —
+// withReauth will refresh first and only clear auth if the refresh fails.
 const baseQueryUnwrappingEnvelope: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
   args,
   api,
@@ -82,26 +68,19 @@ const baseQueryUnwrappingEnvelope: BaseQueryFn<string | FetchArgs, unknown, Fetc
 ) => {
   const result = await rawBaseQuery(args, api, extraOptions);
   if (result.error) {
-    const errData = (result.error as FetchBaseQueryError).data as unknown;
     if (process.env.NODE_ENV !== "production") {
       const url = typeof args === "string" ? args : args.url;
       console.warn("[contentApi] request error", {
         url,
         status: (result.error as FetchBaseQueryError).status,
-        data: errData,
+        data: (result.error as FetchBaseQueryError).data,
       });
-    }
-    if (isInvalidTokenPayload(errData)) {
-      clearAuthEverywhere(api);
     }
     return result;
   }
 
   const unwrapped = unwrapEnvelope<unknown>(result.data);
   if (unwrapped.error) {
-    if (isInvalidTokenPayload(unwrapped.error.data as unknown)) {
-      clearAuthEverywhere(api);
-    }
     return { error: unwrapped.error as FetchBaseQueryError };
   }
 
@@ -110,8 +89,9 @@ const baseQueryUnwrappingEnvelope: BaseQueryFn<string | FetchArgs, unknown, Fetc
 
 export const contentBaseApi = createApi({
   reducerPath: "contentApi",
-  baseQuery: baseQueryUnwrappingEnvelope,
+  baseQuery: withReauth(baseQueryUnwrappingEnvelope),
   tagTypes: ["Content", "ModerationCase", "AdminStats", "AdminAudit", "Notification"],
   endpoints: () => ({}),
 });
 
+registerApiReset(contentBaseApi.util.resetApiState);

@@ -221,6 +221,11 @@ export default function LocationDetailsPage() {
         saveLoading={saving || unsaving}
         reportContentId={post?.id}
         canReport={Boolean(me?.user?.id && post?.user_id && me.user.id !== post.user_id)}
+        editHref={
+          me?.user?.id && post?.id && post.user_id === me.user.id
+            ? `/posts/${post.id}/edit`
+            : undefined
+        }
       />
       <div className="flex max-w-[1440px] mx-auto min-h-screen relative">
         <main className="w-full lg:max-w-4xl lg:mx-auto min-h-screen">

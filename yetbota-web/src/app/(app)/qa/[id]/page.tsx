@@ -203,6 +203,7 @@ export default function QaDetailPage() {
         reportContentId={post?.id}
         reportLabel={post?.is_question ? "question" : "post"}
         canReport={Boolean(meId && post?.user_id && meId !== post.user_id)}
+        editHref={meId && post?.id && post.user_id === meId ? `/posts/${post.id}/edit` : undefined}
       />
 
       <ScrollArea className="h-[calc(100vh-64px)] sm:h-[calc(100vh-80px)]">
