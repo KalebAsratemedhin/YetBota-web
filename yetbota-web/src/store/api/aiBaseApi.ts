@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { AuthState } from "@/store/authSlice";
 import { registerApiReset, withReauth } from "@/store/api/reauth";
+import { withErrorWindow } from "@/store/api/errorWindow";
 
 type AuthAwareRoot = { auth: AuthState };
 
@@ -13,6 +14,10 @@ const baseUrl = "/proxy/ai/v1";
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl,
+  // Hard ceiling so a hung backend can't leave the UI stuck "loading" — the
+  // resulting TIMEOUT_ERROR is what withErrorWindow uses to cool down further
+  // requests to the same URL.
+  timeout: 15_000,
   prepareHeaders: (headers, { getState }) => {
     const stateToken = (getState() as AuthAwareRoot).auth.accessToken;
     let token = stateToken;
@@ -38,7 +43,7 @@ const rawBaseQuery = fetchBaseQuery({
 
 export const aiBaseApi = createApi({
   reducerPath: "aiApi",
-  baseQuery: withReauth(rawBaseQuery),
+  baseQuery: withReauth(withErrorWindow(rawBaseQuery)),
   tagTypes: ["AI", "AIChats", "AIMessages"],
   endpoints: () => ({}),
 });

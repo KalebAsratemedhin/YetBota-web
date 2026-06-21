@@ -1,5 +1,5 @@
 "use client";
-import { forwardRef, useState } from "react";
+import { forwardRef, useId, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -10,21 +10,34 @@ interface AuthInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
-  ({ label, rightLabel, error, className, type, ...props }, ref) => {
+  ({ label, rightLabel, error, className, type, id, name, autoComplete, ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
     const isPassword = type === "password";
+    const reactId = useId();
+    const inputId = id ?? `auth-input-${reactId}`;
+    // Fall back to autoComplete (e.g. "username", "current-password") so browser
+    // autofill heuristics still get a meaningful field name when no explicit
+    // name prop is supplied.
+    const inputName = name ?? autoComplete ?? undefined;
 
     return (
       <div className="w-full">
         {(label || rightLabel) && (
           <div className="flex items-center justify-between mb-1.5">
-            {label && <label className="text-sm text-fg-muted font-medium">{label}</label>}
+            {label && (
+              <label htmlFor={inputId} className="text-sm text-fg-muted font-medium">
+                {label}
+              </label>
+            )}
             {rightLabel && <div className="text-sm">{rightLabel}</div>}
           </div>
         )}
         <div className="relative">
           <input
             ref={ref}
+            id={inputId}
+            name={inputName}
+            autoComplete={autoComplete}
             type={isPassword && showPassword ? "text" : type}
             className={cn(
               "w-full bg-surface-2 border border-border-subtle rounded-xl px-4 py-3 text-fg placeholder-gray-600 text-sm outline-none",

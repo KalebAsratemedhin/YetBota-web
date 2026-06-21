@@ -8,6 +8,7 @@ import {
 import type { AuthState } from "@/store/authSlice";
 import { unwrapEnvelope } from "@/store/api/apiEnvelope";
 import { registerApiReset, withReauth } from "@/store/api/reauth";
+import { withErrorWindow } from "@/store/api/errorWindow";
 
 type AuthAwareRoot = { auth: AuthState };
 
@@ -20,6 +21,10 @@ const baseUrl = "/proxy/main/v1";
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl,
+  // Hard ceiling so a hung backend can't leave the UI stuck "loading" — the
+  // resulting TIMEOUT_ERROR is what withErrorWindow uses to cool down further
+  // requests to the same URL.
+  timeout: 15_000,
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as AuthAwareRoot).auth.accessToken;
     if (token) headers.set("Authorization", `Bearer ${token}`);
@@ -49,7 +54,7 @@ const baseQueryUnwrappingEnvelope: BaseQueryFn<string | FetchArgs, unknown, Fetc
 
 export const baseApi = createApi({
   reducerPath: "api",
-  baseQuery: withReauth(baseQueryUnwrappingEnvelope),
+  baseQuery: withReauth(withErrorWindow(baseQueryUnwrappingEnvelope)),
   tagTypes: ["User", "Auth", "Me"],
   endpoints: () => ({}),
 });

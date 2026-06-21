@@ -10,6 +10,14 @@ import { getAuthErrorMessage } from "@/lib/authErrors";
 import { useLoginMutation } from "@/store/api/authApi";
 import { useAppSelector } from "@/store/hooks";
 import { useToast } from "@/hooks/use-toast";
+import { setSessionCookie } from "@/lib/sessionCookie";
+
+// Only honor relative paths so a crafted ?next= can't redirect to another origin.
+function safeNextPath(raw: string | null): string {
+  if (!raw) return "/";
+  if (!raw.startsWith("/") || raw.startsWith("//")) return "/";
+  return raw;
+}
 
 export default function SignInPage() {
   const router = useRouter();
@@ -20,9 +28,16 @@ export default function SignInPage() {
   const [login, { isLoading }] = useLoginMutation();
 
   useEffect(() => {
-    if (accessToken) {
-      router.replace("/");
-    }
+    if (!accessToken) return;
+    // Redux says we're logged in. If middleware sent us here, the session cookie
+    // expired (or got cleared) while localStorage survived. Refresh it before
+    // redirecting so the destination route's middleware check passes.
+    setSessionCookie();
+    const next =
+      typeof window !== "undefined"
+        ? safeNextPath(new URLSearchParams(window.location.search).get("next"))
+        : "/";
+    router.replace(next);
   }, [accessToken, router]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -31,7 +46,8 @@ export default function SignInPage() {
       const res = await login({ username: username.trim(), password }).unwrap();
       console.log("[auth/login] response", res);
       toast({ title: "Signed in", description: "Welcome back." });
-      router.replace("/");
+      const next = safeNextPath(new URLSearchParams(window.location.search).get("next"));
+      router.replace(next);
     } catch (err) {
       console.error("[auth/login] error", err);
       toast({

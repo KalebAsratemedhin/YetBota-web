@@ -1,0 +1,59 @@
+app:
+  name: Yet Bota - AI Service
+  version: 0.0.1
+  debug: ${debug}
+cors:
+  hosts:
+    - ${corsHosts}
+http:
+  host: 0.0.0.0
+  port: 8989
+database:
+  host: ${postgresHost}
+  port: ${postgresPort}
+  user: ${postgresUser}
+  password: ${postgresPassword}
+  db: ${postgresDB}
+neo4j:
+  uri: ${neo4jURI}
+  username: ${neo4jUsername}
+  password: ${neo4jPassword}
+  database: neo4j
+temporal:
+  host: ${temporalHost}
+  namespace: ${temporalNamespace}
+  max_concurrent_activities: 16
+  max_concurrent_workflow_tasks: 16
+weaviate:
+  url: ${weaviateUrl}
+  api_key: ${weaviateApiKey}
+  class_name: ContentChunk
+gemini:
+  api_key: ${geminiApiKey}
+  llm_model: gemini-2.5-flash
+  embedding_model: gemini-embedding-001
+  embedding_dimensions: 1536
+  timeout_s: 30
+  max_tokens: 1024
+  temperature: 0.2
+dedup:
+  distance_threshold: 0.15
+  spatial_radius_m: 250.0
+rag:
+  top_k: 8
+  min_similarity: 0.35
+similarity:
+  enabled: true
+  top_n: 10
+  candidate_oversample: 5
+screening:
+  block_threshold: 0.7
+  timeout_s: 5
+  cache_size: 1024
+  cache_ttl_s: 300
+chunker:
+  size: 512
+  overlap: 64
+logging:
+  level: INFO
+  format: json
