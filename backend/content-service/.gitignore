@@ -2,4 +2,3 @@ bin
 .env
 tmp
 sqlboiler.toml
-firebaseServiceAccountKey.json

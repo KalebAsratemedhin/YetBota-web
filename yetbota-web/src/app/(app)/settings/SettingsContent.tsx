@@ -8,23 +8,9 @@ import AuthInput from "@/components/auth/AuthInput";
 import ThemeToggle from "@/components/shared/ThemeToggle";
 import { useToast } from "@/hooks/use-toast";
 import { getAuthErrorMessage } from "@/lib/authErrors";
-import {
-  useChangeMobileMutation,
-  useChangePasswordMutation,
-  useGenerateMobileOtpMutation,
-  useGetMeQuery,
-  useUpdateSelfMutation,
-  useValidateMobileOtpMutation,
-} from "@/store/api/authApi";
+import { useChangePasswordMutation, useGetMeQuery, useUpdateSelfMutation } from "@/store/api/authApi";
 import { useAppSelector } from "@/store/hooks";
 import type { UserPrivate } from "@/types/auth";
-
-function createRandom(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-  return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
-}
 
 function SettingsSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -60,7 +46,6 @@ function ProfileFieldsForm({ user, onSaved }: { user: UserPrivate; onSaved: () =
 
   return (
     <form className="space-y-4" onSubmit={handleSaveProfile}>
-      {/* <p className="text-fg-faint text-xs -mt-1 mb-1">Phone number can be updated in the section below.</p> */}
       <AuthInput
         label="Username"
         value={usernameDisplay}
@@ -100,16 +85,7 @@ export default function SettingsContent() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  const [newMobileSubscriber9, setNewMobileSubscriber9] = useState("");
-  const [phoneOtp, setPhoneOtp] = useState("");
-  const [phoneRandom, setPhoneRandom] = useState<string | null>(null);
-  const [phoneOtpVerified, setPhoneOtpVerified] = useState(false);
-
   const [changePassword, { isLoading: changingPassword }] = useChangePasswordMutation();
-  const [sendPhoneOtp, { isLoading: sendingPhoneOtp }] = useGenerateMobileOtpMutation();
-  const [validatePhoneOtp, { isLoading: validatingPhoneOtp }] = useValidateMobileOtpMutation();
-  const [changeMobile, { isLoading: changingMobile }] = useChangeMobileMutation();
 
   async function handleChangePassword(e: React.FormEvent) {
     e.preventDefault();
@@ -125,55 +101,6 @@ export default function SettingsContent() {
       toast({ title: "Password changed" });
     } catch (err) {
       toast({ variant: "destructive", title: "Password change failed", description: getAuthErrorMessage(err) });
-    }
-  }
-
-  async function handleSendPhoneOtp() {
-    if (newMobileSubscriber9.trim().length !== 9) {
-      toast({ variant: "destructive", title: "Enter a new phone number" });
-      return;
-    }
-    const mobile = `+251${newMobileSubscriber9}`;
-    const random = createRandom();
-    setPhoneRandom(random);
-    setPhoneOtpVerified(false);
-    setPhoneOtp("");
-    try {
-      await sendPhoneOtp({ mobile, random }).unwrap();
-      toast({ title: "Code sent", description: `We sent a code to ${mobile}.` });
-    } catch (err) {
-      setPhoneRandom(null);
-      toast({ variant: "destructive", title: "Could not send code", description: getAuthErrorMessage(err) });
-    }
-  }
-
-  async function handleVerifyPhoneOtp() {
-    if (!phoneRandom) return;
-    const mobile = `+251${newMobileSubscriber9}`;
-    try {
-      await validatePhoneOtp({ mobile, random: phoneRandom, otp: phoneOtp.trim() }).unwrap();
-      setPhoneOtpVerified(true);
-      toast({ title: "Phone verified", description: "You can update your number now." });
-    } catch (err) {
-      toast({ variant: "destructive", title: "Invalid code", description: getAuthErrorMessage(err) });
-    }
-  }
-
-  async function handleSaveNewPhone() {
-    if (!phoneRandom || !phoneOtpVerified) {
-      toast({ variant: "destructive", title: "Verify the code first" });
-      return;
-    }
-    try {
-      await changeMobile({ new_mobile: `+251${newMobileSubscriber9}`, random: phoneRandom }).unwrap();
-      setNewMobileSubscriber9("");
-      setPhoneOtp("");
-      setPhoneRandom(null);
-      setPhoneOtpVerified(false);
-      toast({ title: "Phone number updated" });
-      void refetch();
-    } catch (err) {
-      toast({ variant: "destructive", title: "Update failed", description: getAuthErrorMessage(err) });
     }
   }
 
@@ -263,80 +190,6 @@ export default function SettingsContent() {
               {changingPassword ? "Updating…" : "Update password"}
             </Button>
           </form>
-        </SettingsSection>
-
-        <SettingsSection title="Change phone number">
-          <p className="text-fg-faint text-xs mb-4">
-            Enter your new number, request a code, verify it, then save.
-          </p>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm text-fg-muted font-medium mb-1.5 block">New Phone Number</label>
-              <div className="flex gap-2">
-                <div className="flex items-center gap-1.5 bg-surface-2 border border-border-subtle rounded-xl px-3 h-12 text-fg text-sm font-semibold select-none shrink-0">
-                  <span>Et</span>
-                  <span>+251</span>
-                </div>
-                <input
-                  type="tel"
-                  value={newMobileSubscriber9}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, "").slice(0, 9);
-                    setNewMobileSubscriber9(val);
-                  }}
-                  placeholder="912 345 678"
-                  className="flex-1 bg-surface-2 border border-border-subtle rounded-xl px-4 h-12 text-fg placeholder-gray-600 text-sm outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/20 transition-all"
-                  disabled={changingMobile || sendingPhoneOtp || validatingPhoneOtp}
-                  autoComplete="tel"
-                  inputMode="tel"
-                />
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                className="border-border-subtle text-fg"
-                onClick={() => void handleSendPhoneOtp()}
-                disabled={sendingPhoneOtp || newMobileSubscriber9.trim().length !== 9}
-              >
-                {sendingPhoneOtp ? "Sending…" : "Send verification code"}
-              </Button>
-            </div>
-            {phoneRandom && (
-              <>
-                <AuthInput
-                  label="Verification code"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  value={phoneOtp}
-                  onChange={(e) => setPhoneOtp(e.target.value.replace(/\D/g, "").slice(0, 8))}
-                />
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="border-border-subtle text-fg"
-                    onClick={() => void handleVerifyPhoneOtp()}
-                    disabled={validatingPhoneOtp || phoneOtp.trim().length < 4}
-                  >
-                    {validatingPhoneOtp ? "Verifying…" : "Verify code"}
-                  </Button>
-                  {phoneOtpVerified ? (
-                    <span className="text-brand text-sm font-semibold">Verified</span>
-                  ) : null}
-                </div>
-              </>
-            )}
-            <Button
-              type="button"
-              disabled={changingMobile || !phoneOtpVerified}
-              className="bg-brand hover:bg-brand-dark text-black font-semibold rounded-xl"
-              onClick={() => void handleSaveNewPhone()}
-            >
-              {changingMobile ? "Saving…" : "Save new phone number"}
-            </Button>
-          </div>
         </SettingsSection>
       </div>
     </div>

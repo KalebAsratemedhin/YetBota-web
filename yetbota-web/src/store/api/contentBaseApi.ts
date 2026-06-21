@@ -6,53 +6,32 @@ import {
   type FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
 import type { AuthState } from "@/store/authSlice";
+import { CONTENT_API_BASE } from "@/lib/apiConfig";
 import { unwrapEnvelope } from "@/store/api/apiEnvelope";
 import { registerApiReset, withReauth } from "@/store/api/reauth";
 import { withErrorWindow } from "@/store/api/errorWindow";
 
 type AuthAwareRoot = { auth: AuthState };
 
-// Same-origin reverse-proxy prefix; next.config.ts rewrites /proxy/content/* to
-// the real content backend (server-to-server). Hardcoded — not read from env —
-// so a misconfigured build can't point the browser straight at a raw backend IP
-// (mixed-content / TLS / ERR_NETWORK_CHANGED failures). To retarget the backend,
-// change BACKEND_CONTENT_ORIGIN in next.config.ts, not this value.
-const baseUrl = "/proxy/content/v1";
+const baseUrl = CONTENT_API_BASE;
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl,
-  // Hard ceiling so a hung backend can't leave the UI stuck "loading" — the
-  // resulting TIMEOUT_ERROR is what withErrorWindow uses to cool down further
-  // requests to the same URL.
   timeout: 15_000,
   prepareHeaders: (headers, { getState }) => {
     const stateToken = (getState() as AuthAwareRoot).auth.accessToken;
     let token = stateToken;
-    let tokenSource: "redux" | "localStorage" | "none" = stateToken ? "redux" : "none";
 
-    // Fallback: if Redux isn't hydrated for some reason, try localStorage.
     if (!token && typeof window !== "undefined") {
       try {
         const raw = window.localStorage.getItem("yetbota.localAuth");
         if (raw) {
           const parsed = JSON.parse(raw) as { accessToken?: unknown };
-          if (typeof parsed.accessToken === "string") {
-            token = parsed.accessToken;
-            tokenSource = "localStorage";
-          }
+          if (typeof parsed.accessToken === "string") token = parsed.accessToken;
         }
       } catch {
         // ignore
       }
-    }
-
-    if (process.env.NODE_ENV !== "production") {
-      console.log("[contentApi] prepareHeaders", {
-        baseUrl,
-        hasStateToken: Boolean(stateToken),
-        hasTokenUsed: Boolean(token),
-        tokenSource,
-      });
     }
 
     if (token) headers.set("Authorization", `Bearer ${token}`);
@@ -61,28 +40,13 @@ const rawBaseQuery = fetchBaseQuery({
   },
 });
 
-// Unwraps the success/data envelope into either `{ data }` or
-// `{ error: { status, data } }`. Auth-bad detection and refresh both live in
-// `withReauth` one layer up; this stays a pure envelope-parsing concern so
-// that an "invalid token" envelope no longer triggers an eager logout —
-// withReauth will refresh first and only clear auth if the refresh fails.
 const baseQueryUnwrappingEnvelope: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
   args,
   api,
   extraOptions
 ) => {
   const result = await rawBaseQuery(args, api, extraOptions);
-  if (result.error) {
-    if (process.env.NODE_ENV !== "production") {
-      const url = typeof args === "string" ? args : args.url;
-      console.warn("[contentApi] request error", {
-        url,
-        status: (result.error as FetchBaseQueryError).status,
-        data: (result.error as FetchBaseQueryError).data,
-      });
-    }
-    return result;
-  }
+  if (result.error) return result;
 
   const unwrapped = unwrapEnvelope<unknown>(result.data);
   if (unwrapped.error) {

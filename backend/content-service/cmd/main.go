@@ -5,13 +5,9 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strings"
+	"strconv"
 	"syscall"
 	"time"
-
-	firebase "firebase.google.com/go"
-	"golang.org/x/oauth2/jwt"
-	"google.golang.org/api/option"
 
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/beka-birhanu/yetbota/content-service/drivers/config"
@@ -19,15 +15,15 @@ import (
 	"github.com/beka-birhanu/yetbota/content-service/drivers/dbmigrations"
 	jwtDriver "github.com/beka-birhanu/yetbota/content-service/drivers/jwt"
 	logger "github.com/beka-birhanu/yetbota/content-service/drivers/logger"
-	neo4jDriver "github.com/beka-birhanu/yetbota/content-service/drivers/neo4j"
+	aigraphDriver "github.com/beka-birhanu/yetbota/content-service/drivers/aigraph"
+	identitygraphDriver "github.com/beka-birhanu/yetbota/content-service/drivers/identitygraph"
 	notificationSenderDriver "github.com/beka-birhanu/yetbota/content-service/drivers/notification_sender"
 	"github.com/beka-birhanu/yetbota/content-service/drivers/postgres"
+	rabbitmqDriver "github.com/beka-birhanu/yetbota/content-service/drivers/rabbitmq"
 	redisDriver "github.com/beka-birhanu/yetbota/content-service/drivers/redis"
 	"github.com/beka-birhanu/yetbota/content-service/drivers/storage"
-	temporalDriver "github.com/beka-birhanu/yetbota/content-service/drivers/temporal"
 	"github.com/beka-birhanu/yetbota/content-service/drivers/validator"
 	"github.com/pressly/goose"
-	"go.temporal.io/sdk/worker"
 	"go.uber.org/zap/zapcore"
 
 	cmdHttp "github.com/beka-birhanu/yetbota/content-service/cmd/http"
@@ -72,6 +68,11 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("error load config: %v", err))
 	}
+	if portStr := os.Getenv("PORT"); portStr != "" {
+		if port, err := strconv.Atoi(portStr); err == nil {
+			cfg.Rest.Port = port
+		}
+	}
 
 	pgdb, err := postgres.NewDB(&postgres.Config{
 		Host:     cfg.Postgres.Host,
@@ -79,6 +80,7 @@ func main() {
 		User:     cfg.Postgres.User,
 		Password: cfg.Postgres.Password,
 		DB:       cfg.Postgres.DB,
+		SslMode:  cfg.Postgres.SslMode,
 	})
 	if err != nil {
 		panic(fmt.Errorf("error connect postgres: %v", err))
@@ -100,6 +102,7 @@ func main() {
 		User:     cfg.Postgres.User,
 		Password: cfg.Postgres.Password,
 		DB:       cfg.Postgres.DB,
+		SslMode:  cfg.Postgres.SslMode,
 	})
 	if err != nil {
 		panic(fmt.Errorf("error run DB migrations: %v", err))
@@ -108,6 +111,7 @@ func main() {
 	if err := goose.SetDialect("postgres"); err != nil {
 		panic(fmt.Errorf("error setting goose dialect: %v", err))
 	}
+	goose.SetTableName("goose_db_version_content")
 
 	currentVersion, err := goose.GetDBVersion(dbGoose)
 	if err != nil {
@@ -177,28 +181,32 @@ func main() {
 		panic(fmt.Errorf("error creating cloudinary blob: %v", err))
 	}
 
-	temporalClient, err := temporalDriver.NewClient(&temporalDriver.Config{
-		Host:      cfg.Temporal.Host,
-		Namespace: cfg.Temporal.Namespace,
+	rabbitClient, err := rabbitmqDriver.NewClient(&rabbitmqDriver.Config{
+		URL: cfg.RabbitMQ.URL,
 	})
 	if err != nil {
-		panic(fmt.Errorf("error creating temporal client: %v", err))
+		panic(fmt.Errorf("error creating rabbitmq client: %v", err))
 	}
-	defer temporalClient.Close()
-	fmt.Println("Temporal connection successful!")
+	defer rabbitClient.Close()
+	fmt.Println("RabbitMQ connection successful!")
 
-	neo4jConn, err := neo4jDriver.NewDriver(&neo4jDriver.Config{
-		URI:      cfg.Neo4j.URI,
-		Username: cfg.Neo4j.Username,
-		Password: cfg.Neo4j.Password,
+	identityGraphClient, err := identitygraphDriver.NewClient(&identitygraphDriver.Config{
+		BaseURL:      cfg.IdentityService.BaseURL,
+		ServiceToken: cfg.Internal.ServiceToken,
+		Timeout:      time.Duration(cfg.IdentityService.Timeout) * time.Second,
 	})
 	if err != nil {
-		panic(fmt.Errorf("error creating neo4j driver: %v", err))
+		panic(fmt.Errorf("error creating identity graph client: %v", err))
 	}
-	defer func() {
-		_ = neo4jConn.Close(ctx)
-	}()
-	fmt.Println("Neo4j connection successful!")
+
+	aiGraphClient, err := aigraphDriver.NewClient(&aigraphDriver.Config{
+		BaseURL:      cfg.AIService.BaseURL,
+		ServiceToken: cfg.Internal.ServiceToken,
+		Timeout:      time.Duration(cfg.AIService.Timeout) * time.Second,
+	})
+	if err != nil {
+		panic(fmt.Errorf("error creating ai graph client: %v", err))
+	}
 
 	feedRepo, err := repoFeed.NewRedisRepository(&repoFeed.Config{
 		RDB:    redisConn,
@@ -223,12 +231,12 @@ func main() {
 		panic(fmt.Errorf("error creating savedpost repo: %v", err))
 	}
 
-	followerRepo, err := repoFollower.NewRepo(&repoFollower.Config{Driver: neo4jConn, DB: pgdb})
+	followerRepo, err := repoFollower.NewRepo(&repoFollower.Config{Graph: identityGraphClient, DB: pgdb})
 	if err != nil {
 		panic(fmt.Errorf("error creating user repo: %v", err))
 	}
 
-	postSimRepo, err := repoPostSim.NewRepo(&repoPostSim.Config{Driver: neo4jConn})
+	postSimRepo, err := repoPostSim.NewRepo(&repoPostSim.Config{Graph: aiGraphClient})
 	if err != nil {
 		panic(fmt.Errorf("error creating postsimilarity repo: %v", err))
 	}
@@ -256,32 +264,20 @@ func main() {
 		panic(fmt.Errorf("error creating user repo: %v", err))
 	}
 
-	jwtConf := &jwt.Config{
-		Email:      cfg.Notification.FirebaseClientEmail,
-		PrivateKey: []byte(strings.ReplaceAll(cfg.Notification.FirebasePrivateKey, `\n`, "\n")),
-		Scopes:     []string{"https://www.googleapis.com/auth/cloud-platform"},
-		TokenURL:   "https://oauth2.googleapis.com/token",
-	}
-	firebaseApp, err := firebase.NewApp(ctx, &firebase.Config{ProjectID: cfg.Notification.FirebaseProjectID}, option.WithTokenSource(jwtConf.TokenSource(ctx)))
-	if err != nil {
-		panic(fmt.Errorf("error creating firebase app: %v", err))
-	}
-
-	notificationSender, err := notificationSenderDriver.NewFirebaseSender(&notificationSenderDriver.Config{
-		App:                          firebaseApp,
-		AndroidNotificationChannelID: cfg.Notification.AndroidNotificationChannelID,
-	})
-	if err != nil {
-		panic(fmt.Errorf("error creating notification sender: %v", err))
-	}
+	notificationSender := notificationSenderDriver.NewNoOp()
 
 	notificationRepo, err := repoNotification.NewRepo(&repoNotification.Config{DB: pgdb})
 	if err != nil {
 		panic(fmt.Errorf("error creating notification repo: %v", err))
 	}
 
-	executor, err := processors.NewExecutor(&processors.Config{
-		Client:               temporalClient,
+	commentRepo, err := repoComment.NewRepo(&repoComment.Config{DB: pgdb})
+	if err != nil {
+		panic(fmt.Errorf("error creating comment repo: %v", err))
+	}
+
+	runtime, err := processors.NewRuntime(&processors.RuntimeConfig{
+		RabbitMQClient:       rabbitClient,
 		PostPhotoRepo:        postPhotoRepo,
 		PhotoRepo:            photoRepo,
 		Bucket:               bucket,
@@ -289,6 +285,7 @@ func main() {
 		PostSimRepo:          postSimRepo,
 		FeedRepo:             feedRepo,
 		PostRepo:             postRepo,
+		CommentRepo:          commentRepo,
 		PostvoteRepo:         postVoteRepo,
 		BatchStore:           fanOutBatchStore,
 		SeenCache:            seenCache,
@@ -306,9 +303,16 @@ func main() {
 		Badges:               cfg.AuthorRating.Badges,
 		AuthorConsumerGroup:  cfg.AuthorRating.ConsumerGroup,
 		AuthorBatchSize:      cfg.AuthorRating.BatchSize,
+		AuthorScoringInput: domainProcessors.AuthorScoringWorkflowInput{
+			StabilizingWindowHours: cfg.AuthorRating.StabilizingWindowHours,
+			PollIntervalSec:        cfg.AuthorRating.PollIntervalSec,
+			BatchSize:              cfg.AuthorRating.BatchSize,
+			ContinueAfterIter:      cfg.AuthorRating.ContinueAfterIter,
+			ConsumerGroup:          cfg.AuthorRating.ConsumerGroup,
+		},
 	})
 	if err != nil {
-		panic(fmt.Errorf("error creating executor: %v", err))
+		panic(fmt.Errorf("error creating processor runtime: %v", err))
 	}
 
 	postService, err := postSvc.NewService(&postSvc.Config{
@@ -320,7 +324,7 @@ func main() {
 		PhotoRepo:       photoRepo,
 		PostPhotoRepo:   postPhotoRepo,
 		Bucket:          bucket,
-		Executor:        executor,
+		Executor:        runtime.Publisher,
 		ScoringStream:   scoringStream,
 	})
 	if err != nil {
@@ -349,16 +353,11 @@ func main() {
 		panic(fmt.Errorf("error creating feed service: %v", err))
 	}
 
-	commentRepo, err := repoComment.NewRepo(&repoComment.Config{DB: pgdb})
-	if err != nil {
-		panic(fmt.Errorf("error creating comment repo: %v", err))
-	}
-
 	commentService, err := commentSvc.NewService(&commentSvc.Config{
 		CommentRepo:     commentRepo,
 		CommentVoteRepo: commentVoteRepo,
 		PostRepo:        postRepo,
-		Executor:        executor,
+		Executor:        runtime.Publisher,
 	})
 	if err != nil {
 		panic(fmt.Errorf("error creating comment service: %v", err))
@@ -437,40 +436,15 @@ func main() {
 	sigCtx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	newPostWorker := worker.New(temporalClient, constants.NewPostWorkflowQueue, worker.Options{})
-	feedUpdateWorker := worker.New(temporalClient, constants.FeedUpdateWorkflowQueue, worker.Options{})
-	authorScoringWorker := worker.New(temporalClient, constants.AuthorScoringWorkflowQueue, worker.Options{})
-	executor.RegisterWorkflowsAndActivity(newPostWorker)
-	executor.RegisterWorkflowsAndActivity(feedUpdateWorker)
-	executor.RegisterAuthorScoringWorker(authorScoringWorker)
-
-	if err := newPostWorker.Start(); err != nil {
-		panic(fmt.Errorf("error starting new post worker: %v", err))
-	}
-	if err := feedUpdateWorker.Start(); err != nil {
-		panic(fmt.Errorf("error starting feed update worker: %v", err))
-	}
-	if err := authorScoringWorker.Start(); err != nil {
-		panic(fmt.Errorf("error starting author scoring worker: %v", err))
-	}
-
-	if err := executor.StartAuthorScoringWorkflow(ctx, domainProcessors.AuthorScoringWorkflowInput{
-		StabilizingWindowHours: cfg.AuthorRating.StabilizingWindowHours,
-		PollIntervalSec:        cfg.AuthorRating.PollIntervalSec,
-		BatchSize:              cfg.AuthorRating.BatchSize,
-		ContinueAfterIter:      cfg.AuthorRating.ContinueAfterIter,
-		ConsumerGroup:          cfg.AuthorRating.ConsumerGroup,
-	}); err != nil {
-		panic(fmt.Errorf("error starting author scoring workflow: %v", err))
-	}
-
 	eg, egCtx := errgroup.WithContext(sigCtx)
 	eg.Go(func() error {
-		<-egCtx.Done()
-		newPostWorker.Stop()
-		feedUpdateWorker.Stop()
-		authorScoringWorker.Stop()
-		return nil
+		return runtime.NewPostHandler.Run(egCtx)
+	})
+	eg.Go(func() error {
+		return runtime.FeedUpdateHandler.Run(egCtx)
+	})
+	eg.Go(func() error {
+		return runtime.AuthorScoringLoop.Run(egCtx)
 	})
 	eg.Go(func() error {
 		return cmdHttp.RunServer(egCtx, &cmdHttp.Config{

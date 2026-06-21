@@ -11,6 +11,7 @@ import (
 	"github.com/beka-birhanu/toddler/status"
 	"github.com/beka-birhanu/yetbota/identity-service/drivers/constants"
 	"github.com/nfnt/resize"
+	_ "golang.org/x/image/webp"
 )
 
 // ProcessImage resizes and optimizes the image.
@@ -27,6 +28,9 @@ func ProcessImage(decoded []byte) ([]byte, string, error) {
 
 	width := img.Bounds().Dx()
 	height := img.Bounds().Dy()
+	if format == "webp" && width <= constants.MaxImageResolution && height <= constants.MaxImageResolution {
+		return decoded, "image/webp", nil
+	}
 	if width > constants.MaxImageResolution || height > constants.MaxImageResolution {
 		img = resize.Thumbnail(constants.MaxImageResolution, constants.MaxImageResolution, img, resize.Lanczos3)
 	}
@@ -54,6 +58,16 @@ func ProcessImage(decoded []byte) ([]byte, string, error) {
 			}
 		}
 		mime = "image/png"
+	case "webp":
+		if err := jpeg.Encode(&buf, img, &jpeg.Options{Quality: 85}); err != nil {
+			return nil, "", &toddlerr.Error{
+				PublicStatusCode:  status.ServerError,
+				ServiceStatusCode: status.ServerError,
+				PublicMessage:     "Failed to process image",
+				ServiceMessage:    fmt.Sprintf("Failed to encode WebP as JPEG: %s", err),
+			}
+		}
+		mime = "image/jpeg"
 	default:
 		return nil, "", &toddlerr.Error{
 			PublicStatusCode:  status.BadRequest,

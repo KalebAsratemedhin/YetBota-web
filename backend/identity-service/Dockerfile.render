@@ -1,0 +1,23 @@
+FROM golang:1.26-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /out/identity-service ./cmd/main.go
+
+FROM neo4j:5-community
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends netcat-openbsd \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY --from=builder /out/identity-service .
+COPY config.yaml .
+COPY migrations ./migrations
+COPY entrypoint.render.sh /entrypoint.render.sh
+RUN chmod +x /entrypoint.render.sh
+
+ENV neo4jURI=bolt://localhost:7687
+EXPOSE 6699
+
+ENTRYPOINT ["/entrypoint.render.sh"]

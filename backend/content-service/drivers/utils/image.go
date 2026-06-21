@@ -12,6 +12,7 @@ import (
 	"github.com/beka-birhanu/yetbota/content-service/drivers/constants"
 	"github.com/disintegration/imaging"
 	"github.com/nfnt/resize"
+	_ "golang.org/x/image/webp"
 )
 
 // decodeWithOrientation decodes an image and applies EXIF orientation so the
@@ -62,6 +63,17 @@ func encode(img image.Image, format string) ([]byte, string, error) {
 			}
 		}
 		mime = "image/png"
+	case "webp":
+		// No CGO-free WebP encoder in the toolchain; transcode resized WebP to JPEG.
+		if err := jpeg.Encode(&buf, img, &jpeg.Options{Quality: 85}); err != nil {
+			return nil, "", &toddlerr.Error{
+				PublicStatusCode:  status.ServerError,
+				ServiceStatusCode: status.ServerError,
+				PublicMessage:     "Failed to process image",
+				ServiceMessage:    fmt.Sprintf("failed to encode WebP as JPEG: %s", err),
+			}
+		}
+		mime = "image/jpeg"
 	default:
 		return nil, "", &toddlerr.Error{
 			PublicStatusCode:  status.BadRequest,
@@ -82,6 +94,9 @@ func ProcessImage(decoded []byte) ([]byte, string, error) {
 
 	w := img.Bounds().Dx()
 	h := img.Bounds().Dy()
+	if format == "webp" && w <= constants.MaxImageResolution && h <= constants.MaxImageResolution {
+		return decoded, "image/webp", nil
+	}
 	if w > constants.MaxImageResolution || h > constants.MaxImageResolution {
 		img = resize.Thumbnail(constants.MaxImageResolution, constants.MaxImageResolution, img, resize.Lanczos3)
 	}
@@ -105,6 +120,8 @@ func ImageMimeType(decoded []byte) (string, error) {
 		return "image/jpeg", nil
 	case "png":
 		return "image/png", nil
+	case "webp":
+		return "image/webp", nil
 	default:
 		return "", &toddlerr.Error{
 			PublicStatusCode:  status.BadRequest,

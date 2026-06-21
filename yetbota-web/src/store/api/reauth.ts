@@ -4,26 +4,11 @@ import type {
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
 import { logout, setCredentials, type AuthState } from "@/store/authSlice";
+import { IDENTITY_API_BASE } from "@/lib/apiConfig";
 import { clearSessionCookie } from "@/lib/sessionCookie";
-
-// Centralized access-token refresh shared by every base API in the app.
-//
-// Every authed surface (identity, content, AI) wraps its base query with
-// `withReauth(...)`. On an auth-bad response — HTTP 401, or an envelope-style
-// "invalid token" payload — the wrapper calls POST /v1/auth/refresh against
-// identity-service, swaps the new tokens into Redux, and retries the original
-// request. Concurrent failed requests across all three surfaces serialize
-// against a single module-level lock so we never spawn parallel refreshes.
-//
-// The refresh call is a dedicated fetch — not routed through the wrapped base
-// query — because content/AI surfaces have different base URLs and don't
-// expose /auth/refresh. The same reason applies to envelope unwrapping: we
-// parse the refresh response inline here.
 
 type AuthAwareRoot = { auth: AuthState };
 
-// All base APIs register their `resetApiState` action creator here so that a
-// failed refresh / logout fans out and clears every API's RTK Query cache.
 type ResetActionCreator = () => unknown;
 const resetActionCreators: ResetActionCreator[] = [];
 
@@ -32,12 +17,6 @@ export function registerApiReset(reset: ResetActionCreator): void {
     resetActionCreators.push(reset);
   }
 }
-
-// Identity-service prefix — hardcoded for the same reason as the per-API
-// base URLs (no env var, so a misconfigured build can't leak the raw backend
-// host into the browser). To retarget, edit BACKEND_MAIN_ORIGIN in
-// next.config.ts.
-const IDENTITY_BASE_URL = "/proxy/main/v1";
 
 const AUTH_BYPASS_PATHS = ["/auth/login", "/auth/refresh"];
 
@@ -52,12 +31,6 @@ function isInvalidTokenPayload(data: unknown): boolean {
   return typeof msg === "string" && msg.trim().toLowerCase() === "invalid token";
 }
 
-// "Auth-bad" covers two cases:
-//  1. Real HTTP 401 — what identity-service returns most of the time.
-//  2. An envelope `{ success: false, message: "invalid token" }`. Whether it
-//     reaches us as `result.error.data` (after envelope unwrap turned it into
-//     an error) or as `result.data` (no unwrap, raw envelope body), we treat
-//     it the same: refresh and retry.
 function isAuthBad(result: { error?: FetchBaseQueryError; data?: unknown }): boolean {
   if (result.error) {
     if (result.error.status === 401) return true;
@@ -89,15 +62,12 @@ export function clearAuthEverywhere(dispatch: (action: unknown) => void): void {
   }
 }
 
-// Performs the refresh as a one-off fetch against identity-service. Returns
-// the new token pair, or null if the refresh failed for any reason — caller
-// then logs the user out.
 async function performRefresh(
   refreshToken: string,
   username: string
 ): Promise<{ accessToken: string; refreshToken: string | null } | null> {
   try {
-    const res = await fetch(`${IDENTITY_BASE_URL}/auth/refresh`, {
+    const res = await fetch(`${IDENTITY_API_BASE}/auth/refresh`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -128,8 +98,6 @@ async function performRefresh(
   }
 }
 
-// Module-level lock: all callers (across base APIs and concurrent requests)
-// await the same in-flight refresh promise.
 let refreshLock: Promise<void> | null = null;
 
 export function withReauth(
@@ -140,8 +108,6 @@ export function withReauth(
 
     let result = await underlying(args, api, extraOptions);
 
-    // Auth-bad on the auth endpoints themselves means "login failed" or
-    // "refresh failed" — never retry those, that's an infinite loop.
     if (!isAuthBad(result) || isAuthPath(url)) {
       return result;
     }
@@ -162,8 +128,6 @@ export function withReauth(
           api.dispatch(
             setCredentials({
               accessToken: refreshed.accessToken,
-              // Fall back to the existing refresh token if the backend didn't
-              // rotate it on this call.
               refreshToken: refreshed.refreshToken ?? refreshToken,
             })
           );
@@ -177,9 +141,6 @@ export function withReauth(
 
     await refreshLock;
 
-    // setCredentials is a synchronous reducer, so by the time refreshLock
-    // resolves the store reflects the new token (if refresh succeeded). The
-    // retry's prepareHeaders re-reads getState() and picks it up.
     if ((api.getState() as AuthAwareRoot).auth.accessToken) {
       result = await underlying(args, api, extraOptions);
     }

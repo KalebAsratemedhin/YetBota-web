@@ -83,6 +83,55 @@ def _near_vector(embedding: Embedding, distance: float | None) -> str:
     return f"nearVector: {{ {', '.join(parts)} }}"
 
 
+_QUERY_LOG_LIMIT = 800
+_RETRY_HEADER = "x-retry-count"
+_MAX_RETRY_BACKOFF_S = 30.0
+
+
+def _truncate_query(query: str) -> str:
+    if len(query) <= _QUERY_LOG_LIMIT:
+        return query
+    return query[:_QUERY_LOG_LIMIT] + "...(truncated)"
+
+
+def _summarize_graphql_errors(errors: Any) -> list[dict[str, Any]]:
+    if not isinstance(errors, list):
+        return [{"message": str(errors)}]
+    summary: list[dict[str, Any]] = []
+    for item in errors:
+        if isinstance(item, dict):
+            summary.append(
+                {
+                    "message": item.get("message"),
+                    "path": item.get("path"),
+                    "locations": item.get("locations"),
+                }
+            )
+        else:
+            summary.append({"message": str(item)})
+    return summary
+
+
+def _http_error_transient(exc: httpx.HTTPError) -> bool:
+    if isinstance(exc, httpx.TimeoutException):
+        return True
+    if isinstance(exc, httpx.HTTPStatusError):
+        status = exc.response.status_code
+        if status >= 500:
+            return True
+        if status == 429:
+            return True
+        return False
+    return True
+
+
+def _response_body_preview(response: httpx.Response, *, limit: int = 500) -> str:
+    text = response.text
+    if len(text) <= limit:
+        return text
+    return text[:limit] + "...(truncated)"
+
+
 class WeaviateVectorStore:
     def __init__(self, settings: WeaviateSettings) -> None:
         self._settings = settings
@@ -135,20 +184,46 @@ class WeaviateVectorStore:
 
     async def _graphql(self, query: str, *, op: str) -> list[dict[str, Any]]:
         assert self._http is not None
+        class_name = self._settings.class_name
         try:
             resp = await self._http.post("/v1/graphql", json={"query": query})
             resp.raise_for_status()
         except httpx.HTTPError as exc:
+            transient = _http_error_transient(exc)
+            details: dict[str, Any] = {
+                "op": op,
+                "class_name": class_name,
+                "transient": transient,
+                "error": str(exc),
+            }
+            if isinstance(exc, httpx.HTTPStatusError):
+                details["status_code"] = exc.response.status_code
+                details["response_body"] = _response_body_preview(exc.response)
+            logger.error("weaviate.graphql.http_failed", **details)
             raise SimilaritySearchFailed(
-                f"weaviate graphql {op} failed: {exc}", cause=exc
+                f"weaviate graphql {op} failed: {exc}",
+                cause=exc,
+                transient=transient,
             ) from exc
         body = resp.json()
         errors = body.get("errors")
         if errors:
-            raise SimilaritySearchFailed(f"weaviate graphql {op} errors: {errors}")
+            summary = _summarize_graphql_errors(errors)
+            logger.error(
+                "weaviate.graphql.errors",
+                op=op,
+                class_name=class_name,
+                transient=False,
+                errors=summary,
+                query=_truncate_query(query),
+            )
+            raise SimilaritySearchFailed(
+                f"weaviate graphql {op} errors: {summary}",
+                transient=False,
+            )
         data = body.get("data") or {}
         get = data.get("Get") or {}
-        return get.get(self._settings.class_name) or []
+        return get.get(class_name) or []
 
     async def _ensure_class(self) -> None:
         assert self._client is not None
@@ -310,11 +385,13 @@ class WeaviateVectorStore:
         async with observe(WEAVIATE_CALLS, op="find_similar_posts"):
             try:
                 objs = await self._graphql(query, op="find_similar_posts")
-            except SimilaritySearchFailed:
+            except SimilaritySearchFailed as exc:
                 logger.error(
                     "weaviate.find_similar_posts.failed",
                     exclude_post_id=exclude_post_id,
                     elapsed_s=round(time.monotonic() - started, 3),
+                    transient=exc.transient,
+                    error=exc.message,
                 )
                 raise
         logger.info(
@@ -356,11 +433,13 @@ class WeaviateVectorStore:
         async with observe(WEAVIATE_CALLS, op="get_post_embedding"):
             try:
                 objs = await self._graphql(query, op="get_post_embedding")
-            except SimilaritySearchFailed:
+            except SimilaritySearchFailed as exc:
                 logger.error(
                     "weaviate.get_post_embedding.failed",
                     post_id=post_id,
                     elapsed_s=round(time.monotonic() - started, 3),
+                    transient=exc.transient,
+                    error=exc.message,
                 )
                 raise
         logger.info(
@@ -437,11 +516,13 @@ class WeaviateVectorStore:
         async with observe(WEAVIATE_CALLS, op=op):
             try:
                 objs = await self._graphql(query, op=op)
-            except SimilaritySearchFailed:
+            except SimilaritySearchFailed as exc:
                 logger.error(
                     "weaviate.search.failed",
                     op=op,
                     elapsed_s=round(time.monotonic() - started, 3),
+                    transient=exc.transient,
+                    error=exc.message,
                 )
                 raise
         logger.info(

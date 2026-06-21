@@ -36,15 +36,6 @@ const (
 )
 
 const (
-	FeedUpdateWorkflowQueue    = "WF_FEED_UPDATE_QUEUE"
-	NewPostWorkflowQueue       = "WF_NEW_POST_QUEUE"
-	PostEmbeddingWorkflowQueue = "WF_POST_INGESTING_QUEUE"
-	AuthorScoringWorkflowQueue = "AUTHOR_SCORING_QUEUE"
-
-	PostEmbeddingWorkflowName   = "IngestContentWorkflow"
-	AnswerEmbeddingWorkflowName = "AnswerEmbeddingWorkflow"
-	AuthorScoringWorkflowID     = "author-scoring-eternal"
-
 	PostScoringStreamKey = "POST_SCORING_STREAM"
 )
 

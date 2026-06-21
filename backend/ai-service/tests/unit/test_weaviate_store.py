@@ -19,7 +19,7 @@ def _settings() -> WeaviateSettings:
     return WeaviateSettings(
         url="http://localhost:8081",
         api_key="",
-        class_name="ContentChunk",
+        class_name="YetbotaRag",
     )
 
 

@@ -33,7 +33,7 @@ run:
 	PYTHONPATH=$(PYTHONPATH_FOR_RUN) $(BIN)/python -m main
 
 docker-build:
-	docker build -t yetbota/ai-service:dev -f Dockerfile ..
+	docker build -t yetbota/ai-service:dev .
 
 clean:
 	rm -rf .pytest_cache .mypy_cache .ruff_cache dist build *.egg-info

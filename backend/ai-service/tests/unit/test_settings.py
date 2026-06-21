@@ -28,14 +28,15 @@ def config_file(tmp_path: Path) -> Path:
           uri: bolt://localhost:7687
           username: neo4j
           password: neo4jpass
-        temporal:
-          host: localhost:7233
-          namespace: default
+        rabbitmq:
+          url: amqp://guest:guest@localhost:5672/
         weaviate:
           url: http://localhost:8081
           api_key: test-key
         gemini:
           api_key: gemini-key
+        internal:
+          service_token: test-token
         """
     ).strip()
     path = tmp_path / "config.yaml"
@@ -72,14 +73,15 @@ def test_env_substitution(config_file: Path, monkeypatch: pytest.MonkeyPatch) ->
               uri: ${neo4jURI}
               username: ${neo4jUsername}
               password: ${neo4jPassword}
-            temporal:
-              host: ${temporalHost}
-              namespace: ${temporalNamespace}
+            rabbitmq:
+              url: ${rabbitmqUrl}
             weaviate:
               url: ${weaviateUrl}
               api_key: ${weaviateApiKey}
             gemini:
               api_key: ${geminiApiKey}
+            internal:
+              service_token: ${internalServiceToken}
             """
         ).strip()
     )
@@ -93,14 +95,15 @@ def test_env_substitution(config_file: Path, monkeypatch: pytest.MonkeyPatch) ->
     monkeypatch.setenv("neo4jURI", "bolt://neo4j:7687")
     monkeypatch.setenv("neo4jUsername", "neo4j")
     monkeypatch.setenv("neo4jPassword", "neo4jpass")
-    monkeypatch.setenv("temporalHost", "temporal:7233")
-    monkeypatch.setenv("temporalNamespace", "default")
+    monkeypatch.setenv("rabbitmqUrl", "amqp://rabbit:5672/")
     monkeypatch.setenv("weaviateUrl", "https://weaviate.example.com")
     monkeypatch.setenv("weaviateApiKey", "wv-key")
     monkeypatch.setenv("geminiApiKey", "gm-key")
+    monkeypatch.setenv("internalServiceToken", "internal-token")
 
     settings = Settings.model_validate(load_config(config_file))
     assert settings.app.debug is True
     assert settings.postgres.host == "db.example.com"
+    assert settings.rabbitmq.url == "amqp://rabbit:5672/"
     assert settings.weaviate.url == "https://weaviate.example.com"
     assert settings.gemini.api_key == "gm-key"

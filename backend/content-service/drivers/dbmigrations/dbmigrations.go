@@ -14,6 +14,14 @@ type Config struct {
 	User     string `yaml:"user" mapstructure:"user" validate:"required"`
 	Password string `yaml:"password" mapstructure:"password" validate:"required"`
 	DB       string `yaml:"db" mapstructure:"db" validate:"required"`
+	SslMode  string `yaml:"sslmode" mapstructure:"sslmode"`
+}
+
+func (c *Config) sslMode() string {
+	if c.SslMode == "" {
+		return "require"
+	}
+	return c.SslMode
 }
 
 func (c *Config) Validate() error {
@@ -25,8 +33,8 @@ func (c *Config) Validate() error {
 
 func (c *Config) getDSN() string {
 	return fmt.Sprintf("host=%s port=%s user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		c.Host, c.Port, c.User, c.Password, c.DB)
+		"password=%s dbname=%s sslmode=%s",
+		c.Host, c.Port, c.User, c.Password, c.DB, c.sslMode())
 }
 
 func RunDBMigrations(c *Config) (*sql.DB, error) {

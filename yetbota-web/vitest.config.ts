@@ -16,8 +16,8 @@ export default defineConfig({
     css: false,
     clearMocks: true,
     restoreMocks: true,
-    // Base URLs are hardcoded to same-origin /proxy/* prefixes (not read from
-    // env). tests/setup.ts resolves those relative paths against http://localhost
-    // so MSW can intercept them (handlers use http://localhost/proxy/...).
+    env: {
+      NEXT_PUBLIC_API_URL: "http://localhost:8080",
+    },
   },
 });

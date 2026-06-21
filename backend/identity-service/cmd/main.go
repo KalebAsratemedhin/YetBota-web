@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -20,6 +22,7 @@ import (
 	"github.com/beka-birhanu/yetbota/identity-service/drivers/validator"
 	"github.com/beka-birhanu/yetbota/identity-service/internal/services/endpoint"
 	repoFollow "github.com/beka-birhanu/yetbota/identity-service/internal/services/repository/follow"
+	repoGraphRead "github.com/beka-birhanu/yetbota/identity-service/internal/services/repository/graphread"
 	repoPhoto "github.com/beka-birhanu/yetbota/identity-service/internal/services/repository/photo"
 	repoUser "github.com/beka-birhanu/yetbota/identity-service/internal/services/repository/user"
 	repoDevice "github.com/beka-birhanu/yetbota/identity-service/internal/services/repository/userdevice"
@@ -49,6 +52,11 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("error load config: %v", err))
 	}
+	if portStr := os.Getenv("PORT"); portStr != "" {
+		if port, err := strconv.Atoi(portStr); err == nil {
+			cfg.Rest.Port = port
+		}
+	}
 
 	pgdb, err := postgres.NewDB(
 		&postgres.Config{
@@ -57,6 +65,7 @@ func main() {
 			User:     cfg.Postgres.User,
 			Password: cfg.Postgres.Password,
 			DB:       cfg.Postgres.DB,
+			SslMode:  cfg.Postgres.SslMode,
 		})
 	if err != nil {
 		panic(fmt.Errorf("error connect postgres: %v", err))
@@ -78,6 +87,7 @@ func main() {
 		User:     cfg.Postgres.User,
 		Password: cfg.Postgres.Password,
 		DB:       cfg.Postgres.DB,
+		SslMode:  cfg.Postgres.SslMode,
 	})
 	if err != nil {
 		panic(fmt.Errorf("error run DB migrations: %v", err))
@@ -86,6 +96,7 @@ func main() {
 	if err := goose.SetDialect("postgres"); err != nil {
 		panic(fmt.Errorf("error setting goose dialect: %v", err))
 	}
+	goose.SetTableName("goose_db_version_identity")
 
 	currentVersion, err := goose.GetDBVersion(dbGoose)
 	if err != nil {
@@ -162,6 +173,11 @@ func main() {
 		panic(fmt.Errorf("error creating follow repo: %v", err))
 	}
 
+	graphReadRepo, err := repoGraphRead.NewRepo(&repoGraphRead.Config{Driver: neo4jDrv})
+	if err != nil {
+		panic(fmt.Errorf("error creating graph read repo: %v", err))
+	}
+
 	deviceService, err := usecaseDevice.NewService(&usecaseDevice.Config{
 		DeviceRepo: deviceRepo,
 	})
@@ -205,6 +221,8 @@ func main() {
 		E:              endpoints,
 		SessionManager: sessionManager,
 		CorsHosts:      cfg.Cors.Hosts,
+		GraphReadRepo:  graphReadRepo,
+		InternalToken:  cfg.Internal.ServiceToken,
 	})
 	if err != nil {
 		panic(fmt.Errorf("error creating http router: %v", err))

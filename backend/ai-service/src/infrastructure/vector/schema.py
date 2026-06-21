@@ -18,7 +18,7 @@ def content_chunk_properties() -> list[Property]:
 
 def content_chunk_vector_config() -> object:
     return Configure.Vectors.self_provided(
-        vector_index_config=Configure.VectorIndex.hnsw(
+        vector_index_config=Configure.VectorIndex.hfresh(
             distance_metric=VectorDistances.COSINE,
         ),
     )

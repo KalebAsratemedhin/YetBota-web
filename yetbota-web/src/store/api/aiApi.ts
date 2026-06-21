@@ -77,9 +77,6 @@ function buildParams(query: Record<string, string | number | undefined>): Record
 
 export const aiApi = aiBaseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // POST /v1/assistant/chats -> 201 Chat. No trailing slash: the ai-service
-    // routes are registered slash-less, and adding one makes it 307-redirect to
-    // an absolute backend URL that escapes the /proxy/ai rewrite.
     createChat: builder.mutation<Chat, CreateChatArgs>({
       query: ({ user_id, title }) => ({
         url: "/assistant/chats",

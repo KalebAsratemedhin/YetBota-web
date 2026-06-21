@@ -1,7 +1,7 @@
 package config
 
 type Configs struct {
-	Debug        bool          `yaml:"debug" mapstructure:"debug" validate:"required"`
+	Debug        bool          `yaml:"debug" mapstructure:"debug"`
 	App          *App          `yaml:"app" mapstructure:"app" validate:"required"`
 	Rest         *Rest         `yaml:"rest" mapstructure:"rest" validate:"required"`
 	Cors         *Cors         `yaml:"cors" mapstructure:"cors" validate:"required"`
@@ -9,12 +9,22 @@ type Configs struct {
 	Redis        *Redis        `yaml:"redis" mapstructure:"redis" validate:"required"`
 	Jwt          *Jwt          `yaml:"jwt" mapstructure:"jwt" validate:"required"`
 	Cloudinary   *Cloudinary   `yaml:"cloudinary" mapstructure:"cloudinary" validate:"required"`
-	Temporal     *Temporal     `yaml:"temporal" mapstructure:"temporal" validate:"required"`
-	Feed         *Feed         `yaml:"feed" mapstructure:"feed" validate:"required"`
-	Neo4j        *Neo4j        `yaml:"neo4j" mapstructure:"neo4j" validate:"required"`
-	AuthorRating *AuthorRating `yaml:"author_rating" mapstructure:"author_rating" validate:"required"`
-	Notification *Notification `yaml:"notification" mapstructure:"notification" validate:"required"`
-	Moderation   *Moderation   `yaml:"moderation" mapstructure:"moderation" validate:"required"`
+	RabbitMQ       *RabbitMQ       `yaml:"rabbitmq" mapstructure:"rabbitmq" validate:"required"`
+	Feed           *Feed           `yaml:"feed" mapstructure:"feed" validate:"required"`
+	AuthorRating   *AuthorRating   `yaml:"author_rating" mapstructure:"author_rating" validate:"required"`
+	Moderation     *Moderation     `yaml:"moderation" mapstructure:"moderation" validate:"required"`
+	IdentityService *ServiceClient `yaml:"identity_service" mapstructure:"identity_service" validate:"required"`
+	AIService       *ServiceClient `yaml:"ai_service" mapstructure:"ai_service" validate:"required"`
+	Internal        *Internal       `yaml:"internal" mapstructure:"internal" validate:"required"`
+}
+
+type ServiceClient struct {
+	BaseURL string `yaml:"base_url" mapstructure:"base_url" validate:"required"`
+	Timeout int    `yaml:"timeout_sec" mapstructure:"timeout_sec" validate:"required"`
+}
+
+type Internal struct {
+	ServiceToken string `yaml:"service_token" mapstructure:"service_token" validate:"required"`
 }
 
 type Moderation struct {
@@ -23,9 +33,8 @@ type Moderation struct {
 	RateLimitWindowSec int `yaml:"rate_limit_window_sec" mapstructure:"rate_limit_window_sec" validate:"required"`
 }
 
-type Temporal struct {
-	Host      string `yaml:"host"      mapstructure:"host"      validate:"required"`
-	Namespace string `yaml:"namespace" mapstructure:"namespace" validate:"required"`
+type RabbitMQ struct {
+	URL string `yaml:"url" mapstructure:"url" validate:"required"`
 }
 
 type Cloudinary struct {
@@ -57,6 +66,7 @@ type Postgres struct {
 	Password string `yaml:"password" mapstructure:"password" validate:"required"`
 	Port     string `yaml:"port" mapstructure:"port" validate:"required"`
 	User     string `yaml:"user" mapstructure:"user" validate:"required"`
+	SslMode  string `yaml:"sslmode" mapstructure:"sslmode"`
 }
 
 type Redis struct {
@@ -108,22 +118,9 @@ type Feed struct {
 	MaxCelebrityFeedSize int     `yaml:"max_celebrity_feed_size" mapstructure:"max_celebrity_feed_size"`
 }
 
-type Neo4j struct {
-	URI      string `yaml:"uri"      mapstructure:"uri"`
-	Username string `yaml:"username" mapstructure:"username"`
-	Password string `yaml:"password" mapstructure:"password"`
-}
-
 type Badge struct {
 	Name     string `yaml:"name"      mapstructure:"name"`
 	MinScore int64  `yaml:"min_score" mapstructure:"min_score"`
-}
-
-type Notification struct {
-	FirebaseProjectID            string `yaml:"firebase_project_id" mapstructure:"firebase_project_id" validate:"required"`
-	FirebaseClientEmail          string `yaml:"firebase_client_email" mapstructure:"firebase_client_email" validate:"required"`
-	FirebasePrivateKey           string `yaml:"firebase_private_key" mapstructure:"firebase_private_key" validate:"required"`
-	AndroidNotificationChannelID string `yaml:"android_notification_channel_id" mapstructure:"android_notification_channel_id" validate:"required"`
 }
 
 type AuthorRating struct {

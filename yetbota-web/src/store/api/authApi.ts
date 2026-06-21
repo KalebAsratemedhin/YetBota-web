@@ -3,17 +3,13 @@ import { setCredentials } from "@/store/authSlice";
 import { setSessionCookie } from "@/lib/sessionCookie";
 import type {
   AuthorizationRequest,
-  ChangeMobileRequest,
   ChangePasswordRequest,
   CheckMobileRequest,
-  GenerateMobileOTPRequest,
   ListUsersData,
   ListUsersQuery,
   LoginRequest,
   LoginResponseData,
   LogoutRequest,
-  NewPasswordRequest,
-  OtpLimits,
   RefreshRequest,
   RefreshResponseData,
   RegisterRequest,
@@ -23,7 +19,6 @@ import type {
   UpdateUserRequest,
   UserPublicData,
   UserPrivate,
-  ValidateOTPRequest,
 } from "@/types/auth";
 
 async function applyAuthSuccess(
@@ -40,12 +35,9 @@ async function applyAuthSuccess(
 
   dispatch(setCredentials(creds));
 
-  // Persist immediately so other pages (and other API slices) can use it even
-  // before the Providers subscription effect runs.
   if (typeof window !== "undefined") {
     try {
       window.localStorage.setItem("yetbota.localAuth", JSON.stringify(creds));
-      console.log("[auth] persisted session to localStorage", { username });
     } catch {
       // ignore
     }
@@ -95,29 +87,12 @@ export const authApi = baseApi.injectEndpoints({
       invalidatesTags: ["User", "Auth"],
     }),
 
-    generateMobileOtp: builder.mutation<OtpLimits, GenerateMobileOTPRequest>({
-      query: (body) => ({ url: "/auth/otp/mobile", method: "POST", body }),
-    }),
-
-    validateMobileOtp: builder.mutation<OtpLimits, ValidateOTPRequest>({
-      query: (body) => ({ url: "/auth/otp/validate", method: "POST", body }),
-    }),
-
-    newPassword: builder.mutation<void, NewPasswordRequest>({
-      query: (body) => ({ url: "/auth/password/new", method: "POST", body }),
-    }),
-
     authorize: builder.mutation<void, AuthorizationRequest>({
       query: (body) => ({ url: "/auth/authorization", method: "POST", body }),
     }),
 
     changePassword: builder.mutation<void, ChangePasswordRequest>({
       query: (body) => ({ url: "/auth/password/change", method: "POST", body }),
-      invalidatesTags: ["Me"],
-    }),
-
-    changeMobile: builder.mutation<void, ChangeMobileRequest>({
-      query: (body) => ({ url: "/auth/mobile/change", method: "POST", body }),
       invalidatesTags: ["Me"],
     }),
 
@@ -137,9 +112,6 @@ export const authApi = baseApi.injectEndpoints({
     }),
 
     listUsers: builder.query<ListUsersData, ListUsersQuery | void>({
-      // Trailing slash is required: the backend registers the collection as
-      // /v1/users/. Requesting /v1/users (no slash) 307-redirects to a Location
-      // that drops the /v1 (and proxy) prefix, which 404s in the browser.
       query: (query) => ({ url: "/users/", method: "GET", params: query ?? undefined }),
       providesTags: ["User"],
     }),
@@ -222,12 +194,8 @@ export const {
   useLoginMutation,
   useRefreshMutation,
   useLogoutMutation,
-  useGenerateMobileOtpMutation,
-  useValidateMobileOtpMutation,
-  useNewPasswordMutation,
   useAuthorizeMutation,
   useChangePasswordMutation,
-  useChangeMobileMutation,
   useRegisterMutation,
   useGetMeQuery,
   useListUsersQuery,

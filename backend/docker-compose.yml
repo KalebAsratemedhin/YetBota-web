@@ -1,22 +1,49 @@
-# Local infrastructure: Temporal, Neo4j, Redis.
-# Postgres (Neon) and Weaviate are external — configure via .env.
+# Local development: infrastructure + app services.
+# App services read per-service env files; compose substitution uses backend/.env:
+#   docker compose --env-file .env up -d --build
+# Reset data volumes (e.g. Postgres major version bump):
+#   docker compose --env-file .env down -v
 services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: yetbota-postgres
+    ports:
+      - "${postgresPort:-5432}:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   redis:
     image: redis:7.4-alpine
     container_name: yetbota-redis
-    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:-redis}"]
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--requirepass",
+        "${redisPassword:-redispass}",
+      ]
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis}", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${redisPassword:-redispass}", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
 
   neo4j:
-    image: neo4j:5
+    image: neo4j:5-community
     container_name: yetbota-neo4j
     ports:
       - "${NEO4J_HTTP_PORT:-7474}:7474"
@@ -31,33 +58,128 @@ services:
       timeout: 5s
       retries: 10
 
-  temporal:
-    image: temporalio/auto-setup:latest
-    container_name: yetbota-temporal
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: yetbota-rabbitmq
     ports:
-      - "${TEMPORAL_PORT:-7233}:7233"
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MGMT_PORT:-15672}:15672"
     environment:
-      DB: postgres12
-      DB_PORT: ${postgresPort:-5432}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PWD: ${POSTGRES_PWD}
-      POSTGRES_SEEDS: ${POSTGRES_SEEDS}
-      SKIP_DB_CREATE: "false"
-      SKIP_DEFAULT_NAMESPACE_CREATION: "false"
+      RABBITMQ_DEFAULT_USER: ${rabbitmqUser:-guest}
+      RABBITMQ_DEFAULT_PASS: ${rabbitmqPassword:-guest}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  identity-service:
+    build:
+      context: ./identity-service
+      dockerfile: Dockerfile
+    container_name: yetbota-identity-service
+    ports:
+      - "${IDENTITY_PORT:-6699}:6699"
+    env_file:
+      - ./identity-service/.env
+    environment:
+      postgresHost: postgres
+      postgresUser: postgres
+      postgresPassword: postgres
+      postgresDB: postgres
+      postgresSslMode: disable
+      redisAddress: redis:6379
+      redisPassword: redispass
+      neo4jURI: bolt://neo4j:7687
+      internalServiceToken: ${internalServiceToken:-dev-internal-token}
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
+      neo4j:
+        condition: service_healthy
 
-  temporal-ui:
-    image: temporalio/ui:latest
-    container_name: yetbota-temporal-ui
+  content-service:
+    build:
+      context: ./content-service
+      dockerfile: Dockerfile
+    container_name: yetbota-content-service
     ports:
-      - "${TEMPORAL_UI_PORT:-8233}:8080"
+      - "${CONTENT_PORT:-9966}:9966"
+    env_file:
+      - ./content-service/.env
     environment:
-      TEMPORAL_ADDRESS: temporal:7233
+      postgresHost: postgres
+      postgresUser: postgres
+      postgresPassword: postgres
+      postgresDB: postgres
+      postgresSslMode: disable
+      redisAddress: redis:6379
+      redisPassword: redispass
+      rabbitmqUrl: amqp://${rabbitmqUser:-guest}:${rabbitmqPassword:-guest}@rabbitmq:5672/
+      identityServiceUrl: http://identity-service:6699
+      aiServiceUrl: http://ai-service:8989
+      internalServiceToken: ${internalServiceToken:-dev-internal-token}
     depends_on:
-      - temporal
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      identity-service:
+        condition: service_started
+      ai-service:
+        condition: service_started
+
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: yetbota-ai-service
+    ports:
+      - "${AI_PORT:-8989}:8989"
+    env_file:
+      - ./ai-service/.env
+    environment:
+      postgresHost: postgres
+      postgresUser: postgres
+      postgresPassword: postgres
+      postgresDB: postgres
+      postgresSslMode: disable
+      neo4jURI: bolt://neo4j:7687
+      rabbitmqUrl: amqp://${rabbitmqUser:-guest}:${rabbitmqPassword:-guest}@rabbitmq:5672/
+      internalServiceToken: ${internalServiceToken:-dev-internal-token}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: yetbota-api-gateway
+    ports:
+      - "${GATEWAY_PORT:-8080}:${GATEWAY_PORT:-8080}"
+    environment:
+      PORT: ${GATEWAY_PORT:-8080}
+      IDENTITY_UPSTREAM: ${IDENTITY_UPSTREAM:-http://identity-service:6699}
+      CONTENT_UPSTREAM: ${CONTENT_UPSTREAM:-http://content-service:9966}
+      AI_UPSTREAM: ${AI_UPSTREAM:-http://ai-service:8989}
+    depends_on:
+      - identity-service
+      - content-service
+      - ai-service
 
 volumes:
+  postgres_data:
   redis_data:
   neo4j_data:
+  rabbitmq_data:

@@ -1,7 +1,7 @@
 package config
 
 type Configs struct {
-	Debug      bool        `yaml:"debug" mapstructure:"debug" validate:"required"`
+	Debug      bool        `yaml:"debug" mapstructure:"debug"`
 	App        *App        `yaml:"app" mapstructure:"app" validate:"required"`
 	Rest       *Rest       `yaml:"rest" mapstructure:"rest" validate:"required"`
 	Cors       *Cors       `yaml:"cors" mapstructure:"cors" validate:"required"`
@@ -10,6 +10,11 @@ type Configs struct {
 	Jwt        *Jwt        `yaml:"jwt" mapstructure:"jwt" validate:"required"`
 	Cloudinary *Cloudinary `yaml:"cloudinary" mapstructure:"cloudinary" validate:"required"`
 	Neo4j      *Neo4j      `yaml:"neo4j" mapstructure:"neo4j" validate:"required"`
+	Internal   *Internal   `yaml:"internal" mapstructure:"internal" validate:"required"`
+}
+
+type Internal struct {
+	ServiceToken string `yaml:"service_token" mapstructure:"service_token" validate:"required"`
 }
 
 type Cloudinary struct {
@@ -41,6 +46,7 @@ type Postgres struct {
 	Password string `yaml:"password" mapstructure:"password" validate:"required"`
 	Port     string `yaml:"port" mapstructure:"port" validate:"required"`
 	User     string `yaml:"user" mapstructure:"user" validate:"required"`
+	SslMode  string `yaml:"sslmode" mapstructure:"sslmode"`
 }
 
 type Redis struct {

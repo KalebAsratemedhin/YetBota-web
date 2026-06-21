@@ -24,6 +24,10 @@ def _is_retryable(exc: BaseException) -> bool:
     return False
 
 
+def _api_error_transient(exc: errors.APIError) -> bool:
+    return _is_retryable(exc)
+
+
 class GeminiEmbedder:
     def __init__(self, settings: GeminiSettings) -> None:
         self._settings = settings
@@ -66,12 +70,17 @@ class GeminiEmbedder:
                             config=config,
                         )
             except errors.APIError as exc:
-                raise EmbeddingFailed(f"gemini embedding call failed: {exc}", cause=exc) from exc
+                raise EmbeddingFailed(
+                    f"gemini embedding call failed: {exc}",
+                    cause=exc,
+                    transient=_api_error_transient(exc),
+                ) from exc
 
         embeddings = response.embeddings or []
         if len(embeddings) != len(texts):
             raise EmbeddingFailed(
-                f"gemini returned {len(embeddings)} embeddings for {len(texts)} inputs"
+                f"gemini returned {len(embeddings)} embeddings for {len(texts)} inputs",
+                transient=False,
             )
 
         out: list[Embedding] = []
@@ -80,7 +89,8 @@ class GeminiEmbedder:
             if len(values) != self._settings.embedding_dimensions:
                 raise EmbeddingFailed(
                     f"gemini returned {len(values)}-d vector, "
-                    f"expected {self._settings.embedding_dimensions}"
+                    f"expected {self._settings.embedding_dimensions}",
+                    transient=False,
                 )
             out.append(list(values))
         return out

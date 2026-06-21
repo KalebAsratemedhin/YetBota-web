@@ -1,0 +1,24 @@
+FROM python:3.12-slim AS deps
+WORKDIR /build
+COPY requirements.txt ./
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+FROM neo4j:5-community
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends python3 netcat-openbsd \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app/src \
+    neo4jURI=bolt://localhost:7687
+
+COPY --from=deps /install /usr/local
+COPY config.yaml ./config.yaml
+COPY src ./src
+COPY entrypoint.render.sh /entrypoint.render.sh
+RUN chmod +x /entrypoint.render.sh
+
+EXPOSE 8989
+ENTRYPOINT ["/entrypoint.render.sh"]

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from infrastructure.config import Settings
-from interfaces.http.routes import assistant, metrics, screening
+from interfaces.http.routes import assistant, internal_graph, metrics, screening
 
 
 def create_app(settings: Settings) -> FastAPI:
@@ -19,6 +19,7 @@ def create_app(settings: Settings) -> FastAPI:
         allow_headers=["*"],
     )
     app.include_router(metrics.router)
+    app.include_router(internal_graph.router)
     app.include_router(assistant.router)
     app.include_router(screening.router)
     return app

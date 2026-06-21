@@ -33,6 +33,12 @@ MATCH (p:Post {id: $post_id})
 DETACH DELETE p
 """
 
+_SIMILAR_TREE_CYPHER = """
+MATCH path = (p:Post {id: $post_id})-[:SIMILAR_TO*1..{max_depth}]-(similar:Post)
+WHERE similar.id <> $post_id
+RETURN similar.id AS post_id, min(length(path)) AS depth
+"""
+
 
 class Neo4jSimilarityGraph:
     def __init__(self, settings: Neo4jSettings) -> None:
@@ -100,6 +106,34 @@ class Neo4jSimilarityGraph:
                 await session.execute_write(_work)
         except Neo4jError as exc:
             raise IndexingFailed(f"neo4j delete_post failed: {exc}", cause=exc) from exc
+
+    async def similar_posts_tree(
+        self, post_id: str, max_depth: int
+    ) -> list[dict[str, int | str]]:
+        if self._driver is None:
+            raise RuntimeError("neo4j driver not connected")
+
+        cypher = _SIMILAR_TREE_CYPHER.format(max_depth=max_depth)
+
+        async def _work(tx: AsyncManagedTransaction) -> list[dict[str, int | str]]:
+            result = await tx.run(cypher, post_id=post_id)
+            rows: list[dict[str, int | str]] = []
+            async for record in result:
+                rows.append(
+                    {
+                        "post_id": record["post_id"],
+                        "depth": int(record["depth"]),
+                    }
+                )
+            return rows
+
+        try:
+            async with self._driver.session(database=self._settings.database) as session:
+                return await session.execute_read(_work)
+        except Neo4jError as exc:
+            raise IndexingFailed(
+                f"neo4j similar_posts_tree failed: {exc}", cause=exc
+            ) from exc
 
     async def close(self) -> None:
         if self._driver is not None:

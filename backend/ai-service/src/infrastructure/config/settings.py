@@ -26,7 +26,7 @@ class CorsSettings(BaseModel):
 class WeaviateSettings(BaseModel):
     url: str
     api_key: str = ""
-    class_name: str = "ContentChunk"
+    class_name: str = "YetbotaRag"
 
 
 class Neo4jSettings(BaseModel):
@@ -74,11 +74,11 @@ class ChunkerSettings(BaseModel):
     overlap: int = 64
 
 
-class TemporalSettings(BaseModel):
-    host: str
-    namespace: str = "default"
-    max_concurrent_activities: int = 16
-    max_concurrent_workflow_tasks: int = 16
+class RabbitMQSettings(BaseModel):
+    url: str
+    ingest_queue: str = "ai.ingest"
+    prefetch_count: int = 16
+    max_delivery_attempts: int = 3
 
 
 class PostgresSettings(BaseModel):
@@ -87,6 +87,7 @@ class PostgresSettings(BaseModel):
     user: str
     password: str
     db: str
+    sslmode: str = "require"
     min_pool_size: int = 1
     max_pool_size: int = 10
 
@@ -96,13 +97,17 @@ class PostgresSettings(BaseModel):
         password = quote_plus(self.password)
         return (
             f"postgres://{self.user}:{password}@{self.host}:{self.port}/"
-            f"{self.db}?sslmode=require"
+            f"{self.db}?sslmode={self.sslmode}"
         )
 
 
 class LoggingSettings(BaseModel):
     level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     format: Literal["json", "console"] = "json"
+
+
+class InternalSettings(BaseModel):
+    service_token: str
 
 
 class Settings(BaseModel):
@@ -119,9 +124,10 @@ class Settings(BaseModel):
     similarity: SimilaritySettings = Field(default_factory=SimilaritySettings)
     screening: ScreeningSettings = Field(default_factory=ScreeningSettings)
     chunker: ChunkerSettings = Field(default_factory=ChunkerSettings)
-    temporal: TemporalSettings
+    rabbitmq: RabbitMQSettings
     postgres: PostgresSettings = Field(validation_alias="database")
     logging: LoggingSettings = Field(default_factory=LoggingSettings)
+    internal: InternalSettings
 
 
 @lru_cache(maxsize=1)

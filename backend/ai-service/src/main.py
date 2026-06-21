@@ -1,4 +1,5 @@
 import asyncio
+import os
 import signal
 from contextlib import AsyncExitStack
 from typing import Any
@@ -19,17 +20,16 @@ from infrastructure.llm import (
     GeminiLLM,
     ScreeningPromptBuilder,
 )
+from infrastructure.messaging import RabbitMQConnection, RabbitMQConsumer, RabbitMQPublisher
 from infrastructure.observability import configure_logging, get_logger
 from infrastructure.postgres import (
     PostgresCommentSource,
     PostgresConversationRepository,
     PostgresPostSource,
 )
-from infrastructure.temporal import connect as temporal_connect
-from infrastructure.temporal.activities import IngestActivities
 from infrastructure.vector import WeaviateVectorStore
 from interfaces.http import create_app
-from interfaces.workers.temporal_worker import TemporalWorker
+from interfaces.workers.ingest_worker import IngestWorker
 
 
 async def _serve(settings: Settings) -> None:
@@ -62,7 +62,9 @@ async def _serve(settings: Settings) -> None:
         await conversation_repo.connect()
         stack.push_async_callback(conversation_repo.close)
 
-        temporal_client = await temporal_connect(settings.temporal)
+        rabbitmq_connection = RabbitMQConnection(settings.rabbitmq)
+        await rabbitmq_connection.connect()
+        stack.push_async_callback(rabbitmq_connection.close)
 
         chunker = RuneWindowChunker(settings.chunker)
         ingest_use_case = IngestContent(
@@ -77,17 +79,14 @@ async def _serve(settings: Settings) -> None:
             logger=log,
         )
 
-        ingest_activities = IngestActivities(
-            post_source=post_source,
-            comment_source=comment_source,
-            ingest_use_case=ingest_use_case,
+        rabbitmq_consumer = RabbitMQConsumer(rabbitmq_connection, settings.rabbitmq)
+        rabbitmq_publisher = RabbitMQPublisher(rabbitmq_connection)
+        ingest_worker = IngestWorker(
+            consumer=rabbitmq_consumer,
+            publisher=rabbitmq_publisher,
+            use_case=ingest_use_case,
+            settings=settings.rabbitmq,
         )
-        temporal_worker = TemporalWorker(
-            client=temporal_client,
-            settings=settings.temporal,
-            ingest_activities=ingest_activities,
-        )
-        stack.push_async_callback(temporal_worker.shutdown)
 
         assistant_use_case = ConsultAssistant(
             embedder=embedder,
@@ -120,6 +119,7 @@ async def _serve(settings: Settings) -> None:
         app.state.assistant = assistant_use_case
         app.state.conversations = conversation_use_case
         app.state.screening = screening_use_case
+        app.state.similarity_graph = similarity_graph
 
         uv_config = uvicorn.Config(
             app,
@@ -155,7 +155,7 @@ async def _serve(settings: Settings) -> None:
         try:
             await asyncio.gather(
                 uv_server.serve(),
-                temporal_worker.run(),
+                ingest_worker.run(stop_event),
                 _watch_stop(),
                 return_exceptions=False,
             )
@@ -167,6 +167,10 @@ async def _serve(settings: Settings) -> None:
 
 def run() -> None:
     settings = get_settings()
+    if port := os.getenv("PORT"):
+        settings = settings.model_copy(
+            update={"http": settings.http.model_copy(update={"port": int(port)})}
+        )
     configure_logging(settings.logging)
     asyncio.run(_serve(settings))
 

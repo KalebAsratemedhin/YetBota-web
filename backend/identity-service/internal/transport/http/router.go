@@ -6,16 +6,20 @@ import (
 	authHttp "github.com/beka-birhanu/yetbota/identity-service/internal/transport/http/auth"
 	domainAuth "github.com/beka-birhanu/yetbota/identity-service/internal/domain/auth"
 	"github.com/beka-birhanu/yetbota/identity-service/internal/services/endpoint"
+	internalgraphHttp "github.com/beka-birhanu/yetbota/identity-service/internal/transport/http/internalgraph"
+	repoGraphRead "github.com/beka-birhanu/yetbota/identity-service/internal/services/repository/graphread"
 	httpShared "github.com/beka-birhanu/yetbota/identity-service/internal/transport/http/shared"
 	deviceHttp "github.com/beka-birhanu/yetbota/identity-service/internal/transport/http/userdevice"
 	userHttp "github.com/beka-birhanu/yetbota/identity-service/internal/transport/http/user"
 )
 
 type Config struct {
-	BasePath string
-	E        *endpoint.Endpoints
+	BasePath       string
+	E              *endpoint.Endpoints
 	SessionManager domainAuth.SessionManager
-	CorsHosts []string
+	CorsHosts      []string
+	GraphReadRepo  repoGraphRead.Repository
+	InternalToken  string
 }
 
 func NewRouter(cfg *Config) (http.Handler, error) {
@@ -40,6 +44,14 @@ func NewRouter(cfg *Config) (http.Handler, error) {
 			return nil, err
 		}
 		v1.Handle("/devices/", http.StripPrefix("/devices", deviceHandler))
+	}
+
+	if cfg != nil && cfg.GraphReadRepo != nil {
+		internalHandler := internalgraphHttp.NewHandler(&internalgraphHttp.Config{
+			Repo:         cfg.GraphReadRepo,
+			ServiceToken: cfg.InternalToken,
+		})
+		v1.Handle("/internal/graph/", http.StripPrefix("/internal/graph", internalHandler))
 	}
 
 	if cfg != nil && cfg.BasePath != "" {

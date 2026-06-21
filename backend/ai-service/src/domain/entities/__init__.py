@@ -1,3 +1,4 @@
+from domain.entities.incoming_message import IncomingMessage
 from domain.entities.chat import ChatQuery, ChatResponse
 from domain.entities.chunk import Chunk, ContentKind
 from domain.entities.citation import Citation
@@ -31,6 +32,7 @@ __all__ = [
     "DeleteRequest",
     "DeleteResult",
     "Embedding",
+    "IncomingMessage",
     "IngestRequest",
     "IngestResult",
     "Message",

@@ -5,10 +5,18 @@ class AIServiceError(Exception):
     code: str = "UNKNOWN_ERROR"
     transient: bool = False
 
-    def __init__(self, message: str = "", *, cause: Exception | None = None) -> None:
+    def __init__(
+        self,
+        message: str = "",
+        *,
+        cause: Exception | None = None,
+        transient: bool | None = None,
+    ) -> None:
         super().__init__(message)
         self.message = message
         self.__cause__ = cause
+        if transient is not None:
+            self.transient = transient
 
 class ConfigError(AIServiceError):
     code = "CONFIG_ERROR"

@@ -44,6 +44,7 @@ func main() {
 		User:     cfg.Postgres.User,
 		Password: cfg.Postgres.Password,
 		DB:       cfg.Postgres.DB,
+		SslMode:  cfg.Postgres.SslMode,
 	})
 	if err != nil {
 		panic(fmt.Errorf("error connect postgres: %v", err))

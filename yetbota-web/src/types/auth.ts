@@ -26,35 +26,6 @@ export interface ChangePasswordRequest {
   new_password: string;
 }
 
-export interface ChangeMobileRequest {
-  new_mobile: string;
-  random: string;
-}
-
-export interface GenerateMobileOTPRequest {
-  mobile: string;
-  random: string;
-}
-
-export interface ValidateOTPRequest {
-  otp: string;
-  mobile: string;
-  random: string;
-}
-
-export interface NewPasswordRequest {
-  password: string;
-  random: string;
-  mobile: string;
-}
-
-export interface OtpLimits {
-  otp_req_count: number;
-  max_otp_req: number;
-  otp_err_count: number;
-  max_otp_err: number;
-}
-
 export interface LoginResponseData {
   access_token: string;
   access_token_ttl: number;
@@ -71,7 +42,6 @@ export interface UserPrivate {
   username: string;
   mobile: string;
   rating: number;
-  // omitempty on the wire — absent when the user has earned no badges.
   badges?: string[];
   contributions: number;
   followers: number;
@@ -101,12 +71,9 @@ export interface ListUsersQuery {
   status?: string;
   role?: string;
   resolution?: Resolution;
-  // Extended admin filters. `q` is a substring search across username + first/
-  // last name (no email column exists). `min/max_rating` filter on `score`.
   q?: string;
   min_rating?: number;
   max_rating?: number;
-  // `YYYY-MM-DD` or RFC3339.
   created_from?: string;
   created_to?: string;
 }
@@ -151,7 +118,6 @@ export interface RegisterRequest {
   username: string;
   mobile: string;
   password: string;
-  random: string;
 }
 
 export interface CheckMobileRequest {

@@ -11,13 +11,13 @@ from application.errors import (
     SimilaritySearchFailed,
 )
 from domain.entities import IncomingMessage, IngestRequest, IngestResult
-from infrastructure.config.settings import RedisSettings
+from infrastructure.config.settings import RabbitMQSettings
 from interfaces.workers.ingest_worker import IngestWorker, _serialize_result
 
 
-def _settings(max_attempts: int = 3) -> RedisSettings:
-    return RedisSettings(
-        result_routing_key="content.processed",
+def _settings(max_attempts: int = 3) -> RabbitMQSettings:
+    return RabbitMQSettings(
+        url="amqp://guest:guest@localhost:5672/",
         max_delivery_attempts=max_attempts,
     )
 
@@ -39,7 +39,7 @@ def _build(
     *,
     use_case_result: IngestResult | None = None,
     use_case_error: Exception | None = None,
-    settings: RedisSettings | None = None,
+    settings: RabbitMQSettings | None = None,
 ) -> tuple[IngestWorker, AsyncMock, AsyncMock]:
     consumer = AsyncMock()
     publisher = AsyncMock()
@@ -52,15 +52,15 @@ def _build(
         consumer=consumer,
         publisher=publisher,
         use_case=use_case,
-        redis=settings or _settings(),
+        settings=settings or _settings(),
     )
     return worker, publisher, use_case
 
 
 def _published_payload(publisher: AsyncMock) -> dict[str, object]:
-    publisher.publish.assert_awaited_once()
-    args = publisher.publish.call_args.args
-    return json.loads(args[1])
+    publisher.publish_reply.assert_awaited_once()
+    kwargs = publisher.publish_reply.call_args.kwargs
+    return json.loads(kwargs["body"])
 
 
 def test_serialize_result_uses_status_field() -> None:
@@ -92,7 +92,14 @@ async def test_unique_post_publishes_unique_status() -> None:
         processed_at=datetime.now(UTC),
     )
     worker, publisher, _ = _build(use_case_result=result)
-    await worker._handle(IncomingMessage(body=_post_request_payload(), delivery_count=1))
+    await worker._handle(
+        IncomingMessage(
+            body=_post_request_payload(),
+            delivery_count=1,
+            reply_to="reply-q",
+            correlation_id="corr-1",
+        )
+    )
     payload = _published_payload(publisher)
     assert payload["status"] == "unique"
     assert payload["error_code"] is None
@@ -108,7 +115,14 @@ async def test_duplicate_publishes_duplicate_of() -> None:
         processed_at=datetime.now(UTC),
     )
     worker, publisher, _ = _build(use_case_result=result)
-    await worker._handle(IncomingMessage(body=_post_request_payload(), delivery_count=1))
+    await worker._handle(
+        IncomingMessage(
+            body=_post_request_payload(),
+            delivery_count=1,
+            reply_to="reply-q",
+            correlation_id="corr-1",
+        )
+    )
     payload = _published_payload(publisher)
     assert payload["status"] == "duplicate"
     assert payload["duplicate_of"] == "p2"
@@ -131,7 +145,14 @@ async def test_question_indexed_publishes_indexed() -> None:
             "text": "where can I get coffee?",
         }
     ).encode("utf-8")
-    await worker._handle(IncomingMessage(body=body, delivery_count=1))
+    await worker._handle(
+        IncomingMessage(
+            body=body,
+            delivery_count=1,
+            reply_to="reply-q",
+            correlation_id="corr-1",
+        )
+    )
     payload = _published_payload(publisher)
     assert payload["status"] == "indexed"
     assert payload["kind"] == "question"
@@ -140,7 +161,14 @@ async def test_question_indexed_publishes_indexed() -> None:
 @pytest.mark.asyncio
 async def test_malformed_payload_publishes_message_malformed_and_skips_use_case() -> None:
     worker, publisher, use_case = _build()
-    await worker._handle(IncomingMessage(body=b"not json", delivery_count=1))
+    await worker._handle(
+        IncomingMessage(
+            body=b"not json",
+            delivery_count=1,
+            reply_to="reply-q",
+            correlation_id="corr-1",
+        )
+    )
     payload = _published_payload(publisher)
     assert payload["status"] == "error"
     assert payload["error_code"] == "MESSAGE_MALFORMED"
@@ -150,7 +178,14 @@ async def test_malformed_payload_publishes_message_malformed_and_skips_use_case(
 @pytest.mark.asyncio
 async def test_metadata_error_publishes_terminal_error_no_reraise() -> None:
     worker, publisher, _ = _build(use_case_error=MetadataError("bad"))
-    await worker._handle(IncomingMessage(body=_post_request_payload(), delivery_count=1))
+    await worker._handle(
+        IncomingMessage(
+            body=_post_request_payload(),
+            delivery_count=1,
+            reply_to="reply-q",
+            correlation_id="corr-1",
+        )
+    )
     payload = _published_payload(publisher)
     assert payload["error_code"] == "METADATA_ERROR"
 
@@ -158,7 +193,14 @@ async def test_metadata_error_publishes_terminal_error_no_reraise() -> None:
 @pytest.mark.asyncio
 async def test_indexing_failed_publishes_terminal_error_no_reraise() -> None:
     worker, publisher, _ = _build(use_case_error=IndexingFailed("boom"))
-    await worker._handle(IncomingMessage(body=_post_request_payload(), delivery_count=1))
+    await worker._handle(
+        IncomingMessage(
+            body=_post_request_payload(),
+            delivery_count=1,
+            reply_to="reply-q",
+            correlation_id="corr-1",
+        )
+    )
     payload = _published_payload(publisher)
     assert payload["error_code"] == "INDEXING_GAP"
 
@@ -170,8 +212,15 @@ async def test_transient_under_max_reraises() -> None:
         settings=_settings(max_attempts=3),
     )
     with pytest.raises(EmbeddingFailed):
-        await worker._handle(IncomingMessage(body=_post_request_payload(), delivery_count=1))
-    publisher.publish.assert_not_awaited()
+        await worker._handle(
+            IncomingMessage(
+                body=_post_request_payload(),
+                delivery_count=1,
+                reply_to="reply-q",
+                correlation_id="corr-1",
+            )
+        )
+    publisher.publish_reply.assert_not_awaited()
 
 
 @pytest.mark.asyncio
@@ -180,7 +229,14 @@ async def test_transient_at_max_publishes_error() -> None:
         use_case_error=EmbeddingFailed("rate limited"),
         settings=_settings(max_attempts=3),
     )
-    await worker._handle(IncomingMessage(body=_post_request_payload(), delivery_count=3))
+    await worker._handle(
+        IncomingMessage(
+            body=_post_request_payload(),
+            delivery_count=3,
+            reply_to="reply-q",
+            correlation_id="corr-1",
+        )
+    )
     payload = _published_payload(publisher)
     assert payload["error_code"] == "EMBED_FAILED"
 
@@ -191,19 +247,16 @@ async def test_similarity_failed_at_max_publishes_manual_review() -> None:
         use_case_error=SimilaritySearchFailed("nope"),
         settings=_settings(max_attempts=3),
     )
-    await worker._handle(IncomingMessage(body=_post_request_payload(), delivery_count=3))
+    await worker._handle(
+        IncomingMessage(
+            body=_post_request_payload(),
+            delivery_count=3,
+            reply_to="reply-q",
+            correlation_id="corr-1",
+        )
+    )
     payload = _published_payload(publisher)
-    assert payload["error_code"] == "MANUAL_REVIEW"
-
-
-@pytest.mark.asyncio
-async def test_run_delegates_to_consumer() -> None:
-    worker, _, _ = _build()
-    await worker.run()
-    consumer = worker._consumer  # type: ignore[attr-defined]
-    consumer.consume.assert_awaited_once()
-    handler = consumer.consume.call_args.args[0]
-    assert callable(handler)
+    assert payload["error_code"] == "SIMILARITY_FAILED"
 
 
 @pytest.mark.asyncio
@@ -215,7 +268,14 @@ async def test_use_case_receives_parsed_request() -> None:
         processed_at=datetime.now(UTC),
     )
     worker, _, use_case = _build(use_case_result=result)
-    await worker._handle(IncomingMessage(body=_post_request_payload(), delivery_count=1))
+    await worker._handle(
+        IncomingMessage(
+            body=_post_request_payload(),
+            delivery_count=1,
+            reply_to="reply-q",
+            correlation_id="corr-1",
+        )
+    )
     use_case.execute.assert_awaited_once()
     arg = use_case.execute.call_args.args[0]
     assert isinstance(arg, IngestRequest)

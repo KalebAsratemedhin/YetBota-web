@@ -24,6 +24,7 @@ database:
   password: ${postgresPassword}
   port: ${postgresPort}
   user: ${postgresUser}
+  sslmode: ${postgresSslMode}
 redis:
   address: ${redisAddress}
   password: ${redisPassword}
@@ -44,13 +45,16 @@ cloudinary:
   api_key: ${cloudinaryAPIKey}
   api_secret: ${cloudinaryAPISecret}
   folder: content
-neo4j:
-  uri: ${neo4jURI}
-  username: ${neo4jUsername}
-  password: ${neo4jPassword}
-temporal:
-  host: ${temporalHost}
-  namespace: ${temporalNamespace}
+identity_service:
+  base_url: ${identityServiceUrl}
+  timeout_sec: 10
+ai_service:
+  base_url: ${aiServiceUrl}
+  timeout_sec: 10
+internal:
+  service_token: ${internalServiceToken}
+rabbitmq:
+  url: ${rabbitmqUrl}
 feed:
   half_life_hours: 72
   feed_size: 200
@@ -70,11 +74,6 @@ feed:
   seen_cache_ttl: 86400
   celebrity_threshold: 100000
   max_celebrity_feed_size: 500
-notification:
-  firebase_project_id: ${firebaseProjectID}
-  firebase_client_email: ${firebaseClientEmail}
-  firebase_private_key: ${firebasePrivateKey}
-  android_notification_channel_id: yetbota_notification_channel
 author_rating:
   stabilizing_window_hours: 48
   consumer_group: scoring-group
