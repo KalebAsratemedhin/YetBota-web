@@ -42,7 +42,7 @@ export const COFFEE_HOUSES: Place[] = [
     rating: 4.9,
     reviewCount: "1.2k",
     badge: "curated",
-    imageUrl: "/images/places/tomoca.jpg",
+    imageUrl: "/images/places/tomoca.jpeg",
     category: "coffee",
   },
   {
